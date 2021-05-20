@@ -1,0 +1,11 @@
+[all]
+generic ansible_connection=local
+
+[home]
+ddt ansible_connection=local
+
+[local]
+localhost
+
+[local:vars]
+ansible_connection=local

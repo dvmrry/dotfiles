@@ -1,0 +1,95 @@
+#!/bin/bash
+# Functions
+DISCOVERY=$(lldpcli show neighbors hidden detail)
+
+CDP () { 
+	echo "$DISCOVERY" | grep -A 15 'via: CDP' | sed '1d' 
+}
+
+LLDP () {
+	echo "$DISCOVERY" | grep -A 15 'via: LLDP' | sed '1d'
+}
+
+CDP-IP () {
+	grep 'MgmtIP' | 
+	sed 's#MgmtIP:#IP Address:#g;'
+}
+
+CDP-MODEL () {
+       	grep 'SysDescr' |
+	sed 's#SysDescr:#Model:       #g;'
+}
+
+LLDP-MODEL () {
+	grep 'SysDescr' | 
+	sed 's#SysDescr:#Model:       #g;'
+}
+
+HOST () {
+       	grep 'SysName' |
+	sed 's#SysName:#System Name:#g;'
+}
+
+MAC () {
+       	grep 'ChassisID' |
+	sed 's#ChassisID:#MAC Address: #g;s#mac##g;'
+}
+
+VLAN () {
+	grep 'VLAN' | 
+	sed 's#VLAN:#  VLAN ID: #g;'
+}
+
+PORT () {
+	grep 'PortID' | 
+	sed 's#PortID:#Port:     #g;'
+}
+
+PORTDESC () {
+	grep 'PortDescr' | 
+	
+	sed 's#PortDescr:#Description:  #g;'
+}
+
+PLACEHOLD () {
+	grep 'ChassisID\|SysName\|SysDescr\|PortID\|PortDescr\|VLAN\|MgmtIP' | 
+	
+	sed '
+		s#ChassisID:#MAC Address: #g;
+		s#mac##g;
+		s#SysName:#System Name:#g;
+		s#SysDescr:#Model:       #g;
+		s#PortID:#Port:     #g;
+		s#local##g;
+		s#MgmtIP:#IP Address:#g;
+		s#PortDescr:#Description:  #g;
+		s#ifname##g;
+		s#VLAN:#  VLAN ID: #g;		
+		'
+}
+
+if echo "$DISCOVERY" | grep -q "via: CDPv1"; then
+	echo CDPv1 Detected
+	CDP | PORTDESC
+	CDP | CDP-IP	
+	CDP | CDP-MODEL
+	CDP | VLAN
+	exit 0
+elif echo "$DISCOVERY" | grep -q "via: CDPv2"; then
+	echo CDPv2 Detected
+	CDP | HOST
+	LLDP | MAC
+	CDP | PORTDESC
+	CDP | CDP-IP	
+	CDP | CDP-MODEL
+	CDP | VLAN
+	exit 0
+elsif echo "$DISCOVERY" | grep -q "via: LLDP" then
+	echo LLDP Detected
+	LLDP | HOST
+	LLDP | SYSDESC	
+	LLDP | MAC
+	LLDP | VLAN
+	LLDP | PORT
+	exit 0
+fi

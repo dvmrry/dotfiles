@@ -1,0 +1,47 @@
+#!/bin/bash
+# EvolveIP TFTP Login Script
+# Written by Dave Murray
+# Last updated 03/10/2019
+
+# Variables
+username="tdsadmin"
+password="L9gPUnlk"
+server="tftp01-tds.evolveip.net"
+
+base () {
+	sshpass -p ${password} ssh -o StrictHostKeyChecking=no ${username}@${server} "${2}"
+}
+
+login () {
+	echo "Logging into ${server}..."
+	base
+}
+
+usage () {
+	echo "Script path: ${0}"
+	echo "EvolveIP TFTP Server Login Script"
+	echo "Usage: eip-tftp [command]"
+	echo "-- Commands"
+	echo "      -l | --login -- Logs into server"
+
+}
+
+# If no arguments given, display help text
+if [[ ${#} == 0 ]]; then
+	usage
+	exit 0
+fi
+
+# Perform tasks for listed arguments
+while [[ ! ${#} == 0 ]]; do
+	case "${1}" in
+		-l | --login )
+			login
+			;;
+		* )
+			echo "Invalid option given"
+			usage
+			;;
+	esac
+done
+

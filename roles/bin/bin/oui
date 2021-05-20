@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Functions
+usage () {
+	echo "Script path; ${0}"
+	echo "Usage: oui [MAC address]"
+	echo "Format:"
+	echo "00-11-22-33-44-55"
+	echo "00-11-22-33-44-55"
+	echo "00:11:22:33:44:55"
+	echo "00.11.22.33.44.55" 
+	echo "001122334455" 
+	echo "0011.2233.4455"
+}
+
+lookup() {
+	curl http://api.macvendors.com/${1}
+}
+
+# If no arguments given, display help text
+if [[ ! ${#} == 1 ]]; then
+	usage	
+	exit 0
+fi
+
+# Perform tasks for listed arguments
+while [[ ! ${1} == 0 ]]; do
+	case "${1}" in
+		-h | --help )
+			usage
+			exit 0
+			;;
+		* )
+			lookup ${1}	
+			;;
+	esac
+done
+

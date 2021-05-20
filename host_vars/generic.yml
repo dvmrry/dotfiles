@@ -1,0 +1,33 @@
+---
+
+#
+# Select roles to install
+#
+# 'install': Install the role
+# 'remove':  Uninstall the role
+# Any other value will ignore the role (neither install nor uninstall)
+#
+base: 'install'
+brave: 'install'
+dunst: 'install'
+fonts: 'install'
+kitty: 'install'
+luakit: 'install'
+mpv: 'install'
+parsec: 'install'
+picom: 'install'
+rclone: 'install'
+rofi: 'install'
+runelite: 'install'
+sowm: 'install'
+spotify: 'install'
+tmux: 'install'
+user: 'install'
+vim: 'install'
+wireshark: 'install'
+xorg: 'install'
+zsh: 'install'
+
+#
+# Role-specific settings
+#

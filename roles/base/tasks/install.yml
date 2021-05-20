@@ -1,0 +1,8 @@
+--- 
+
+- name: Install base packages
+  become: yes
+  apt:
+    name: "{{ base_packages }}"
+    state: latest
+    update_cache: yes

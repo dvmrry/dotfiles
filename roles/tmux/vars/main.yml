@@ -1,0 +1,9 @@
+---
+
+tmux_config_dir:
+  - 
+
+tmux_config-src:
+
+tmux_packages:
+  - tmux

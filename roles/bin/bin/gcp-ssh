@@ -1,0 +1,83 @@
+#!/bin/bash
+# Google Cloud Platofrm Login Script
+# Written by Dave Murray
+# Last updated 03/10/2019
+
+# Variables
+username=""
+sshkey=""
+server=""
+
+base () {
+	ssh -i ${sshkey} ${username}@${server} "${1}"
+}
+
+credentials () {
+	if [[ $1 == "CB" ]]; then
+		username=""
+		sshkey=""
+		server=""
+	elif [[ $1 == "TDS" ]]; then
+		username="dmurray"
+		sshkey="~/.ssh/tds-unifi"
+		server="unifi.tdsnetworks.com"
+	fi
+}
+
+login () {
+	echo "Logging into ${server}..."
+	base
+}
+
+reboot () {
+	echo "Rebooting ${2}"
+	base ${3}
+}
+
+usage () {
+	echo "Script path: ${0}"
+	echo "Google Cloud Platform login script"
+	echo "Usage: gcp [sitecode] [command] [address]"
+	echo "-- Site Codes"
+	echo "     -c | --cbio   -- cleganebowl.io"
+	echo "     -t | --tds    -- TDS Networks"
+	echo "-- Commands"
+	echo "     -r | --reboot -- Runs reboot command"
+}
+
+if [[ ${#} == 0 ]]; then
+	usage
+	exit 0
+fi
+
+while [[ ! ${#} == 0 ]]; do
+	case "${1}" in
+		-c | --cbio )
+			credentials "CB"
+			;;
+		-t | --tds )
+			credentials "TDS"
+			;;
+		# If only one argumnet given or none of the above, display help text	
+		* )
+			usage
+			exit 0
+			;;
+	esac
+	case "${2}" in
+		-l | --login )
+			login "${3}"
+			exit 0
+			;;	
+		-r | --reboot )
+			reboot "${3}"
+			exit 0
+			;;
+		# If only two arguments given, attempt login with supplied site credentials
+		* )
+			login "${2}"
+			exit 0
+			;;
+	esac
+done
+			

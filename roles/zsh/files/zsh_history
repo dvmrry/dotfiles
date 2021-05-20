@@ -1,0 +1,454 @@
+: 1588968184:0;ln -s $DOTFILES/cfg/config .config
+: 1588968186:0;ls -al
+: 1588968198:0;ls .config
+: 1588968202:0;ls 
+: 1588968223:0;rofi -show run -theme slate
+: 1588968229:0;pkill sowm
+: 1588968231:0;startx
+: 1588968235:0;lsblk
+: 1588968245:0;vi .xinitrc
+: 1588968260:0;picom .config/picom/picom.conf
+: 1588968270:0;compton .config/picom/picom.conf
+: 1588968275:0;vi .config/picom/picom.conf
+: 1588968293:0;compton .config/picom/picom.conf
+: 1588968294:0;vi .config/picom/picom.conf
+: 1588968373:0;ls -l
+: 1588968376:0;ls -al
+: 1588968396:0;ls src/ddt/dotfiles/cfg/config
+: 1588968412:0;ls src/ddt/dotfiles/cfg/config -al
+: 1588968464:0;ln -sv $DOTFILES/cfg/config /home/.config
+: 1588968472:0;ln -sv $DOTFILES/cfg/config /home/ddt/.config
+: 1588968480:0;picom .config/picom/picom.conf
+: 1588968483:0;vim
+: 1588968557:0;ln -l $DOTFILES/cfg/config /home/ddt/.config
+: 1588968564:0;ls -l
+: 1588968580:0;ls -al
+: 1588968585:0;ls -al .config
+: 1588968586:0;ls
+: 1588968649:0;ls -al
+: 1588968659:0;ls .config/tmux
+: 1588968661:0;tmux
+: 1588968663:0;:q!
+: 1588968665:0;clear
+: 1588968673:0;ls .config
+: 1588968680:0;ls .config -al
+: 1588968686:0;ls .config/ -al
+: 1588968707:0;ls
+: 1588968712:0;unlink
+: 1588968714:0;unlink .config
+: 1588968716:0;ls -al
+: 1588968750:0;ln -l /home/ddt/src/ddt/dotfiles/cfg/config /home/ddt/.config
+: 1588968755:0;ln -sv /home/ddt/src/ddt/dotfiles/cfg/config /home/ddt/.config
+: 1588968758:0;ls .config
+: 1588968777:0;ls -al .config
+: 1588968781:0;ls -al .config/
+: 1588968786:0;ls -al .config/config
+: 1588968813:0;unlink .config
+: 1588968828:0;ls
+: 1588968830:0;ls src
+: 1588968833:0;cd src/ddt/dotfiles
+: 1588968834:0;ls
+: 1588968837:0;cd cfg
+: 1588968838:0;ls -al
+: 1588968855:0;ln -sv /home/ddt/src/ddt/dotfiles/cfg/config/ /home/ddt/.config
+: 1588968866:0;ls -al .config/config
+: 1588968870:0;ls -al .config
+: 1588968872:0;ls -al .config/
+: 1588968877:0;ls -al ~/.config/
+: 1588968918:0;cd
+: 1588968924:0;cd .config/config
+: 1588968925:0;ls
+: 1588968928:0;ls -al
+: 1588968937:0;ls ..
+: 1588968955:0;cd ..
+: 1588968956:0;ls
+: 1588968971:0;cd ..
+: 1588968976:0;ln -sv /home/ddt/src/ddt/dotfiles/cfg/config/ /home/ddt/.config
+: 1588968981:0;unlink .config
+: 1588969063:4;vi .xinitrc
+: 1588969070:0;ls -al
+: 1588969073:0;ls .config
+: 1588969087:0;ls .config -l
+: 1588969094:0;unlink .config/config
+: 1588969096:0;ls -al
+: 1588969099:0;ls .config
+: 1588969100:0;ls -al
+: 1588969103:0;rm .config
+: 1588969106:0;rm .config -rf
+: 1588969282:0;ln -h
+: 1588969286:0;ln --help
+: 1588969350:0;ln -P /home/ddt/src/ddt/dotfiles/cfg/config /home/ddt/.config
+: 1588969402:0;mkdir .config
+: 1588969403:0;ls -al
+: 1588969430:0;ln -P /home/ddt/src/ddt/dotfiles/cfg/config/BraveSoftware /home/ddt/.config/BraveSoftware
+: 1588969436:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/BraveSoftware /home/ddt/.config/BraveSoftware
+: 1588969460:0;ls -al
+: 1588969462:7;startx
+: 1588969481:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/xorg /home/ddt/.config/BraveSoftware/xorg
+: 1588969483:8;startx
+: 1588969514:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/xorg /home/ddt/.config/BraveSoftware/xorg
+: 1588969521:0;ls .config
+: 1588969525:0;ls .config =al
+: 1588969538:0;unlink .config/BraveSoftware/xorg
+: 1588969545:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/xorg /home/ddt/.config/xorg
+: 1588969547:32;startx
+: 1588969593:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/zsh /home/ddt/.config/BraveSoftware/zsh
+: 1588969607:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/kitty /home/ddt/.config/BraveSoftware/kitty
+: 1588969624:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/picom /home/ddt/.config/BraveSoftware/picom
+: 1588969649:0;cd src/ddt/dotfiles/cfg/config
+: 1588969651:0;ls -al
+: 1588969663:0;unlink config
+: 1588969665:0;ls -al
+: 1588969667:0;cd 
+: 1588969673:0;unlink .config/*
+: 1588969681:0;unlink .config/kitty
+: 1588969686:0;ls -al
+: 1588969690:0;rm .config/kitty
+: 1588969692:0;rm .config/kitty -rf
+: 1588969696:0;unlink .config/xorg
+: 1588969700:0;unlink .config/BraveSoftware
+: 1588969703:0;ls .config
+: 1588969705:0;rm .config
+: 1588969708:0;rm .config -rf
+: 1588969718:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config /home/ddt/.config
+: 1588969720:0;startx
+: 1588969747:0;pkill sowm
+: 1588969761:0;unlink .config
+: 1588969762:0;ls
+: 1588969768:0;mkdir .config
+: 1588969834:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/vim ~/.vim
+: 1588969836:1;vim
+: 1588969838:0;Zclear
+: 1588969839:0;clear
+: 1588969842:0;ls -al
+: 1588969848:0;ls -l
+: 1588969851:0;ls -al 
+: 1588969859:0;rm .vim 
+: 1588969861:0;rm .vim -rf
+: 1588969870:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/vim /home/ddt/.vim
+: 1588969872:0;ls -al
+: 1588969873:3;vim
+: 1588969877:0;clear
+: 1588969900:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/picom /home/ddt/.config/picom
+: 1588969907:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/xorg /home/ddt/.config/xorg
+: 1588969914:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/zsh /home/ddt/.config/zsh
+: 1588969933:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/tmux /home/ddt/.config/zsh/tmux
+: 1588969944:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/kitty /home/ddt/.config/zsh/kitty
+: 1588969956:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/rofi /home/ddt/.config/zsh/rofi
+: 1588969972:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/BraveSoftware /home/ddt/.config/BraveSoftware
+: 1588969978:0;unlink .config/zsh/rofi
+: 1588969984:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/rofi /home/ddt/.config/rofi
+: 1588969988:0;unlink .config/zsh/tmux
+: 1588969995:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/tmux /home/ddt/.config/tmux
+: 1588970003:0;unlink .config/zsh/kitty
+: 1588970009:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/kitty /home/ddt/.config/kitty
+: 1588970011:0;ls -al
+: 1588970013:0;ls .config
+: 1588970016:0;ls .config -l
+: 1588970034:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/qutebrowser /home/ddt/.config/kitty/qutebrowser
+: 1588970045:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/rclone /home/ddt/.config/kitty/rclone
+: 1588970056:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/remmina /home/ddt/.config/remmina
+: 1588970064:0;unlink .config/kitty/qutebrowser
+: 1588970066:0;unlink .config/kitty/rclone
+: 1588970071:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/rclone /home/ddt/.config/rclone
+: 1588970089:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/qutebrowser /home/ddt/.config/qutebrowser
+: 1588970107:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/wireshark /home/ddt/.config/qutebrowser/wireshark
+: 1588970110:0;ls .config -l
+: 1588970147:0;rm -rf .runelite
+: 1588970172:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/runelite /home/ddt/.runelite
+: 1588970213:0;vi .xinitrc
+: 1588970218:0;clear
+: 1588970231:0;vi $DOTFILES/cfg/xinitrc
+: 1588970243:0;ls
+: 1588970252:0;cd src/ddt/dotfiles/cfg 
+: 1588970253:0;ls
+: 1588970260:0;mv xinitrc xinitrc.old
+: 1588970261:0;ls
+: 1588970270:0;cp ~/.xinitrc xinitrc
+: 1588970271:0;ls
+: 1588970275:0;cd
+: 1588970278:0;rm .xinitrc
+: 1588970286:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/xinitrc .xinitrc
+: 1588970307:0;cp ~/.zshrc $DOTFILES/cfg/zshrc
+: 1588970315:0;ls
+: 1588970321:0;rm .zshrc
+: 1588970330:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/zshrc .zshrc
+: 1588970332:0;ls -al
+: 1588970372:0;cd src/ddt/dotfiles/cfg 
+: 1588970374:0;ls
+: 1588970374:0;cd
+: 1588970379:0;startx
+: 1588970387:0;compton .config/picom/picom.conf
+: 1588970389:0;picom .config/picom/picom.conf
+: 1588970399:0;ls
+: 1588970402:0;pkill sowm
+: 1588970418:0;parsecd -h
+: 1588970422:0;parsecd --help
+: 1588970434:0;clear
+: 1588970435:0;ls
+: 1588970437:0;ls -al
+: 1588970455:0;mv .parsec $DOTFILES/cfg/parsec
+: 1588970468:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/parsec /home/ddt/.parsec
+: 1588970469:0;ls -al
+: 1588970564:0;startx
+: 1588970588:0;ls
+: 1588970592:0;ls .config/BraveSoftware
+: 1588970610:0;unlink .config/BraveSoftware/{kitty,picom/zsh}
+: 1588970614:0;unlink .config/BraveSoftware/{kitty,picom,zsh}
+: 1588970619:0;unlink .config/BraveSoftware/kitty
+: 1588970623:0;unlink .config/BraveSoftware/picom
+: 1588970625:0;unlink .config/BraveSoftware/zsh
+: 1588970629:0;ls .config -l
+: 1588970663:0;unlink .config/BraveSoftware 
+: 1588970701:0;ls .config/kitty
+: 1588970741:0;ls .config
+: 1588970745:0;cd .config
+: 1588970749:0;ls -al
+: 1588970758:0;rm -rf BraveSoftware
+: 1588970760:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/BraveSoftware/ /home/ddt/.config/BraveSoftware
+: 1588970762:0;ls -al
+: 1588970822:0;picom src/ddt/dotfiles/cfg/config/picom/picom.conf
+: 1588970844:0;vi .config/picom/picom.conf
+: 1588970942:0;picom
+: 1588970949:0;picom --help
+: 1588970975:0;picom --config .config/picom/picom.conf
+: 1588970984:0;vi .xinitrc
+: 1588971000:0;ls
+: 1588971003:0;pkill sowm
+: 1588971005:0;startx
+: 1588971009:0;vi .config/picom/picom.conf
+: 1588971022:0;pkill sowm
+: 1588971024:0;startx
+: 1588971068:0;unlink .config/BraveSoftware 
+: 1588971088:0;cp ~/src/ddt/dotfiles/cfg/config/BraveSoftware .config -r
+: 1588971101:0;rm $DOTFILES/cfg/config/BraveSoftware -rf
+: 1588971104:0;ls .config -al
+: 1588971229:0;ls
+: 1588971230:0;clear
+: 1588971262:0;cp .config/BraveSoftware /home/ddt/src/ddt/dotfiles/cfg/config -r
+: 1588971276:0;rm -rf .config/BraveSoftware 
+: 1588971279:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/config/BraveSoftware/ /home/ddt/.config/BraveSoftware
+: 1588971282:0;ls .config -al
+: 1588971307:0;ls .config/BraveSoftware
+: 1588971309:0;ls .config/BraveSoftware/Brave-Browser
+: 1588971323:0;ls .config/BraveSoftware/Brave-Browser/Default
+: 1588971341:0;ls .config/BraveSoftware/Brave-Browser/Local\ State
+: 1588971347:0;vi .config/BraveSoftware/Brave-Browser/Local\ State
+: 1588971363:0;clear
+: 1588971422:0;tmux
+: 1588971425:0;:q!
+: 1588971427:0;lsblk
+: 1588971428:0;clear
+: 1588971591:0;pfetch
+: 1588971593:0;pfetch -h
+: 1588971596:0;pfetch -
+: 1588971597:0;clear
+: 1588971624:0;ssh 10.0.0.5
+: 1588971635:0;ssh root@10.0.0.5
+: 1588971643:0;ssh root@10.0.0.6
+: 1588971650:0;ssh root@10.0.0.8
+: 1588971710:0;clear
+: 1588971712:0;lsblk
+: 1588971713:0;clear
+: 1588971738:0;lsblk
+: 1588971742:0;vlrst
+: 1588971743:0;ld
+: 1588971743:0;clear
+: 1588971744:0;ls
+: 1588971747:0;ls .config
+: 1588971752:0;ls -l .config
+: 1588971765:0;ls $DOTFILES
+: 1588971778:0;lsblk
+: 1588971779:0;clear
+: 1588971780:0;ls
+: 1588971788:0;vi .config
+: 1588971806:0;pfetch
+: 1588971847:0;lsblk
+: 1588971849:0;clear
+: 1588971884:0;dotfiles
+: 1588971885:0;ls
+: 1588971902:0;vi tasks/base.yml
+: 1588972387:0;cd
+: 1588972388:0;ls
+: 1588972389:0;ls -a
+: 1588972429:0;ls
+: 1588972435:0;cd $DOTFILES
+: 1588972435:0;ls
+: 1588972444:0;git add .
+: 1588972456:0;git commit -m "Live"
+: 1588972489:0;ls
+: 1588972497:0;cd cfg/config/BraveSoftware
+: 1588972498:0;ls
+: 1588972501:0;ls Brave-Browser
+: 1588972558:0;ls Brave-Browser/Default/Web\ Data
+: 1588972586:0;cat Brave-Browser/Default/Web\ Data 
+: 1588972588:0;ls
+: 1588972623:0;cd ..
+: 1588972920:0;ls 
+: 1588972928:0;ls .config
+: 1588972934:0;ls ~/.config
+: 1588972948:0;ls -l ~/.config
+: 1588972957:0;unlink .config/BraveSoftware 
+: 1588972963:0;unlink ~/.config/BraveSoftware 
+: 1588972977:0;mv BraveSoftware ~/.config
+: 1588972984:0;ls config
+: 1588972984:0;ls
+: 1588973004:0;add .
+: 1588973005:0;git add .
+: 1588973008:0;git commit -m "Live"
+: 1588973012:0;git push
+: 1588973073:0;ls
+: 1588973082:0;cd ..
+: 1588973083:0;ls
+: 1588973092:0;rm gitconfig
+: 1588973092:0;ls
+: 1588973336:0;mv sowm config 
+: 1588973338:0;ls config
+: 1588973339:0;ls
+: 1588973345:0;cd ..
+: 1588973346:0;ls
+: 1588973349:0;cd tasks
+: 1588973353:0;vi base.yml
+: 1588973497:0;ls
+: 1588973502:0;vi xorg.yml
+: 1588973589:0;ls
+: 1588973591:0;ls xorg.yml
+: 1588973593:0;ls user.yml
+: 1588973595:0;vi xorg.yml
+: 1588973722:0;ls
+: 1588973728:0;vi xorg.yml
+: 1588973738:0;cd ..
+: 1588973740:0;ls
+: 1588973742:0;git add .
+: 1588973743:0;ls
+: 1588973767:0;git commit -m "playbook update
+: 1588973768:0;git commit -m "playbook update"
+: 1588973776:0;git add .
+: 1588973777:0;ls 
+: 1588973781:0;git commit -m "playbook update"
+: 1588973791:0;git push
+: 1588973800:0;ls
+: 1588973807:0;lsblk
+: 1588973816:0;ls dl
+: 1588973817:0;cd
+: 1588973822:0;ls blkid
+: 1588973825:0;blkid
+: 1588973826:0;lsblk
+: 1588973835:0;ls
+: 1588973838:0;dotfiles
+: 1588973838:0;ls
+: 1588973855:0;ls cfg
+: 1588973859:0;git push 
+: 1588973916:0;clear
+: 1588973917:0;lsblk
+: 1588973937:0;ls
+: 1588973940:0;cd tasks
+: 1588973945:0;vi base.yml
+: 1588974023:0;apt install ansible
+: 1588974026:0;sudo apt install ansible
+: 1588974083:0;lsblk
+: 1588974089:0;ansible-playbook
+: 1588974091:0;clear
+: 1588974099:0;ls .config
+: 1588974169:0;vi /etc/ansible/ansible.cfg
+: 1588974177:0;vi /etc/ansible/hosts
+: 1588974236:0;echo $ANSIBLE
+: 1588974243:0;echo $ANSIBLE_CONFIG
+: 1588974267:0;vi .config/zsh/env
+: 1588974401:0;source .config/env
+: 1588974405:0;source .config/zsh/env
+: 1588974409:0;echo $ENV
+: 1588974497:0;ls .config
+: 1588974505:0;ls $DOTFILES/cfg
+: 1588974509:0;ls $DOTFILES/cfg/config
+: 1588974538:0;mkdir $DOTFILES/cfg/config/ansible
+: 1588974540:0;ls
+: 1588974554:0;ls .ansible
+: 1588974557:0;ls .ansible/tmp
+: 1588974559:0;ls
+: 1588974565:0;rm .ansible
+: 1588974567:0;rm .ansible -rf
+: 1588974695:0;ls -a
+: 1588974772:0;ls .ansible/tmp
+: 1588974773:0;ls -al
+: 1588974892:0;l
+: 1588974893:0;ls
+: 1588974922:0;cp $ANSIBLE_CONFIG
+: 1588974926:0;ls $ANSIBLE_CONFIG
+: 1588974936:0;ls .config
+: 1588974944:0;cd ..
+: 1588974944:0;ls
+: 1588974949:0;cd cfg
+: 1588974953:0;ls
+: 1588974955:0;cd config
+: 1588974956:0;ls
+: 1588974960:0;mv ansible ..
+: 1588974961:0;ls
+: 1588974964:0;cd ..
+: 1588974965:0;ls
+: 1588974972:0;ls ansible
+: 1588974982:0;cp /etc/ansible/ansible.cfg .
+: 1588974990:0;cp /etc/ansible/hosts .
+: 1588974990:0;ls
+: 1588975005:0;mv ansible.cfg ansible
+: 1588975008:0;mv hosts ansible
+: 1588975009:0;ls
+: 1588975026:0;ln -s /home/ddt/src/ddt/dotfiles/cfg/ansible /home/ddt/.ansible
+: 1588975032:0;ansible
+: 1588975048:0;ansible --list-hosts
+: 1588975056:0;vi .ansible/hosts
+: 1588975091:0;ls
+: 1588975124:0;cd ..
+: 1588975125:0;ls
+: 1588975126:0;cd tasks
+: 1588975127:0;ls
+: 1588975144:0;vi base.yml
+: 1588975312:0;ls
+: 1588975334:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588975339:0;vi base.yml
+: 1588975561:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588975569:0;vi base.yml
+: 1588975614:0;vi ~/.ansible/ansible.cfg
+: 1588975838:0;vi base.yml
+: 1588976013:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588976021:0;vi base.yml
+: 1588976049:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588976052:0;vi base.yml
+: 1588976063:0;ssh root@10.0.0.11
+: 1588976305:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588976311:0;vi base.yml
+: 1588976315:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588976321:0;vi base.yml
+: 1588976331:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588976334:0;vi .ansible/hosts
+: 1588976346:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588976378:0;vi .ansible/hosts
+: 1588976392:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588976528:0;ansible-playbook $DOTFILES/tasks/base.yml
+: 1588976537:0;vi base.yml
+: 1588976650:0;vi .ansible/hosts
+: 1588976705:0;ansible-playbook $DOTFILES/tasks/base.yml -i .ansible/hosts
+: 1588978029:0;vi .ansible/hosts
+: 1588978032:0;vi base.yml
+: 1588978152:0;ansible-playbook $DOTFILES/tasks/base.yml -i .ansible/hosts
+: 1588978155:0;vi base.yml
+: 1588978177:0;ansible-playbook $DOTFILES/tasks/base.yml -i .ansible/hosts
+: 1588978184:0;vi base.yml
+: 1588978287:0;ansible-playbook $DOTFILES/tasks/base.yml -i .ansible/hosts
+: 1588978300:0;vi base.yml
+: 1588978309:0;ansible-playbook $DOTFILES/tasks/base.yml -i .ansible/hosts
+: 1588978315:0;vi base.yml
+: 1588978346:0;ansible-playbook $DOTFILES/tasks/base.yml -i .ansible/hosts
+: 1588978352:0;vi base.yml
+: 1588978359:0;ansible-playbook $DOTFILES/tasks/base.yml -i .ansible/hosts
+: 1588978372:0;vi base.yml
+: 1588978399:0;ansible-playbook $DOTFILES/tasks/base.yml -i .ansible/hosts
+: 1588978417:0;vi base.yml
+: 1588978501:0;vi .ansible/hosts
+: 1588978612:0;ls
+: 1588978615:0;cd $DOTFILES
+: 1588978615:0;ls
+: 1588978623:0;mkdir roles
+: 1588978837:0;ls
+: 1588978863:0;cp cfg/* roles
+: 1588978866:0;cp cfg/* roles -r

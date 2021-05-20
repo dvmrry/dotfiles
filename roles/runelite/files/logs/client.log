@@ -1,0 +1,26 @@
+2020-05-07 10:18:42 [Preloader] INFO  net.runelite.client.rs.ClientLoader - client-patch 534970841.122
+2020-05-07 10:18:42 [main] INFO  n.r.client.account.SessionManager - No session file exists
+2020-05-07 10:18:43 [main] INFO  n.r.c.plugins.kourendlibrary.Library - Library is now reset
+2020-05-07 10:18:43 [main] INFO  n.r.client.discord.DiscordService - Initializing Discord RPC service.
+2020-05-07 10:18:45 [main] INFO  net.runelite.client.RuneLite - Client initialization took 11513ms. Uptime: 12130ms
+2020-05-07 10:18:45 [AWT-EventQueue-0] INFO  net.runelite.client.ui.ClientUI - Showing frame net.runelite.client.ui.ContainableFrame[frame0,876,453,809x534,layout=java.awt.BorderLayout,title=RuneLite,resizable,normal,defaultCloseOperation=DO_NOTHING_ON_CLOSE,rootPane=javax.swing.JRootPane[,0,0,809x534,layout=org.pushingpixels.substance.internal.ui.SubstanceRootPaneUI$SubstanceRootLayout,alignmentX=0.0,alignmentY=0.0,border=org.pushingpixels.substance.internal.utils.border.SubstancePaneBorder@591186f1,flags=16777673,maximumSize=,minimumSize=,preferredSize=],rootPaneCheckingEnabled=true]
+2020-05-07 10:20:27 [pool-2-thread-1] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "tray-notifications" version "1.0-SNAPSHOT" commit "a2d54a6cffe627cd69c04c39988967b1edb3b236"
+2020-05-07 10:20:48 [pool-2-thread-1] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "menu-swapper-extended" version "1.1" commit "3eb623e2b2207305aeffce67d55e9e5ed59d6c12"
+2020-05-07 10:21:03 [pool-2-thread-1] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "zom-leftclick-dropper" version "1.4" commit "d0ea0a406e6e2a06f6bb7e70a6c0d953854c7154"
+2020-05-07 10:21:19 [pool-2-thread-1] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "fixed-mode-hide-chat" version "1.0" commit "f7692cb94647b0d936e046f594ecb6aadb079fe2"
+2020-05-07 10:21:58 [pool-2-thread-1] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "calculator" version "1.0.1" commit "6633584746b26a395e66641f88c02483835b15ad"
+2020-05-07 10:21:58 [AWT-EventQueue-0] INFO  c.t.calculator.CalculatorPlugin - calculator started!
+2020-05-07 10:36:37 [Preloader] INFO  net.runelite.client.rs.ClientLoader - Using cached vanilla client
+2020-05-07 10:36:37 [Preloader] INFO  net.runelite.client.rs.ClientLoader - Using cached patched client
+2020-05-07 10:36:38 [Preloader] INFO  net.runelite.client.rs.ClientLoader - client-patch 534970841.122
+2020-05-07 10:36:38 [main] INFO  n.r.client.account.SessionManager - No session file exists
+2020-05-07 10:36:39 [main] INFO  n.r.c.plugins.kourendlibrary.Library - Library is now reset
+2020-05-07 10:36:39 [main] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "menu-swapper-extended" version "1.1" commit "3eb623e2b2207305aeffce67d55e9e5ed59d6c12"
+2020-05-07 10:36:39 [main] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "fixed-mode-hide-chat" version "1.0" commit "f7692cb94647b0d936e046f594ecb6aadb079fe2"
+2020-05-07 10:36:39 [main] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "zom-leftclick-dropper" version "1.4" commit "d0ea0a406e6e2a06f6bb7e70a6c0d953854c7154"
+2020-05-07 10:36:39 [main] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "calculator" version "1.0.1" commit "6633584746b26a395e66641f88c02483835b15ad"
+2020-05-07 10:36:39 [main] INFO  n.r.c.e.ExternalPluginManager - Loading external plugin "tray-notifications" version "1.0-SNAPSHOT" commit "a2d54a6cffe627cd69c04c39988967b1edb3b236"
+2020-05-07 10:36:40 [main] INFO  n.r.client.discord.DiscordService - Initializing Discord RPC service.
+2020-05-07 10:36:41 [AWT-EventQueue-0] INFO  c.t.calculator.CalculatorPlugin - calculator started!
+2020-05-07 10:36:42 [main] INFO  net.runelite.client.RuneLite - Client initialization took 5393ms. Uptime: 6238ms
+2020-05-07 10:36:42 [AWT-EventQueue-0] INFO  net.runelite.client.ui.ClientUI - Showing frame net.runelite.client.ui.ContainableFrame[frame0,347,778,811x534,layout=java.awt.BorderLayout,title=RuneLite,normal,defaultCloseOperation=DO_NOTHING_ON_CLOSE,rootPane=javax.swing.JRootPane[,5,25,801x504,layout=javax.swing.JRootPane$RootLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=16777673,maximumSize=,minimumSize=,preferredSize=],rootPaneCheckingEnabled=true]

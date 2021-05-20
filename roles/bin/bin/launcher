@@ -1,0 +1,4 @@
+#!/bin/sh
+# Because sowm doesn't appear to like aliases
+
+rofi -show drun -theme slate

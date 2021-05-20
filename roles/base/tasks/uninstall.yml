@@ -1,0 +1,18 @@
+--- 
+
+- name: Uninstall base packages
+  become: yes
+  apt:
+    name: "{{ base_packages }}"
+    state: absent
+
+- name: Clear cache
+  become: yes
+  apt:
+    autoclean: yes
+
+- name: Uninstall dependencies
+  become: yes
+  apt:
+    autoremove: yes
+

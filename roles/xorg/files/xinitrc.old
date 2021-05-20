@@ -1,0 +1,35 @@
+#! /bin/sh
+
+xresources=$HOME/.config/xorg/xresources
+
+# merge in defaults and keymaps
+if [ -f "$xresources" ]; then
+    xrdb -merge "$xresources"
+fi
+
+# Launch dbus 
+if [ -d /etc/X11/xinit/xinitrc.d ] ; then
+
+    for f in /etc/X11/xinit/xinitrc.d/?* ; do
+        [ -x "$f" ] && . "$f"
+    done
+    unset f
+fi
+
+feh --bg-scale $HOME/img/bg/background.jpg
+
+# Remap CapsLock to Ctrl
+if [ $HOST = "11t-t480" ]; then
+  setxkbmap -option ctrl:nocaps
+fi
+
+# Lower the brightness to a 30%
+if [ $HOST = "11t-t480" ]; then
+  light -S 30
+fi
+
+# Run compton
+picom --config $HOME/.config/picom/picom.conf &
+
+# Start wm
+exec sowm

@@ -1,0 +1,34 @@
+xresources=$CONFIG/xresources
+
+# merge in defaults and keymaps
+if [ -f "$xresources" ]; then
+    xrdb -merge "$xresources"
+fi
+
+# Launch dbus 
+if [ -d /etc/X11/xinit/xinitrc.d ] ; then
+
+    for f in /etc/X11/xinit/xinitrc.d/?* ; do
+        [ -x "$f" ] && . "$f"
+    done
+    unset f
+fi
+
+# Set background
+feh --bg-scale --no-fehbg $HOME/img/bg/purpleMorocco.jpg
+
+# Set primary monitor
+
+if [ $HOST = "11t-hv02" ]; then
+  xrandr --output HDMI-2 --primary --right-of HDMI-1
+fi
+
+# if [ $HOST = "11t-t480" ]; then
+#
+# fi
+
+# Compton
+picom --config ~/.config/picom/picom.conf &
+
+# Start WM
+exec sowm

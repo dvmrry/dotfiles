@@ -1,0 +1,22 @@
+--- 
+
+- name: Install tmux
+  become: yes
+  apt:
+    name: "{{ tmux_packages }}"
+    state: latest
+    update_cache: yes
+
+- name: Create config directory
+  file:
+    group: "{{ user_id }}"
+    mode: 0755
+    owner: "{{ user_id }}"
+    path: "{{ user_home }}"/.config/tmux
+    state: directory
+
+- name: Link config directory
+  file:
+    dest: "{{ user_home }}"/.config/tmux
+    src: "*"
+    state: link

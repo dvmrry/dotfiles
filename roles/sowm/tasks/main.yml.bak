@@ -1,0 +1,24 @@
+- name: Make base directory
+  file:
+    path: /home/ddt/src/dylanaraps/sowm
+    state: directory
+
+- name: Clone sowm
+  git:
+    repo: 'https://github.com/dylanaraps/sowm.git'
+    dest: /home/ddt/src/dylanaraps/sowm
+
+- name: Symlink build files
+  file:
+    src: /home/ddt/src/ddt/roles/sowm/files/
+    dest: /home/ddt/src/dylanaraps/sowm/
+
+- name: Make sowm
+  make:
+    chdir: /home/ddt/src/dylanaraps/sowm
+
+- name: Install sowm
+  make:
+    chdir: /home/ddt/src/dylanaraps/sowm
+    target: install
+  become: yes

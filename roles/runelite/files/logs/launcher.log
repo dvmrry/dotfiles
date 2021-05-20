@@ -1,0 +1,64 @@
+2020-05-07 10:17:58 [main] ERROR net.runelite.launcher.Launcher - Failure during startup
+java.awt.AWTError: Can't connect to X11 window server using ':0' as the value of the DISPLAY variable.
+	at java.desktop/sun.awt.X11GraphicsEnvironment.initDisplay(Native Method)
+	at java.desktop/sun.awt.X11GraphicsEnvironment$1.run(X11GraphicsEnvironment.java:102)
+	at java.base/java.security.AccessController.doPrivileged(Native Method)
+	at java.desktop/sun.awt.X11GraphicsEnvironment.<clinit>(X11GraphicsEnvironment.java:61)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:315)
+	at java.desktop/java.awt.GraphicsEnvironment$LocalGE.createGE(GraphicsEnvironment.java:101)
+	at java.desktop/java.awt.GraphicsEnvironment$LocalGE.<clinit>(GraphicsEnvironment.java:83)
+	at java.desktop/java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment(GraphicsEnvironment.java:129)
+	at java.desktop/sun.awt.X11.XToolkit.<clinit>(XToolkit.java:232)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:315)
+	at java.desktop/java.awt.Toolkit$2.run(Toolkit.java:588)
+	at java.desktop/java.awt.Toolkit$2.run(Toolkit.java:583)
+	at java.base/java.security.AccessController.doPrivileged(Native Method)
+	at java.desktop/java.awt.Toolkit.getDefaultToolkit(Toolkit.java:582)
+	at java.desktop/java.awt.EventQueue.invokeAndWait(EventQueue.java:1342)
+	at java.desktop/javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1480)
+	at net.runelite.launcher.SplashScreen.init(SplashScreen.java:161)
+	at net.runelite.launcher.Launcher.main(Launcher.java:143)
+2020-05-07 10:36:31 [main] INFO  net.runelite.launcher.Launcher - RuneLite Launcher version 2.1.0
+2020-05-07 10:36:31 [main] INFO  net.runelite.launcher.Launcher - Setting hardware acceleration to OFF
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of client-1.6.13.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of slf4j-api-1.7.25.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of logback-classic-1.2.3.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of logback-core-1.2.3.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of jopt-simple-5.0.1.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of guava-23.2-jre.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of jsr305-1.3.9.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of error_prone_annotations-2.0.18.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of j2objc-annotations-1.1.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of animal-sniffer-annotations-1.14.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of guice-4.1.0-no_aop.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of javax.inject-1.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of aopalliance-1.0.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of gson-2.8.5.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of substance-8.0.02.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of trident-1.5.00.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of commons-text-1.2.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of commons-lang3-3.7.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of jogl-all-2.3.2.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of jogl-all-2.3.2-natives-windows-amd64.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of jogl-all-2.3.2-natives-windows-i586.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of jogl-all-2.3.2-natives-linux-amd64.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of jogl-all-2.3.2-natives-linux-i586.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of gluegen-rt-2.3.2.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of gluegen-rt-2.3.2-natives-windows-amd64.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of gluegen-rt-2.3.2-natives-windows-i586.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of gluegen-rt-2.3.2-natives-linux-amd64.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of gluegen-rt-2.3.2-natives-linux-i586.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of archive-patcher-1.0.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of jna-4.5.1.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of jna-platform-4.5.1.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of runelite-api-1.6.13.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of client-patch-1.6.13.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of http-api-1.6.13.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of okhttp-3.7.0.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of okio-1.12.0.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of commons-csv-1.4.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.Launcher - Verified hash of discord-1.1.jar
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.JvmLauncher - Using Java version 9+
+2020-05-07 10:36:36 [main] INFO  net.runelite.launcher.JvmLauncher - Running [/usr/lib/jvm/java-11-openjdk-amd64/bin/java, -cp, /home/ddt/.runelite/repository2/client-1.6.13.jar:/home/ddt/.runelite/repository2/slf4j-api-1.7.25.jar:/home/ddt/.runelite/repository2/logback-classic-1.2.3.jar:/home/ddt/.runelite/repository2/logback-core-1.2.3.jar:/home/ddt/.runelite/repository2/jopt-simple-5.0.1.jar:/home/ddt/.runelite/repository2/guava-23.2-jre.jar:/home/ddt/.runelite/repository2/jsr305-1.3.9.jar:/home/ddt/.runelite/repository2/error_prone_annotations-2.0.18.jar:/home/ddt/.runelite/repository2/j2objc-annotations-1.1.jar:/home/ddt/.runelite/repository2/animal-sniffer-annotations-1.14.jar:/home/ddt/.runelite/repository2/guice-4.1.0-no_aop.jar:/home/ddt/.runelite/repository2/javax.inject-1.jar:/home/ddt/.runelite/repository2/aopalliance-1.0.jar:/home/ddt/.runelite/repository2/gson-2.8.5.jar:/home/ddt/.runelite/repository2/substance-8.0.02.jar:/home/ddt/.runelite/repository2/trident-1.5.00.jar:/home/ddt/.runelite/repository2/commons-text-1.2.jar:/home/ddt/.runelite/repository2/commons-lang3-3.7.jar:/home/ddt/.runelite/repository2/jogl-all-2.3.2.jar:/home/ddt/.runelite/repository2/jogl-all-2.3.2-natives-windows-amd64.jar:/home/ddt/.runelite/repository2/jogl-all-2.3.2-natives-windows-i586.jar:/home/ddt/.runelite/repository2/jogl-all-2.3.2-natives-linux-amd64.jar:/home/ddt/.runelite/repository2/jogl-all-2.3.2-natives-linux-i586.jar:/home/ddt/.runelite/repository2/gluegen-rt-2.3.2.jar:/home/ddt/.runelite/repository2/gluegen-rt-2.3.2-natives-windows-amd64.jar:/home/ddt/.runelite/repository2/gluegen-rt-2.3.2-natives-windows-i586.jar:/home/ddt/.runelite/repository2/gluegen-rt-2.3.2-natives-linux-amd64.jar:/home/ddt/.runelite/repository2/gluegen-rt-2.3.2-natives-linux-i586.jar:/home/ddt/.runelite/repository2/archive-patcher-1.0.jar:/home/ddt/.runelite/repository2/jna-4.5.1.jar:/home/ddt/.runelite/repository2/jna-platform-4.5.1.jar:/home/ddt/.runelite/repository2/runelite-api-1.6.13.jar:/home/ddt/.runelite/repository2/client-patch-1.6.13.jar:/home/ddt/.runelite/repository2/http-api-1.6.13.jar:/home/ddt/.runelite/repository2/okhttp-3.7.0.jar:/home/ddt/.runelite/repository2/okio-1.12.0.jar:/home/ddt/.runelite/repository2/commons-csv-1.4.jar:/home/ddt/.runelite/repository2/discord-1.1.jar, -XX:+DisableAttachMechanism, -Xmx512m, -Xss2m, -XX:CompileThreshold=1500, -Djna.nosys=true, -Dsun.java2d.noddraw=true, -Dsun.java2d.opengl=false, -Djava.net.preferIPv4Stack=true, -Djava.net.preferIPv4Addresses=true, -Drunelite.launcher.version=2.1.0, -XX:ErrorFile=/home/ddt/.runelite/logs/jvm_crash_pid_%p.log, net.runelite.client.RuneLite]

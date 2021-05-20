@@ -1,0 +1,36 @@
+#    ▒███████▒  ██████  ██░ ██  ██▀███   ▄████▄  
+#    ▒ ▒ ▒ ▄▀░▒██    ▒ ▓██░ ██▒▓██ ▒ ██▒▒██▀ ▀█  
+#    ░ ▒ ▄▀▒░ ░ ▓██▄   ▒██▀▀██░▓██ ░▄█ ▒▒▓█    ▄ 
+#      ▄▀▒   ░  ▒   ██▒░▓█ ░██ ▒██▀▀█▄  ▒▓▓▄ ▄██▒
+#    ▒███████▒▒██████▒▒░▓█▒░██▓░██▓ ▒██▒▒ ▓███▀ ░
+#    ░▒▒ ▓░▒░▒▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░ ▒▓ ░▒▓░░ ░▒ ▒  ░
+#    ░░▒ ▒ ░ ▒░ ░▒  ░ ░ ▒ ░▒░ ░  ░▒ ░ ▒░  ░  ▒   
+#    ░ ░ ░ ░ ░░  ░  ░   ░  ░░ ░  ░░   ░ ░        
+#      ░ ░          ░   ░  ░  ░   ░     ░ ░      
+#    ░                                  ░        
+
+# Set base ZSH paths
+export ZSH="$HOME/.config/zsh"
+export HISTFILE="$HOME/.config/zsh/zsh_history"
+
+# Load enviornment variables
+if [ -r $ZSH/env ] ; then
+    source $ZSH/env
+fi
+
+# Load aliases
+if [ -r $ZSH/aliases ] ; then
+    source $ZSH/aliases
+fi
+
+# Load theme from $ZSH/themes
+ZSH_THEME="bubblified"
+
+# Load plugins
+plugins=(git git-prompt zsh-autosuggestions)
+
+# Disable auto-update checks
+DISABLE_AUTO_UPDATE="true"
+
+# Source OMZ
+source $ZSH/omz.sh

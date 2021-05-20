@@ -1,0 +1,20 @@
+---
+
+base_packages:
+  - alsa-utils
+  - bc
+  - build-essential
+  - curl
+  - dnsutils
+  - feh
+  - java
+  - light
+  - lldpd
+  - nfs-common
+  - scrot
+  - sshpass
+  - tcpdump
+  - tlp
+  - tree
+  - unzip
+  - xdg-user-dirs

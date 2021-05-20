@@ -1,0 +1,158 @@
+#!/bin/bash
+
+# UniFi SSH management script
+# Written by Dave Murray
+# Last updated 02/10/2019
+
+# Variables
+username="ubnt"
+password="ubnt"
+informCMD="mca-cli-op set-inform"
+informURL="http://unifi.tdsnetworks.com:8080/inform"
+captureCMD="tcpdump -i br0 -c 50 -w /tmp/capture.pcapng"
+onedrive="/mnt/c/Users/dmurray/OneDrive\ -\ Telephone\ Diagnostic\ Services,\ Inc/Documents/"
+
+# Functions
+base () {
+	sshpass -p ${password} ssh -o StrictHostKeyChecking=no ${username}@${1} "${2}"
+}
+
+capture () {
+  echo "Logging into ${1} and capturing br0 traffic"
+  base "${1} ${captureCMD}" ;
+  echo "Capture complete"
+}
+
+move () {
+  mv capture.pcap ${onedrive};
+  echo "capture file moved to ${onedrive}";
+}
+
+transfer () {
+  sshpass -p ${password} scp ${username}@${1}:/tmp/capture.pcap . ;
+  echo "SCP transfer complete"
+}
+
+credentials () {
+	if [[ "${1}" == "CB" ]]; then
+		echo "Setting cleganebowl.io credentials..."
+		username="admin"
+		password="Peacgarden1a!"
+		informURL="http://unifi.cleganebowl.io:8080/inform"
+	elif [[ "${1}" == "DIS" ]]; then
+		echo "Setting Delaware Innovation Space c
+redentials..."
+		username="admin"
+		password="DInn0v!5p@c3"
+		informURL="http://unifi.tdsnetworks.com:8080/inform"
+	elif [[ "${1}" == "NLC" ]]; then
+		echo "Using Nobel Learning Communities credentials..."	
+		username="admin"
+		password="S0urd0ugh"
+		informURL="http://unifi.nlcinc.com.com:8080/inform"
+	elif [[ "${1}" == "TDS" ]]; then
+		echo "Using TDS Networks credentials..."
+		username="admin"
+		password="Tdsi7005!"
+		informURL="http://unifi.tdsnetworks.com:8080/inform"
+	fi
+}
+
+login () {
+	echo "Logging into ${1}..."	
+	base "${1}"
+}
+
+reboot () {
+	echo "Rebooting ${1}..."
+	base "${1} reboot"
+}
+
+inform () {
+	echo "Running set-inform on ${1} to ${informURL}..."
+	base "${1} ${informCMD} ${informURL}"
+}
+
+usage() { 
+	echo "Script path: ${0}"
+	echo "SSH Script for UniFi devices"
+	echo "Usage: ubnt [sitecode] [command] [ip address]"
+	echo "-- Site Codes"
+	echo "     -c | --cbio   -- cleganebowl.io"
+	echo "     -d | --dis    -- Delaware Innovation Space"	
+	echo "     -n | --nobel  -- Nobel Learning Commmunities"
+	echo "     -t | --tds    -- TDS Networks"
+	echo "     -u | --ubnt   -- Default UniFi credentials with TDS Controller"
+	echo "-- Commands"
+	echo "     -i | --inform -- Runs set-inform command"
+	echo "     -l | --login  -- Logs into device - implied command with only IP address"	
+	echo "     -r | --reboot -- Runs reboot command"
+}
+
+# If no arguments given, display help text
+if [[ ${#} == 0 ]]; then
+	usage
+	exit 0
+
+fi
+
+# Perform tasks for listed arguments
+while [[ ! ${#} == 0 ]]; do
+	case "${1}" in
+		-c | --cbio )
+			credentials "CB"
+			;;	
+		-d | --dis )
+			credentials "DIS"
+			;;
+		-n | --nlci )
+			credentials "NLC"
+			;;
+		-t | --tds )
+			credentials "TDS"
+			;;
+		-u | --ubnt )
+			echo "Running with UniFi default login and TDS Controller"
+			;;	
+		-h | --help )	
+			usage
+			exit 0
+			;;
+		# If only one argument given or none of the above, display help text
+		* )
+			echo "Incomplete command or invalid option selected"
+			usage
+			exit 0
+			;;
+	esac	
+	case "${2}" in
+      -c | --capture )
+         capture "{3}" ;
+         transfer "{3}" ;
+         move ;
+         exit 0
+         ;; 
+      -i | --inform )
+				inform "${3}"
+				exit 0
+				;;
+			-l | --login )
+				login "${3}"
+				exit 0 
+				;;
+			-h | --help )
+				usage
+				exit 0
+				;;
+      -r | --reboot )
+				reboot "${3}"
+				exit 0
+				;;
+
+			# If valid site given but no additional argument, attempt login with supplied site credentials	
+			* )
+				login "${2}"
+				exit 0
+				;;
+	esac 
+done

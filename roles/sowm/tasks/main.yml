@@ -1,0 +1,13 @@
+- name: Symlink dotfiles
+  file:
+    src: /home/ddt/src/ddt/dotfiles/roles/sowm/files/
+    dest: /home/ddt/src/ddt/sowm
+    state: link
+
+- name: Install sowm
+  copy:
+    src: /home/ddt/src/ddt/dotfiles/roles/sowm/files/sowm
+    dest: /usr/bin/sowm
+    owner: root
+    group: root
+    mode: '655'

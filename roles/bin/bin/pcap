@@ -1,0 +1,51 @@
+#!/bin/bash
+# SSH/tcpdump script
+# Written by Dave MUrray
+# Last updated 02/10/2019
+
+# Variables
+username="root"
+password="Tds!7005"
+extcapcmd="tcpdump -i any host ${2} -c 20 -w /tmp/capture.pcap"
+netcapcmd="tcpdump -i any -c 4000 -w /etc/cgi_conf_cache/capture.pcapng"
+onedrive="/mnt/c/Users/dmurray/OneDrive\ -\ Telephone\ Diagnostic\ Services,\ Inc/Documents/"
+
+# Functions
+base () {
+	sshpass -p ${password} ssh -o StrictHostKeyChecking=no ${username}@${1} "${2}"
+}
+
+extcap () {
+	echo "Logging into ${1} and capturing all traffic for IP: ${2}"	
+	base "${1} ${extcapcmd}"
+}
+
+netcap () {
+	echo "Logging into ${1} and capturing UDP SIP traffic across network"	
+	base "${1} ${netcapcmd}"
+}
+
+TcpEnd () {
+	echo 'TCPDump complete'
+}
+
+transfer () {
+	sshpass -p 'Tds!7005' scp root@$1:/etc/cgi_conf_cache/capture.pcapng . ;
+	echo "SCP transfer complete"
+}
+
+move () {
+	mv capture.pcap ${onedrive};
+	echo "Capture file moved to ${onedrive}":
+}
+
+	if [[ "$2" == "" ]]
+		then 
+			netcap "$1" ;	
+		else
+			extcap "$1 $2" ; 
+	fi
+	TcpEnd ;
+	transfer $1 ;
+	move ;
+

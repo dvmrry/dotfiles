@@ -1,0 +1,22 @@
+--- 
+
+- name: Uninstall tmux packages
+  become: yes
+  apt:
+    name: "{{ tmux_packages }}"
+    state: absent
+
+- name: Clear cache
+  become: yes
+  apt:
+    autoclean: yes
+
+- name: Uninstall dependencies
+  become: yes
+  apt:
+    autoremove: yes
+
+- name: Delete directories
+  file:
+    path: "{{ user_id }}"/.config/tmux
+    state: absent
