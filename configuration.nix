@@ -261,6 +261,9 @@
     name = "dm";
     home = "/Users/dm";
     shell = pkgs.fish;
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE8zyMqlC1LHHWWk0v/wdfaVGYBoZSvD64xaAQZ5dOYh"
+    ];
   };
 
   # Primary user for per-user system defaults
