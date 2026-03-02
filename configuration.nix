@@ -13,6 +13,7 @@
     gnupg
     httpie
     jq
+    mosh
     nmap
     ripgrep
     shellcheck
@@ -23,6 +24,11 @@
     wget
     yamllint
     yq
+
+    # System monitoring
+    bandwhich
+    btop
+    macmon
 
     # Editors
     neovim
@@ -199,9 +205,54 @@
     SoftwareUpdate.AutomaticallyInstallMacOSUpdates = false;
   };
 
-  # Reload preferences immediately after activation
+  # Headless power management - never sleep
+  power.sleep.computer = "never";
+  power.sleep.display = "never";
+  power.sleep.harddisk = "never";
+  power.restartAfterFreeze = true;
+
+  # SSH hardening
+  environment.etc."ssh/sshd_config.d/hardening.conf".text = ''
+    PasswordAuthentication no
+    KbdInteractiveAuthentication no
+    PermitRootLogin no
+    AllowUsers dm
+    KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+    Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
+    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+    ClientAliveInterval 60
+    ClientAliveCountMax 5
+    MaxAuthTries 3
+    MaxSessions 10
+    LoginGraceTime 30
+    X11Forwarding no
+    PermitEmptyPasswords no
+    LogLevel VERBOSE
+  '';
+
+  # Nightly nix store optimisation
+  launchd.daemons.nix-store-optimise = {
+    serviceConfig = {
+      Label = "org.nixos.nix-store-optimise";
+      ProgramArguments = [ "/bin/sh" "-c" "/run/current-system/sw/bin/nix store optimise" ];
+      StartCalendarInterval = [{ Hour = 3; Minute = 30; }];
+      StandardOutPath = "/var/log/nix-store-optimise.log";
+      StandardErrorPath = "/var/log/nix-store-optimise.log";
+    };
+  };
+
+  # Post-activation: reload preferences + headless pmset hardening
   system.activationScripts.postActivation.text = ''
     sudo -u dm /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+
+    # Headless pmset hardening
+    pmset -a standby 0
+    pmset -a autopoweroff 0
+    pmset -a powernap 0
+    pmset -a proximitywake 0
+    pmset -a ttyskeepawake 1
+    pmset -a tcpkeepalive 1
+    pmset -a womp 1
   '';
 
   # Shells

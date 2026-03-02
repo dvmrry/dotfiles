@@ -6,7 +6,6 @@
 
   # User-level packages
   home.packages = with pkgs; [
-    htop
     tldr
     zsh-completions
     nix-zsh-completions
@@ -60,6 +59,8 @@
           ControlMaster = "auto";
           ControlPath = "~/.ssh/master-%r@%n:%p";
           ControlPersist = "10m";
+          ServerAliveInterval = "30";
+          ServerAliveCountMax = "5";
         };
       };
       "github.com" = {
@@ -109,6 +110,11 @@
     '';
     interactiveShellInit = ''
       set -g fish_greeting
+
+      # Auto-attach to tmux on SSH sessions
+      if status is-interactive; and test -n "$SSH_CONNECTION"; and not set -q TMUX
+        tmux new-session -A -s main
+      end
 
       # Homebrew & local bins
       fish_add_path -g /opt/homebrew/bin ~/.local/bin
@@ -277,21 +283,36 @@
     mouse = true;
     baseIndex = 1;
     escapeTime = 10;
-    historyLimit = 10000;
+    historyLimit = 50000;
+    terminal = "tmux-256color";
     plugins = with pkgs.tmuxPlugins; [
       vim-tmux-navigator
       {
         plugin = resurrect;
-        extraConfig = "set -g @resurrect-strategy-nvim 'session'";
+        extraConfig = ''
+          set -g @resurrect-strategy-nvim 'session'
+          set -g @resurrect-capture-pane-contents 'on'
+        '';
       }
       {
         plugin = continuum;
         extraConfig = ''
           set -g @continuum-restore 'on'
           set -g @continuum-save-interval '10'
+          set -g @continuum-boot 'on'
         '';
       }
     ];
+    extraConfig = ''
+      # Focus events for vim integration
+      set -g focus-events on
+
+      # Renumber windows when one is closed
+      set -g renumber-windows on
+
+      # Aggressive resize for multiple clients
+      setw -g aggressive-resize on
+    '';
   };
 
   # fzf
@@ -323,6 +344,37 @@
 
   # Silence "Last login" message
   home.file.".hushlogin".text = "";
+
+  # Headless health check script
+  home.file.".local/bin/health" = {
+    executable = true;
+    text = ''
+      #!/bin/sh
+      echo "=== Uptime ==="
+      uptime
+
+      echo "\n=== Disk Usage ==="
+      df -H / /nix
+
+      echo "\n=== Memory Pressure ==="
+      memory_pressure | head -3
+
+      echo "\n=== Nix Store ==="
+      du -sh /nix/store 2>/dev/null
+
+      echo "\n=== Power Management ==="
+      pmset -g | grep -E 'sleep|standby|autopoweroff'
+
+      echo "\n=== Recent Wake/Sleep ==="
+      pmset -g log 2>/dev/null | grep -E "Wake|Sleep" | tail -5
+
+      echo "\n=== SSH Sessions ==="
+      who
+
+      echo "\n=== tmux Sessions ==="
+      tmux list-sessions 2>/dev/null || echo "No tmux sessions"
+    '';
+  };
 
   # Vim
   home.file.".vimrc".text = ''
