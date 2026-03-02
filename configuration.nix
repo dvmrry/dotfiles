@@ -118,8 +118,9 @@
     ];
     casks = [
       "1password"
-      "visual-studio-code"
       "font-fira-code-nerd-font"
+      "ghostty"
+      "visual-studio-code"
     ];
   };
 

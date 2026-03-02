@@ -312,7 +312,30 @@
 
       # Aggressive resize for multiple clients
       setw -g aggressive-resize on
+
+      # Ghostty extended keys support
+      set -s extended-keys on
+      set -as terminal-features 'xterm-ghostty:extkeys'
     '';
+  };
+
+  # Ghostty (installed via Homebrew cask, config managed by HM)
+  programs.ghostty = {
+    enable = true;
+    package = null;
+    enableFishIntegration = true;
+    settings = {
+      font-family = "FiraCode Nerd Font";
+      font-size = 13;
+      theme = "catppuccin-mocha";
+      macos-titlebar-style = "hidden";
+      window-decoration = false;
+      confirm-close-surface = false;
+      copy-on-select = "clipboard";
+      cursor-style = "block";
+      mouse-hide-while-typing = true;
+      scrollback-limit = 50000;
+    };
   };
 
   # fzf
