@@ -18,11 +18,23 @@
   # Git
   programs.git = {
     enable = true;
-    settings.user = {
-      name = "Dave Murray";
-      email = "github@mrry.io";
-    };
     lfs.enable = true;
+    extraConfig = {
+      user = {
+        name = "Dave Murray";
+        email = "github@mrry.io";
+      };
+      init.defaultBranch = "main";
+      pull.rebase = true;
+      push.autoSetupRemote = true;
+      rebase.autoStash = true;
+      merge.conflictstyle = "diff3";
+      diff.algorithm = "histogram";
+      rerere.enabled = true;
+      column.ui = "auto";
+      branch.sort = "-committerdate";
+      fetch.prune = true;
+    };
   };
 
   # GitHub CLI
@@ -308,6 +320,9 @@
       claude /plugin install superpowers@superpowers-marketplace 2>/dev/null || true
     fi
   '';
+
+  # Silence "Last login" message
+  home.file.".hushlogin".text = "";
 
   # Vim
   home.file.".vimrc".text = ''

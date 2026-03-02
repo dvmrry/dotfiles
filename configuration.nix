@@ -99,7 +99,11 @@
   # Homebrew - for GUI apps (casks) that aren't in nixpkgs
   homebrew = {
     enable = true;
-    onActivation.cleanup = "zap";
+    onActivation = {
+      autoUpdate = true;
+      upgrade = true;
+      cleanup = "zap";
+    };
     taps = [
       "LizardByte/homebrew"
     ];
@@ -119,6 +123,10 @@
       autohide = true;
       show-recents = false;
       mru-spaces = false;
+      wvous-bl-corner = 1; # disable hot corners
+      wvous-br-corner = 1;
+      wvous-tl-corner = 1;
+      wvous-tr-corner = 1;
     };
     finder = {
       AppleShowAllExtensions = true;
@@ -131,21 +139,73 @@
       _FXSortFoldersFirst = true;
       QuitMenuItem = true;
     };
+    loginwindow = {
+      GuestEnabled = false;
+      DisableConsoleAccess = true;
+    };
+    menuExtraClock = {
+      Show24Hour = true;
+      ShowSeconds = false;
+    };
+    screencapture = {
+      location = "~/Pictures/Screenshots";
+      type = "png";
+      disable-shadow = true;
+    };
+    screensaver = {
+      askForPassword = true;
+      askForPasswordDelay = 0;
+    };
+    WindowManager = {
+      GloballyEnabled = false;
+      EnableStandardClickToShowDesktop = false;
+    };
     NSGlobalDomain = {
       AppleShowAllExtensions = true;
       AppleInterfaceStyle = "Dark";
+      AppleKeyboardUIMode = 3; # full keyboard access
       "com.apple.swipescrolldirection" = true; # natural scrolling
+      "com.apple.sound.beep.volume" = 0.0;
+      "com.apple.sound.beep.feedback" = 0;
       InitialKeyRepeat = 15;
       KeyRepeat = 2;
       ApplePressAndHoldEnabled = false;
       NSAutomaticCapitalizationEnabled = false;
       NSAutomaticDashSubstitutionEnabled = false;
+      NSAutomaticPeriodSubstitutionEnabled = false;
       NSAutomaticQuoteSubstitutionEnabled = false;
       NSAutomaticSpellingCorrectionEnabled = false;
+      NSNavPanelExpandedStateForSaveMode = true;
+      NSNavPanelExpandedStateForSaveMode2 = true;
     };
+    CustomUserPreferences = {
+      "com.apple.desktopservices" = {
+        DSDontWriteNetworkStores = true;
+        DSDontWriteUSBStores = true;
+      };
+      "com.apple.AdLib" = {
+        allowApplePersonalizedAdvertising = false;
+      };
+      "com.apple.SoftwareUpdate" = {
+        AutomaticCheckEnabled = true;
+        ScheduleFrequency = 1;
+        AutomaticDownload = 1;
+        CriticalUpdateInstall = 1;
+      };
+      "com.apple.ImageCapture" = {
+        disableHotPlug = true;
+      };
+    };
+    SoftwareUpdate.AutomaticallyInstallMacOSUpdates = false;
   };
 
-  # Fish as default shell + add to /etc/shells
+  # Reload preferences immediately after activation
+  system.activationScripts.postActivation.text = ''
+    sudo -u dm /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+  '';
+
+  # Shells
+  environment.shells = with pkgs; [ bash zsh fish ];
   programs.fish.enable = true;
   users.users.dm = {
     name = "dm";
@@ -159,10 +219,18 @@
   # Hostname
   networking.hostName = "cm01";
 
-  # Nix settings
-  nix.enable = false; # Managed by Determinate installer
-  # Note: nix.gc and nix.optimise require nix.enable = true
-  # Run manually: nix-collect-garbage --delete-older-than 14d && nix store optimise
+  # Nix - managed by Determinate installer
+  determinateNix = {
+    enable = true;
+    determinateNixd.garbageCollector.strategy = "automatic";
+    customSettings = {
+      keep-outputs = true;
+      keep-derivations = true;
+      warn-dirty = false;
+      extra-substituters = [ "https://nix-community.cachix.org" ];
+      extra-trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+    };
+  };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
