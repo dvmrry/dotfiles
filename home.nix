@@ -147,14 +147,19 @@
       set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
       set -gx EDITOR nvim
 
-      # Tool completions
-      kubectl completion fish | source
+      # Tool completions - cached to avoid slow generation on every shell start
+      set -l comp_dir ~/.cache/fish/generated_completions
+      mkdir -p $comp_dir
+      for tool in kubectl helm flux talosctl op
+        if not test -f $comp_dir/$tool.fish
+          command $tool completion fish > $comp_dir/$tool.fish 2>/dev/null &
+        end
+      end
+      for f in $comp_dir/*.fish
+        source $f 2>/dev/null
+      end
       complete -c kubecolor -w kubectl
       complete -c k -w kubectl
-      helm completion fish | source
-      flux completion fish | source
-      talosctl completion fish | source
-      op completion fish | source
     '';
   };
 
@@ -368,8 +373,10 @@
       font-family = "FiraCode Nerd Font";
       font-size = 13;
       theme = "TokyoNight Night";
-      macos-titlebar-style = "hidden";
-      window-decoration = false;
+      window-padding-x = 12;
+      window-padding-y = 8;
+      window-padding-balance = true;
+      macos-titlebar-style = "transparent";
       confirm-close-surface = false;
       copy-on-select = "clipboard";
       cursor-style = "block";
