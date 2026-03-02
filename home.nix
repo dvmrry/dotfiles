@@ -98,8 +98,8 @@
     interactiveShellInit = ''
       set -g fish_greeting
 
-      # Homebrew
-      fish_add_path -g /opt/homebrew/bin
+      # Homebrew & local bins
+      fish_add_path -g /opt/homebrew/bin ~/.local/bin
 
       # 1Password SSH agent
       set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
@@ -174,6 +174,7 @@
     '';
     envExtra = ''
       export EDITOR='nvim'
+      export PATH="$HOME/.local/bin:$PATH"
     '';
   };
 
