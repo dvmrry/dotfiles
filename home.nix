@@ -1,4 +1,8 @@
-{ pkgs, lib, ... }: {
+{ pkgs, lib, inputs, ... }: {
+
+  imports = [
+    ./nvim
+  ];
 
   home.stateVersion = "24.11";
   home.homeDirectory = "/Users/dm";

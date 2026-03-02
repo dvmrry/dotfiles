@@ -15,9 +15,11 @@
     };
 
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
+
+    nixCats.url = "github:BirdeeHub/nixCats-nvim";
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, determinate, ... }: {
+  outputs = { self, nixpkgs, nix-darwin, home-manager, determinate, nixCats, ... }@inputs: {
     darwinConfigurations."cm01" = nix-darwin.lib.darwinSystem {
       system = "aarch64-darwin";
       modules = [
@@ -27,6 +29,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
+          home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.users.dm = import ./home.nix;
         }
       ];

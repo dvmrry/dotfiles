@@ -30,9 +30,7 @@
     btop
     macmon
 
-    # Editors
-    neovim
-    vim
+    # Editors (neovim managed by nixCats in home.nix)
 
     # Languages & runtimes
     nodejs
