@@ -60,11 +60,19 @@
   # Fish - primary interactive shell
   programs.fish = {
     enable = true;
+    plugins = [
+      { name = "autopair"; src = pkgs.fishPlugins.autopair.src; }
+      { name = "done"; src = pkgs.fishPlugins.done.src; }
+      { name = "puffer"; src = pkgs.fishPlugins.puffer.src; }
+      { name = "sponge"; src = pkgs.fishPlugins.sponge.src; }
+    ];
     shellAliases = {
       vi = "nvim";
-
-      # Kubernetes
       k = "kubecolor";
+      tf = "tofu";
+    };
+    shellAbbrs = {
+      # Kubernetes
       kgd = "kubecolor get deploy";
       kgk = "kubecolor get kustomizations --all-namespaces";
       kgp = "kubecolor get pods";
@@ -76,12 +84,20 @@
       kns = "kubens";
 
       # Terraform / OpenTofu
-      tf = "tofu";
       tfa = "tofu apply";
       tfi = "tofu init";
       tfp = "tofu plan";
     };
+    loginShellInit = ''
+      # Fix nix-darwin PATH ordering - ensure nix binaries take priority
+      if test -n "$__NIX_DARWIN_SET_ENVIRONMENT_DONE"
+        fish_add_path --prepend --path /run/current-system/sw/bin
+        fish_add_path --prepend --path $HOME/.nix-profile/bin
+      end
+    '';
     interactiveShellInit = ''
+      set -g fish_greeting
+
       # Homebrew
       fish_add_path -g /opt/homebrew/bin
 
