@@ -40,10 +40,11 @@
   # SSH - 1Password agent + connection multiplexing
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     matchBlocks = {
       "*" = {
         extraOptions = {
-          IdentityAgent = "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
+          IdentityAgent = ''"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"'';
           ControlMaster = "auto";
           ControlPath = "~/.ssh/master-%r@%n:%p";
           ControlPersist = "10m";
@@ -271,6 +272,10 @@
 
   # Claude Code - settings managed declaratively
   home.file.".claude/settings.json".source = ./claude/settings.json;
+  home.file.".claude/hooks/notify-sudo.sh" = {
+    source = ./claude/notify-sudo.sh;
+    executable = true;
+  };
 
   # Claude Code - post-activation plugin setup
   home.activation.claudePlugins = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

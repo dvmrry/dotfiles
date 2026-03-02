@@ -16,7 +16,7 @@
   };
 
   outputs = { self, nixpkgs, nix-darwin, home-manager, ... }: {
-    darwinConfigurations."a2337" = nix-darwin.lib.darwinSystem {
+    darwinConfigurations."cm01" = nix-darwin.lib.darwinSystem {
       system = "aarch64-darwin";
       modules = [
         ./configuration.nix

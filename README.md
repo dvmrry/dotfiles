@@ -1,6 +1,6 @@
 # nix-darwin
 
-Declarative macOS system config for a2337 (MacBook Air M1, headless devbox).
+Declarative macOS system config for cm01 (MacBook Air M1, headless devbox).
 
 ## Rebuild
 

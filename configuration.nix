@@ -2,39 +2,54 @@
 
   # Packages installed system-wide
   environment.systemPackages = with pkgs; [
-    vim
+    # Core tools
+    age
+    curl
+    fd
+    ffmpeg
+    fzf
+    gh
+    gnumake
+    gnupg
+    httpie
+    jq
+    nmap
+    ripgrep
+    shellcheck
+    sops
+    starship
+    tree
+    watch
+    wget
+    yamllint
+    yq
+
+    # Editors
     neovim
+    vim
+
+    # Languages & runtimes
+    nodejs
+    python3
+    rustup
+
+    # Dev tools
+    go-task
+    pre-commit
+
+    # Git
     git
     git-lfs
-    curl
-    wget
-    ripgrep
-    fd
-    jq
-    yq
-    tree
-    fzf
-    watch
-    nmap
-    gnupg
-    age
-    sops
-    ffmpeg
-    httpie
-    gh
-    nodejs
-    pre-commit
-    starship
 
     # Kubernetes
+    kubecolor
     kubectl
     kubectx
-    kubecolor
     kubernetes-helm
 
     # Infrastructure
-    opentofu
     fluxcd
+    opentofu
     talosctl
 
     # Nix helpers
@@ -85,6 +100,12 @@
   homebrew = {
     enable = true;
     onActivation.cleanup = "zap";
+    taps = [
+      "LizardByte/homebrew"
+    ];
+    brews = [
+      "LizardByte/homebrew/sunshine-beta"
+    ];
     casks = [
       "1password"
       "visual-studio-code"
@@ -134,7 +155,7 @@
   system.primaryUser = "dm";
 
   # Hostname
-  networking.hostName = "a2337";
+  networking.hostName = "cm01";
 
   # Nix settings
   nix.enable = false; # Managed by Determinate installer
