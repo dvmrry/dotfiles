@@ -82,6 +82,9 @@
       tfp = "tofu plan";
     };
     interactiveShellInit = ''
+      # Homebrew
+      fish_add_path -g /opt/homebrew/bin
+
       # 1Password SSH agent
       set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
       set -gx EDITOR nvim

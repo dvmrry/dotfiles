@@ -145,10 +145,12 @@
     };
   };
 
-  # Declare the user so Home Manager can find the home directory
+  # Fish as default shell + add to /etc/shells
+  programs.fish.enable = true;
   users.users.dm = {
     name = "dm";
     home = "/Users/dm";
+    shell = pkgs.fish;
   };
 
   # Primary user for per-user system defaults
