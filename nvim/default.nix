@@ -41,7 +41,7 @@
 
       startupPlugins = {
         general = with pkgs.vimPlugins; [
-          catppuccin-nvim
+          tokyonight-nvim
           vim-sleuth
         ];
       };

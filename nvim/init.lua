@@ -25,7 +25,19 @@ vim.o.expandtab = true
 vim.o.termguicolors = true
 
 -- Colorscheme
-vim.cmd.colorscheme 'catppuccin-mocha'
+require('tokyonight').setup {
+  style = 'night',
+  transparent = false,
+  terminal_colors = true,
+  styles = {
+    comments = { italic = true },
+    keywords = { italic = true },
+  },
+  on_highlights = function(hl, c)
+    hl.CursorLineNr = { fg = c.orange, bold = true }
+  end,
+}
+vim.cmd.colorscheme 'tokyonight-night'
 
 -- Keymaps
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
@@ -121,7 +133,7 @@ vim.keymap.set('n', '-', '<cmd>Oil<CR>', { desc = 'Open file explorer' })
 vim.cmd.packadd('lualine.nvim')
 require('lualine').setup {
   options = {
-    theme = 'catppuccin',
+    theme = 'tokyonight',
     component_separators = '|',
     section_separators = '',
   },

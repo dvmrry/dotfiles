@@ -115,6 +115,26 @@
     interactiveShellInit = ''
       set -g fish_greeting
 
+      # Tokyo Night colors
+      set -g fish_color_normal c0caf5
+      set -g fish_color_command 7aa2f7
+      set -g fish_color_keyword bb9af7
+      set -g fish_color_quote 9ece6a
+      set -g fish_color_redirection c0caf5
+      set -g fish_color_end ff9e64
+      set -g fish_color_error f7768e
+      set -g fish_color_param 9d7cd8
+      set -g fish_color_comment 565f89
+      set -g fish_color_selection --background=283457
+      set -g fish_color_search_match --background=283457
+      set -g fish_color_operator 9ece6a
+      set -g fish_color_escape bb9af7
+      set -g fish_color_autosuggestion 565f89
+      set -g fish_pager_color_progress 565f89
+      set -g fish_pager_color_prefix 7aa2f7
+      set -g fish_pager_color_completion c0caf5
+      set -g fish_pager_color_description 565f89
+
       # Auto-attach to tmux on SSH sessions
       if status is-interactive; and test -n "$SSH_CONNECTION"; and not set -q TMUX
         tmux new-session -A -s main
@@ -209,41 +229,47 @@
       add_newline = true;
 
       character = {
-        success_symbol = "[>](bold green)";
-        error_symbol = "[>](bold red)";
+        success_symbol = "[>](bold #7aa2f7)";
+        error_symbol = "[>](bold #f7768e)";
       };
 
       hostname = {
         ssh_only = false;
-        format = "[$hostname]($style) ";
+        format = "[$hostname](#565f89) ";
       };
 
       username = {
         show_always = true;
-        format = "[$user]($style) ";
+        format = "[$user](#bb9af7) ";
       };
 
       directory = {
         truncation_length = 3;
-        style = "bold cyan";
+        style = "bold #2ac3de";
       };
 
-      git_branch.symbol = " ";
+      git_branch = {
+        symbol = " ";
+        style = "#9ece6a";
+      };
+
+      git_status.style = "#e0af68";
 
       kubernetes = {
         disabled = false;
         symbol = " ";
-        format = "[$symbol$context( \\($namespace\\))](dimmed green) ";
+        format = "[$symbol$context( \\($namespace\\))](dimmed #7aa2f7) ";
       };
 
       cmd_duration = {
         min_time = 2000;
-        format = "took [$duration](bold yellow) ";
+        format = "took [$duration](bold #ff9e64) ";
       };
 
-      golang.symbol = " ";
-      python.symbol = " ";
-      terraform.symbol = " ";
+      golang = { symbol = " "; style = "#2ac3de"; };
+      python = { symbol = " "; style = "#bb9af7"; };
+      terraform = { symbol = " "; style = "#7aa2f7"; };
+      nix_shell = { symbol = " "; style = "#7aa2f7"; };
       aws.disabled = false;
       gcloud.disabled = false;
     };
@@ -253,7 +279,7 @@
   programs.bat = {
     enable = true;
     config = {
-      theme = "TwoDark";
+      theme = "ansi";
       pager = "less -FR";
     };
   };
@@ -290,6 +316,16 @@
     historyLimit = 50000;
     terminal = "tmux-256color";
     plugins = with pkgs.tmuxPlugins; [
+      {
+        plugin = tokyo-night-tmux;
+        extraConfig = ''
+          set -g @tokyo-night-tmux_window_id_style none
+          set -g @tokyo-night-tmux_show_datetime 0
+          set -g @tokyo-night-tmux_show_battery_widget 0
+          set -g @tokyo-night-tmux_show_path 1
+          set -g @tokyo-night-tmux_path_format relative
+        '';
+      }
       vim-tmux-navigator
       {
         plugin = resurrect;
@@ -331,7 +367,7 @@
     settings = {
       font-family = "FiraCode Nerd Font";
       font-size = 13;
-      theme = "catppuccin-mocha";
+      theme = "TokyoNight Night";
       macos-titlebar-style = "hidden";
       window-decoration = false;
       confirm-close-surface = false;
@@ -347,7 +383,14 @@
     enable = true;
     enableZshIntegration = true;
     enableFishIntegration = true;
-    defaultOptions = [ "--height=40%" "--layout=reverse" "--border" ];
+    defaultOptions = [
+      "--height=40%"
+      "--layout=reverse"
+      "--border"
+      "--color=bg+:#283457,bg:#1a1b26,spinner:#bb9af7,hl:#7aa2f7"
+      "--color=fg:#c0caf5,header:#7aa2f7,info:#e0af68,pointer:#bb9af7"
+      "--color=marker:#9ece6a,fg+:#c0caf5,prompt:#bb9af7,hl+:#7aa2f7"
+    ];
   };
 
   # Claude Code - settings managed declaratively
