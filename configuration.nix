@@ -120,7 +120,7 @@
       "1password"
       "font-fira-code-nerd-font"
       "ghostty"
-      "visual-studio-code"
+      "vscodium"
     ];
   };
 
