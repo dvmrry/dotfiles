@@ -145,12 +145,18 @@
 
       # 1Password SSH agent
       set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+      set -gx SOPS_AGE_KEY_FILE "$HOME/.config/sops/age/keys.txt"
       set -gx EDITOR nvim
+
+      # 1Password service account (sops-encrypted, headless over SSH)
+      if not set -q OP_SERVICE_ACCOUNT_TOKEN; and command -q sops; and test -f "$SOPS_AGE_KEY_FILE"
+        set -gx OP_SERVICE_ACCOUNT_TOKEN (sops --decrypt --extract '["op_service_account_token"]' ~/.config/nix-darwin/secrets/op.yaml 2>/dev/null)
+      end
 
       # Tool completions - cached to avoid slow generation on every shell start
       set -l comp_dir ~/.cache/fish/generated_completions
       mkdir -p $comp_dir
-      for tool in kubectl helm flux talosctl op
+      for tool in kubectl helm flux talosctl
         if not test -f $comp_dir/$tool.fish
           command $tool completion fish > $comp_dir/$tool.fish 2>/dev/null &
         end
