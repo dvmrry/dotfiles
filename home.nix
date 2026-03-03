@@ -10,9 +10,10 @@
 
   # User-level packages
   home.packages = with pkgs; [
+    lazygit
+    nix-zsh-completions
     tldr
     zsh-completions
-    nix-zsh-completions
   ];
 
   # Let Home Manager manage itself
@@ -22,6 +23,15 @@
   programs.git = {
     enable = true;
     lfs.enable = true;
+    delta = {
+      enable = true;
+      options = {
+        navigate = true;
+        dark = true;
+        line-numbers = true;
+        syntax-theme = "ansi";
+      };
+    };
     extraConfig = {
       user = {
         name = "Dave Murray";
@@ -33,6 +43,7 @@
       rebase.autoStash = true;
       merge.conflictstyle = "diff3";
       diff.algorithm = "histogram";
+      diff.colorMoved = "default";
       rerere.enabled = true;
       column.ui = "auto";
       branch.sort = "-committerdate";
@@ -147,6 +158,7 @@
       # 1Password SSH agent
       set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
       set -gx SOPS_AGE_KEY_FILE "$HOME/.config/sops/age/keys.txt"
+      set -gx RIPGREP_CONFIG_PATH "$HOME/.ripgreprc"
       set -gx EDITOR nvim
 
       # 1Password service account (sops-encrypted, headless over SSH)
@@ -228,6 +240,7 @@
     '';
     envExtra = ''
       export EDITOR='nvim'
+      export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
       export PATH="$HOME/.local/bin:$PATH"
     '';
   };
@@ -368,6 +381,9 @@
       # Ghostty extended keys support
       set -s extended-keys on
       set -as terminal-features 'xterm-ghostty:extkeys'
+
+      # OSC52 clipboard - copy from remote tmux to local clipboard over SSH
+      set -g set-clipboard on
     '';
   };
 
@@ -390,6 +406,13 @@
       mouse-hide-while-typing = true;
       scrollback-limit = 50000;
     };
+  };
+
+  # zoxide - smart cd
+  programs.zoxide = {
+    enable = true;
+    enableFishIntegration = true;
+    enableZshIntegration = true;
   };
 
   # fzf
@@ -459,6 +482,16 @@
       tmux list-sessions 2>/dev/null || echo "No tmux sessions"
     '';
   };
+
+  # ripgrep
+  home.file.".ripgreprc".text = ''
+    --smart-case
+    --hidden
+    --glob=!.git
+    --glob=!node_modules
+    --glob=!.direnv
+    --glob=!result
+  '';
 
   # Vim
   home.file.".vimrc".text = ''
