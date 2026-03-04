@@ -78,10 +78,11 @@
       window_gap = 16;
       auto_balance = "on";
       split_ratio = 0.50;
-      mouse_modifier = "fn";
+      mouse_modifier = "alt";
       mouse_action1 = "move";
       mouse_action2 = "resize";
       mouse_drop_action = "swap";
+      focus_follows_mouse = "autofocus";
       mouse_follows_focus = "off";
     };
     extraConfig = ''
@@ -93,6 +94,29 @@
       yabai -m rule --add app="^Finder$" title="(Co(py|nnect)|Move|Info|Pref)" manage=off
       yabai -m rule --add title="Software Update" manage=off
       yabai -m rule --add app="^1Password$" manage=off
+      yabai -m rule --add app="^Calculator$" manage=off
+      yabai -m rule --add app="^Messages$" manage=off
+      yabai -m rule --add app="^FaceTime$" manage=off
+      yabai -m rule --add app="^Preview$" manage=off
+    '';
+  };
+
+  # Hotkey daemon
+  services.skhd = {
+    enable = true;
+    skhdConfig = ''
+      # Toggle float on focused window
+      alt - f : yabai -m window --toggle float; yabai -m window --grid 4:4:1:1:2:2
+
+      # Balance all windows
+      alt - b : yabai -m space --balance
+
+      # Toggle layout (bsp / stack)
+      alt - s : yabai -m space --layout "$(yabai -m query --spaces --space | jq -r 'if .type == "bsp" then "stack" else "bsp" end')"
+
+      # Cycle focus
+      alt - j : yabai -m window --focus next || yabai -m window --focus first
+      alt - k : yabai -m window --focus prev || yabai -m window --focus last
     '';
   };
 
@@ -124,8 +148,11 @@
 
   # macOS system defaults
   system.defaults = {
+    CustomUserPreferences."com.apple.WindowManager".HideDesktop = true;
+    NSGlobalDomain."_HIHideMenuBar" = true;
     dock = {
       autohide = true;
+      autohide-delay = 0.0;
       show-recents = false;
       mru-spaces = false;
       wvous-bl-corner = 1; # disable hot corners
