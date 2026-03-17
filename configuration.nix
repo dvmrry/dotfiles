@@ -55,6 +55,7 @@
     fluxcd
     opentofu
     talosctl
+    talhelper
 
     # Nix helpers
     nh
@@ -140,6 +141,7 @@
     ];
     casks = [
       "1password"
+      "bambu-studio"
       "font-fira-code-nerd-font"
       "ghostty"
       "vscodium"

@@ -23,16 +23,7 @@
   programs.git = {
     enable = true;
     lfs.enable = true;
-    delta = {
-      enable = true;
-      options = {
-        navigate = true;
-        dark = true;
-        line-numbers = true;
-        syntax-theme = "ansi";
-      };
-    };
-    extraConfig = {
+    settings = {
       user = {
         name = "Dave Murray";
         email = "github@mrry.io";
@@ -48,6 +39,16 @@
       column.ui = "auto";
       branch.sort = "-committerdate";
       fetch.prune = true;
+    };
+  };
+
+  programs.delta = {
+    enable = true;
+    options = {
+      navigate = true;
+      dark = true;
+      line-numbers = true;
+      syntax-theme = "ansi";
     };
   };
 
@@ -116,6 +117,9 @@
       tfa = "tofu apply";
       tfi = "tofu init";
       tfp = "tofu plan";
+
+      # Nix
+      drs = "darwin-rebuild switch --flake ~/.config/nix-darwin";
     };
     loginShellInit = ''
       # Fix nix-darwin PATH ordering - ensure nix binaries take priority
@@ -161,9 +165,16 @@
       set -gx RIPGREP_CONFIG_PATH "$HOME/.ripgreprc"
       set -gx EDITOR nvim
 
-      # 1Password service account (sops-encrypted, headless over SSH)
-      if not set -q OP_SERVICE_ACCOUNT_TOKEN; and command -q sops; and test -f "$SOPS_AGE_KEY_FILE"
-        set -gx OP_SERVICE_ACCOUNT_TOKEN (sops --decrypt --extract '["op_service_account_token"]' ~/.config/nix-darwin/secrets/op.yaml 2>/dev/null)
+      # sops-encrypted secrets (headless over SSH)
+      if command -q sops; and test -f "$SOPS_AGE_KEY_FILE"
+        if not set -q OP_SERVICE_ACCOUNT_TOKEN
+          set -gx OP_SERVICE_ACCOUNT_TOKEN (sops --decrypt --extract '["op_service_account_token"]' ~/.config/nix-darwin/secrets/op.yaml 2>/dev/null)
+        end
+        if not set -q BAMBU_PRINTER_IP
+          set -gx BAMBU_PRINTER_IP (sops --decrypt --extract '["bambu_printer_ip"]' ~/.config/nix-darwin/secrets/bambu.yaml 2>/dev/null)
+          set -gx BAMBU_PRINTER_ACCESS_CODE (sops --decrypt --extract '["bambu_printer_access_code"]' ~/.config/nix-darwin/secrets/bambu.yaml 2>/dev/null)
+          set -gx BAMBU_PRINTER_SERIAL (sops --decrypt --extract '["bambu_printer_serial"]' ~/.config/nix-darwin/secrets/bambu.yaml 2>/dev/null)
+        end
       end
 
       # Tool completions - cached to avoid slow generation on every shell start
@@ -430,27 +441,206 @@
     ];
   };
 
-  # Claude Code - settings managed declaratively
-  home.file.".claude/settings.json".source = ./claude/settings.json;
-  home.file.".claude/hooks/notify-sudo.sh" = {
-    source = ./claude/notify-sudo.sh;
-    executable = true;
+  # Claude Code - declarative config via upstream home-manager module
+  programs.claude-code = {
+    enable = true;
+    package = null; # self-managed at ~/.local/bin/claude
+
+    settings = {
+      enabledPlugins = {
+        "superpowers@claude-plugins-official" = true;
+        "frontend-design@claude-plugins-official" = true;
+        "context7@claude-plugins-official" = true;
+        "gopls-lsp@claude-plugins-official" = true;
+        "pyright-lsp@claude-plugins-official" = true;
+        "typescript-lsp@claude-plugins-official" = true;
+        "code-review@claude-plugins-official" = true;
+        "playwright@claude-plugins-official" = true;
+        "github@claude-plugins-official" = true;
+        "commit-commands@claude-plugins-official" = true;
+        "clangd-lsp@claude-plugins-official" = true;
+        "skill-creator@claude-plugins-official" = true;
+      };
+      mcpServers = {
+        bambu = {
+          command = "bash";
+          args = [ "-c" ''"$HOME/.local/bin/bambu-mcp-wrapper"'' ];
+        };
+        nixos = {
+          command = "nix";
+          args = [ "run" "github:utensils/mcp-nixos" "--" ];
+        };
+      };
+      hooks = {
+        PreToolUse = [
+          {
+            matcher = "Bash";
+            hooks = [
+              {
+                type = "command";
+                command = "~/.claude/hooks/notify-sudo.sh";
+              }
+            ];
+          }
+        ];
+      };
+      permissions = {
+        allow = [
+          "Read"
+          "Glob"
+          "Grep"
+          "WebFetch"
+          "WebSearch"
+          "Bash(ls*)"
+          "Bash(la *)"
+          "Bash(ll *)"
+          "Bash(head *)"
+          "Bash(tail *)"
+          "Bash(wc *)"
+          "Bash(file *)"
+          "Bash(stat *)"
+          "Bash(which *)"
+          "Bash(type *)"
+          "Bash(pwd*)"
+          "Bash(whoami*)"
+          "Bash(id *)"
+          "Bash(env*)"
+          "Bash(printenv*)"
+          "Bash(uname *)"
+          "Bash(hostname*)"
+          "Bash(date*)"
+          "Bash(df *)"
+          "Bash(du *)"
+          "Bash(ping *)"
+          "Bash(dig *)"
+          "Bash(grep *)"
+          "Bash(rg *)"
+          "Bash(sed -n *)"
+          "Bash(sort *)"
+          "Bash(uniq *)"
+          "Bash(cut *)"
+          "Bash(tr *)"
+          "Bash(diff *)"
+          "Bash(jq *)"
+          "Bash(yq *)"
+          "Bash(git log*)"
+          "Bash(git diff*)"
+          "Bash(git status*)"
+          "Bash(git show*)"
+          "Bash(git branch -a*)"
+          "Bash(git branch -l*)"
+          "Bash(git branch --list*)"
+          "Bash(git remote*)"
+          "Bash(* --version)"
+          "Bash(* --help*)"
+          "Bash(nix build *)"
+          "Bash(nix eval *)"
+          "Bash(nix flake *)"
+          "Bash(nix search *)"
+          "Bash(nix log *)"
+          "Bash(nix path-info *)"
+          "Bash(nix show-derivation *)"
+          "Bash(nix develop *)"
+          "Bash(nix shell *)"
+          "Bash(darwin-rebuild switch *)"
+          "Bash(darwin-rebuild build *)"
+          "Bash(darwin-rebuild check *)"
+          "Bash(nh darwin switch *)"
+          "Bash(nh darwin build *)"
+          "Bash(brew list*)"
+          "Bash(brew info*)"
+          "Bash(brew search*)"
+          "Bash(brew config*)"
+          "Bash(brew doctor*)"
+          "Bash(brew bundle dump*)"
+          "Bash(kubectl get *)"
+          "Bash(kubectl describe *)"
+          "Bash(kubectl logs *)"
+          "Bash(kubectl config *)"
+          "Bash(kubecolor get *)"
+          "Bash(kubecolor describe *)"
+          "Bash(kubecolor logs *)"
+          "Bash(helm list*)"
+          "Bash(helm status*)"
+          "Bash(tar tzf *)"
+          "Bash(tar tf *)"
+          "Bash(showmount *)"
+          "Bash(launchctl list*)"
+          "Bash(diskutil list*)"
+          "Bash(diskutil info*)"
+          "Bash(mount *)"
+          "Bash(cat /etc/*)"
+          "Bash(cat /nix/*)"
+          "Bash(cat /tmp/*)"
+        ];
+        deny = [
+          "Bash(rm -rf /*)"
+          "Bash(rm -rf ~*)"
+          "Bash(rm -r /*)"
+          "Bash(rm -r ~*)"
+          "Bash(git push --force*)"
+          "Bash(git reset --hard*)"
+          "Bash(git clean *)"
+          "Bash(git branch -D*)"
+          "Bash(git branch -d*)"
+          "Bash(chmod 777 *)"
+          "Bash(sudo rm *)"
+          "Read(.env*)"
+          "Read(~/.ssh/**)"
+          "Read(~/.aws/**)"
+          "Read(~/.gnupg/**)"
+          "Edit(.env*)"
+          "Edit(~/.ssh/**)"
+          "Edit(~/.aws/**)"
+          "Edit(~/.gnupg/**)"
+        ];
+      };
+    };
+
+    hooks = {
+      "notify-sudo.sh" = builtins.readFile ./claude/notify-sudo.sh;
+    };
   };
 
-  # Claude Code - post-activation plugin setup
-  home.activation.claudePlugins = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if command -v claude &>/dev/null; then
-      # Add superpowers marketplace if not present
-      if [ ! -d "$HOME/.claude/plugins/marketplaces/superpowers-marketplace" ]; then
-        claude /plugin marketplace add obra/superpowers-marketplace 2>/dev/null || true
-      fi
-      # Install superpowers if not present
-      claude /plugin install superpowers@superpowers-marketplace 2>/dev/null || true
-    fi
-  '';
+  # Claude Code - creative writing skills (community)
+  home.file.".claude/skills/cw-brainstorming" = {
+    source = ./claude/skills/cw-brainstorming;
+    recursive = true;
+  };
+  home.file.".claude/skills/cw-prose-writing" = {
+    source = ./claude/skills/cw-prose-writing;
+    recursive = true;
+  };
+  home.file.".claude/skills/cw-story-critique" = {
+    source = ./claude/skills/cw-story-critique;
+    recursive = true;
+  };
+  home.file.".claude/skills/cw-style-skill-creator" = {
+    source = ./claude/skills/cw-style-skill-creator;
+    recursive = true;
+  };
+  home.file.".claude/skills/cw-router" = {
+    source = ./claude/skills/cw-router;
+    recursive = true;
+  };
 
   # Silence "Last login" message
   home.file.".hushlogin".text = "";
+
+  # Bambu MCP wrapper - decrypts printer credentials via sops
+  home.file.".local/bin/bambu-mcp-wrapper" = {
+    executable = true;
+    text = ''
+      #!/bin/sh
+      SOPS_AGE_KEY_FILE="$HOME/.config/sops/age/keys.txt"
+      export SOPS_AGE_KEY_FILE
+      SECRETS="$HOME/.config/nix-darwin/secrets/bambu.yaml"
+      export BAMBU_PRINTER_IP="$(sops --decrypt --extract '["bambu_printer_ip"]' "$SECRETS")"
+      export BAMBU_PRINTER_ACCESS_CODE="$(sops --decrypt --extract '["bambu_printer_access_code"]' "$SECRETS")"
+      export BAMBU_PRINTER_SERIAL="$(sops --decrypt --extract '["bambu_printer_serial"]' "$SECRETS")"
+      exec npx @griches/bambu-mcp
+    '';
+  };
 
   # Headless health check script
   home.file.".local/bin/health" = {
