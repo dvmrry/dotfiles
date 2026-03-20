@@ -609,15 +609,49 @@ def login_all(tenants: list[Tenant], reason: str = ""):
 # — TUI helpers ———————————————————————————————————————————————————————
 
 def _prompt_with_timeout(prompt: str, timeout: int = 60) -> str:
-    """Display prompt and return input. Returns '' after timeout (triggers refresh)."""
+    """Display prompt and return input. Returns '' after timeout (triggers refresh).
+    Reads character-by-character so Esc is detected immediately."""
     import select
+    import tty
+    import termios
     console.print(prompt, end="", highlight=False)
     sys.stdout.flush()
-    ready, _, _ = select.select([sys.stdin], [], [], timeout)
-    if ready:
-        return sys.stdin.readline().strip().lower()
-    console.print()  # newline after timeout
-    return ""
+
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setcbreak(fd)
+        buf = []
+        while True:
+            ready, _, _ = select.select([sys.stdin], [], [], timeout)
+            if not ready:
+                console.print()
+                return ""
+            ch = sys.stdin.read(1)
+            # Esc
+            if ch == "\x1b":
+                console.print()
+                return "\x1b"
+            # Enter
+            if ch in ("\r", "\n"):
+                console.print()
+                return "".join(buf).strip().lower()
+            # Backspace
+            if ch in ("\x7f", "\x08"):
+                if buf:
+                    buf.pop()
+                    sys.stdout.write("\b \b")
+                    sys.stdout.flush()
+                continue
+            # Ctrl-C
+            if ch == "\x03":
+                console.print()
+                raise KeyboardInterrupt
+            buf.append(ch)
+            sys.stdout.write(ch)
+            sys.stdout.flush()
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 
 # — TUI dashboard —————————————————————————————————————————————————————
