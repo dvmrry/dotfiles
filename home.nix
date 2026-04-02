@@ -36,6 +36,7 @@
       diff.algorithm = "histogram";
       diff.colorMoved = "default";
       rerere.enabled = true;
+      signing.format = null;
       column.ui = "auto";
       branch.sort = "-committerdate";
       fetch.prune = true;
@@ -97,6 +98,7 @@
       { name = "sponge"; src = pkgs.fishPlugins.sponge.src; }
     ];
     shellAliases = {
+      ns = "nslookup";
       vi = "nvim";
       k = "kubecolor";
       tf = "tofu";
@@ -119,7 +121,24 @@
       tfp = "tofu plan";
 
       # Nix
-      drs = "darwin-rebuild switch --flake ~/.config/nix-darwin";
+      drs = "sudo darwin-rebuild switch --flake ~/.config/nix-darwin";
+    };
+    functions = {
+      nslookup = ''
+        set -l host $argv[1]
+        set host (string replace -r '^https?://|^ftp://' "" $host)
+        set host (string replace -r '/.*' "" $host)
+        set host (string replace -r ':.*' "" $host)
+        command nslookup $host $argv[2..]
+      '';
+      claude = ''
+        switch $PWD
+          case '*nix-darwin*'
+            command claude --remote-control "NixOS" $argv
+          case '*'
+            command claude $argv
+        end
+      '';
     };
     loginShellInit = ''
       # Fix nix-darwin PATH ordering - ensure nix binaries take priority
@@ -156,8 +175,8 @@
         tmux new-session -A -s main
       end
 
-      # Homebrew & local bins
-      fish_add_path -g /opt/homebrew/bin ~/.local/bin
+      # Homebrew, local bins, and repo scripts
+      fish_add_path -g /opt/homebrew/bin ~/.local/bin ~/.config/nix-darwin/scripts
 
       # 1Password SSH agent
       set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
@@ -165,16 +184,9 @@
       set -gx RIPGREP_CONFIG_PATH "$HOME/.ripgreprc"
       set -gx EDITOR nvim
 
-      # sops-encrypted secrets (headless over SSH)
-      if command -q sops; and test -f "$SOPS_AGE_KEY_FILE"
-        if not set -q OP_SERVICE_ACCOUNT_TOKEN
-          set -gx OP_SERVICE_ACCOUNT_TOKEN (sops --decrypt --extract '["op_service_account_token"]' ~/.config/nix-darwin/secrets/op.yaml 2>/dev/null)
-        end
-        if not set -q BAMBU_PRINTER_IP
-          set -gx BAMBU_PRINTER_IP (sops --decrypt --extract '["bambu_printer_ip"]' ~/.config/nix-darwin/secrets/bambu.yaml 2>/dev/null)
-          set -gx BAMBU_PRINTER_ACCESS_CODE (sops --decrypt --extract '["bambu_printer_access_code"]' ~/.config/nix-darwin/secrets/bambu.yaml 2>/dev/null)
-          set -gx BAMBU_PRINTER_SERIAL (sops --decrypt --extract '["bambu_printer_serial"]' ~/.config/nix-darwin/secrets/bambu.yaml 2>/dev/null)
-        end
+      # 1Password service account (sops-encrypted, headless over SSH)
+      if not set -q OP_SERVICE_ACCOUNT_TOKEN; and command -q sops; and test -f "$SOPS_AGE_KEY_FILE"
+        set -gx OP_SERVICE_ACCOUNT_TOKEN (sops --decrypt --extract '["op_service_account_token"]' ~/.config/nix-darwin/secrets/op.yaml 2>/dev/null)
       end
 
       # Tool completions - cached to avoid slow generation on every shell start
@@ -213,6 +225,7 @@
       share = true;
     };
     shellAliases = {
+      ns = "nslookup";
       vi = "nvim";
       k = "kubecolor";
       kgd = "kubecolor get deploy";
@@ -228,8 +241,17 @@
       tfa = "tofu apply";
       tfi = "tofu init";
       tfp = "tofu plan";
+      drs = "sudo darwin-rebuild switch --flake ~/.config/nix-darwin";
     };
     initContent = ''
+      # nslookup wrapper - strips protocol, path, port from URLs
+      nslookup() {
+        local host="$1"; shift
+        host="''${host#https://}"; host="''${host#http://}"; host="''${host#ftp://}"
+        host="''${host%%/*}"; host="''${host%%:*}"
+        command nslookup "$host" "$@"
+      }
+    '' + ''
       source <(kubectl completion zsh)
       compdef kubecolor=kubectl
       complete -F __start_kubectl k
@@ -252,7 +274,7 @@
     envExtra = ''
       export EDITOR='nvim'
       export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
-      export PATH="$HOME/.local/bin:$PATH"
+      export PATH="$HOME/.local/bin:$HOME/.config/nix-darwin/scripts:$PATH"
     '';
   };
 
@@ -444,7 +466,7 @@
   # Claude Code - declarative config via upstream home-manager module
   programs.claude-code = {
     enable = true;
-    package = null; # self-managed at ~/.local/bin/claude
+    package = pkgs.claude-code;
 
     settings = {
       enabledPlugins = {
@@ -460,16 +482,7 @@
         "commit-commands@claude-plugins-official" = true;
         "clangd-lsp@claude-plugins-official" = true;
         "skill-creator@claude-plugins-official" = true;
-      };
-      mcpServers = {
-        bambu = {
-          command = "bash";
-          args = [ "-c" ''"$HOME/.local/bin/bambu-mcp-wrapper"'' ];
-        };
-        nixos = {
-          command = "nix";
-          args = [ "run" "github:utensils/mcp-nixos" "--" ];
-        };
+        "cost-guardian@cost-guardian-marketplace" = true;
       };
       hooks = {
         PreToolUse = [
@@ -479,6 +492,24 @@
               {
                 type = "command";
                 command = "~/.claude/hooks/notify-sudo.sh";
+              }
+            ];
+          }
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "bash ~/.claude/plugins/marketplaces/cost-guardian-marketplace/hooks/budget-guard.sh";
+              }
+            ];
+          }
+        ];
+        PostToolUse = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "bash ~/.claude/plugins/marketplaces/cost-guardian-marketplace/hooks/track-usage.sh";
               }
             ];
           }
@@ -602,6 +633,25 @@
     };
   };
 
+  # Claude Code MCP servers (must be in mcp.json, not settings.json)
+  home.file.".claude/mcp.json".text = builtins.toJSON {
+    mcpServers = {
+      bambuddy = {
+        command = "bash";
+        args = [ "-c" "$HOME/.config/nix-darwin/scripts/bambuddy-mcp-wrapper" ];
+      };
+      nixos = {
+        command = "nix";
+        args = [ "run" "github:utensils/mcp-nixos" "--" ];
+      };
+      swim = {
+        command = "/Users/dm/src/gh/dvmrry/swim/swim-mcp";
+        args = [ "--port" "9111" ];
+        autoApprove = [ "swim" ];
+      };
+    };
+  };
+
   # Claude Code - creative writing skills (community)
   home.file.".claude/skills/cw-brainstorming" = {
     source = ./claude/skills/cw-brainstorming;
@@ -627,51 +677,6 @@
   # Silence "Last login" message
   home.file.".hushlogin".text = "";
 
-  # Bambu MCP wrapper - decrypts printer credentials via sops
-  home.file.".local/bin/bambu-mcp-wrapper" = {
-    executable = true;
-    text = ''
-      #!/bin/sh
-      SOPS_AGE_KEY_FILE="$HOME/.config/sops/age/keys.txt"
-      export SOPS_AGE_KEY_FILE
-      SECRETS="$HOME/.config/nix-darwin/secrets/bambu.yaml"
-      export BAMBU_PRINTER_IP="$(sops --decrypt --extract '["bambu_printer_ip"]' "$SECRETS")"
-      export BAMBU_PRINTER_ACCESS_CODE="$(sops --decrypt --extract '["bambu_printer_access_code"]' "$SECRETS")"
-      export BAMBU_PRINTER_SERIAL="$(sops --decrypt --extract '["bambu_printer_serial"]' "$SECRETS")"
-      exec npx @griches/bambu-mcp
-    '';
-  };
-
-  # Headless health check script
-  home.file.".local/bin/health" = {
-    executable = true;
-    text = ''
-      #!/bin/sh
-      echo "=== Uptime ==="
-      uptime
-
-      echo "\n=== Disk Usage ==="
-      df -H / /nix
-
-      echo "\n=== Memory Pressure ==="
-      memory_pressure | head -3
-
-      echo "\n=== Nix Store ==="
-      du -sh /nix/store 2>/dev/null
-
-      echo "\n=== Power Management ==="
-      pmset -g | grep -E 'sleep|standby|autopoweroff'
-
-      echo "\n=== Recent Wake/Sleep ==="
-      pmset -g log 2>/dev/null | grep -E "Wake|Sleep" | tail -5
-
-      echo "\n=== SSH Sessions ==="
-      who
-
-      echo "\n=== tmux Sessions ==="
-      tmux list-sessions 2>/dev/null || echo "No tmux sessions"
-    '';
-  };
 
   # ripgrep
   home.file.".ripgreprc".text = ''

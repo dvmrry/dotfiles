@@ -36,6 +36,7 @@
     nodejs
     python3
     rustup
+    uv
 
     # Dev tools
     go-task
@@ -124,6 +125,11 @@
   # Enable Touch ID for sudo (reattach fixes Touch ID inside tmux)
   security.pam.services.sudo_local.touchIdAuth = true;
   security.pam.services.sudo_local.reattach = true;
+
+  # Passwordless sudo for darwin-rebuild
+  security.sudo.extraConfig = ''
+    dm ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/darwin-rebuild
+  '';
 
   # Homebrew - for GUI apps (casks) that aren't in nixpkgs
   homebrew = {

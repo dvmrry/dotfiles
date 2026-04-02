@@ -1,0 +1,24 @@
+#!/bin/sh
+echo "=== Uptime ==="
+uptime
+
+echo "\n=== Disk Usage ==="
+df -H / /nix
+
+echo "\n=== Memory Pressure ==="
+memory_pressure | head -3
+
+echo "\n=== Nix Store ==="
+du -sh /nix/store 2>/dev/null
+
+echo "\n=== Power Management ==="
+pmset -g | grep -E 'sleep|standby|autopoweroff'
+
+echo "\n=== Recent Wake/Sleep ==="
+pmset -g log 2>/dev/null | grep -E "Wake|Sleep" | tail -5
+
+echo "\n=== SSH Sessions ==="
+who
+
+echo "\n=== tmux Sessions ==="
+tmux list-sessions 2>/dev/null || echo "No tmux sessions"
