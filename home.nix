@@ -492,7 +492,7 @@
             hooks = [
               {
                 type = "command";
-                command = "~/.claude/hooks/notify-sudo.sh";
+                command = "bash ~/.claude/hooks/notify-sudo.sh";
               }
             ];
           }
