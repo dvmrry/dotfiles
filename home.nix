@@ -99,6 +99,7 @@
     ];
     shellAliases = {
       ns = "nslookup";
+      servarr = "uv run --project ~/src/gh/dvmrry/talos-gitops/tools/servarr servarr";
       vi = "nvim";
       k = "kubecolor";
       tf = "tofu";
