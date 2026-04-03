@@ -23,6 +23,7 @@
   programs.git = {
     enable = true;
     lfs.enable = true;
+    signing.format = null;
     settings = {
       user = {
         name = "Dave Murray";
@@ -36,7 +37,6 @@
       diff.algorithm = "histogram";
       diff.colorMoved = "default";
       rerere.enabled = true;
-      signing.format = null;
       column.ui = "auto";
       branch.sort = "-committerdate";
       fetch.prune = true;
