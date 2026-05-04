@@ -1,4 +1,15 @@
-{ pkgs, lib, inputs, ... }: {
+{ pkgs, lib, inputs, ... }:
+let
+  # Pinned mattpocock/skills for declarative install of all 12 skills.
+  # Bump rev + sha256 to update; get sha256 via:
+  #   nix-prefetch-url --unpack https://github.com/mattpocock/skills/archive/<rev>.tar.gz
+  mattpocock-skills = pkgs.fetchFromGitHub {
+    owner = "mattpocock";
+    repo = "skills";
+    rev = "b843cb5ea74b1fe5e58a0fc23cddef9e66076fb8";
+    sha256 = "0x7gijjyl6yh89kgjd2dna02pry912yx5qnfy44ajkv7n3jm9s58";
+  };
+in {
 
   imports = [
     ./nvim
@@ -674,6 +685,20 @@
     source = ./claude/skills/cw-router;
     recursive = true;
   };
+
+  # Claude Code - mattpocock skills (pinned, all 12)
+  home.file.".claude/skills/diagnose".source                       = "${mattpocock-skills}/skills/engineering/diagnose";
+  home.file.".claude/skills/grill-with-docs".source                = "${mattpocock-skills}/skills/engineering/grill-with-docs";
+  home.file.".claude/skills/improve-codebase-architecture".source  = "${mattpocock-skills}/skills/engineering/improve-codebase-architecture";
+  home.file.".claude/skills/setup-matt-pocock-skills".source       = "${mattpocock-skills}/skills/engineering/setup-matt-pocock-skills";
+  home.file.".claude/skills/tdd".source                            = "${mattpocock-skills}/skills/engineering/tdd";
+  home.file.".claude/skills/to-issues".source                      = "${mattpocock-skills}/skills/engineering/to-issues";
+  home.file.".claude/skills/to-prd".source                         = "${mattpocock-skills}/skills/engineering/to-prd";
+  home.file.".claude/skills/triage".source                         = "${mattpocock-skills}/skills/engineering/triage";
+  home.file.".claude/skills/zoom-out".source                       = "${mattpocock-skills}/skills/engineering/zoom-out";
+  home.file.".claude/skills/caveman".source                        = "${mattpocock-skills}/skills/productivity/caveman";
+  home.file.".claude/skills/grill-me".source                       = "${mattpocock-skills}/skills/productivity/grill-me";
+  home.file.".claude/skills/write-a-skill".source                  = "${mattpocock-skills}/skills/productivity/write-a-skill";
 
   # Silence "Last login" message
   home.file.".hushlogin".text = "";
