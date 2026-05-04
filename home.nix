@@ -482,7 +482,7 @@ in {
 
     settings = {
       enabledPlugins = {
-        "superpowers@claude-plugins-official" = true;
+        "superpowers@superpowers-marketplace" = true;
         "frontend-design@claude-plugins-official" = true;
         "context7@claude-plugins-official" = true;
         "gopls-lsp@claude-plugins-official" = true;
