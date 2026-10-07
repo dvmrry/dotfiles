@@ -72,20 +72,18 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks = {
+    settings = {
       "*" = {
-        extraOptions = {
-          IdentityAgent = ''"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"'';
-          ControlMaster = "auto";
-          ControlPath = "~/.ssh/master-%r@%n:%p";
-          ControlPersist = "10m";
-          ServerAliveInterval = "30";
-          ServerAliveCountMax = "5";
-        };
+        IdentityAgent = ''"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"'';
+        ControlMaster = "auto";
+        ControlPath = "~/.ssh/master-%r@%n:%p";
+        ControlPersist = "10m";
+        ServerAliveInterval = 30;
+        ServerAliveCountMax = 5;
       };
       "github.com" = {
-        extraOptions.ControlMaster = "no";
-        user = "git";
+        User = "git";
+        ControlMaster = "no";
       };
     };
   };
