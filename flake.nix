@@ -22,6 +22,11 @@
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
 
     nixCats.url = "github:BirdeeHub/nixCats-nvim";
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, nix-darwin, home-manager, determinate, nixCats, ... }@inputs: {
@@ -58,6 +63,14 @@
           home-manager.backupFileExtension = "before-hm";
           home-manager.users.dm.imports = [ ./modules/home/base.nix ./hosts/cm02/home.nix ];
         }
+      ];
+    };
+
+    # GMKtec EVO-X2 (Strix Halo) - headless inference box, NixOS
+    nixosConfigurations."im01" = nixpkgs.lib.nixosSystem {
+      specialArgs = { inherit inputs; };
+      modules = [
+        ./hosts/im01
       ];
     };
   };
