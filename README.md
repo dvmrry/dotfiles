@@ -36,7 +36,7 @@ The flake output is picked by hostname. Before the first rebuild sets it, name i
 6. `sudo nix run nix-darwin -- switch --flake ~/.config/nix-darwin#<host>`
 7. Optional: `chsh -s /run/current-system/sw/bin/fish`
 
-cm01 only - restore the sops age key from 1Password:
+Restore the sops age key from 1Password (needed for `secrets/`):
 
 ```bash
 mkdir -p ~/.config/sops/age

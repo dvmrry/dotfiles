@@ -3,6 +3,10 @@
 # and making it read-only is what caused most of cm01's friction.
 { pkgs, ... }: {
 
+  imports = [
+    ../../nvim
+  ];
+
   home.stateVersion = "25.11";
   home.homeDirectory = "/Users/dm";
   home.username = "dm";
@@ -150,7 +154,7 @@
 
       set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
       set -gx RIPGREP_CONFIG_PATH "$HOME/.ripgreprc"
-      set -gx EDITOR vim
+      set -gx EDITOR nvim
     '';
   };
 
@@ -175,7 +179,7 @@
       eval "$(/opt/homebrew/bin/brew shellenv zsh)"
     '';
     envExtra = ''
-      export EDITOR='vim'
+      export EDITOR='nvim'
       export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
       export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
       export PATH="$HOME/.local/bin:$HOME/.config/nix-darwin/scripts:$PATH"

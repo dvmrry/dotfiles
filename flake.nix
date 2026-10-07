@@ -51,7 +51,7 @@
           home-manager.extraSpecialArgs = { inherit inputs; };
           # Rename pre-existing dotfiles instead of failing activation
           home-manager.backupFileExtension = "before-hm";
-          home-manager.users.dm.imports = [ ./modules/home/base.nix ];
+          home-manager.users.dm.imports = [ ./modules/home/base.nix ./hosts/cm02/home.nix ];
         }
       ];
     };
