@@ -4,6 +4,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
+    # Cluster-facing CLIs (talosctl, kubectl) pinned to match talos-homelab
+    # (talos-gitops talconfig.yaml: Talos v1.12.x, Kubernetes v1.35.x).
+    # Bump this rev when the cluster is upgraded.
+    nixpkgs-cluster.url = "github:NixOS/nixpkgs/6ebfbc3";
+
     nix-darwin = {
       url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -1,14 +1,19 @@
 # Kubernetes / Talos / Flux / OpenTofu tooling and shortcuts for the homelab.
-{ pkgs, ... }: {
-  home.packages = with pkgs; [
+{ pkgs, inputs, ... }:
+let
+  # Version-matched to the cluster; see nixpkgs-cluster in flake.nix
+  cluster = inputs.nixpkgs-cluster.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+in {
+  home.packages = (with pkgs; [
     fluxcd
     kubecolor
-    kubectl
     kubectx
     kubernetes-helm
     opentofu
     talhelper
-    talosctl
+  ]) ++ [
+    cluster.kubectl
+    cluster.talosctl
   ];
 
   programs.fish = {
