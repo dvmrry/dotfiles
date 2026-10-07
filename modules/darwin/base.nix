@@ -43,6 +43,13 @@
   security.pam.services.sudo_local.touchIdAuth = true;
   security.pam.services.sudo_local.reattach = true;
 
+  # Application firewall. Apple-signed services (sshd/Remote Login) stay
+  # reachable; stealth mode means no reply to ping or closed-port probes.
+  networking.applicationFirewall = {
+    enable = true;
+    enableStealthMode = true;
+  };
+
   # Pinned SSH host keys (from https://api.github.com/meta)
   programs.ssh.knownHosts.github = {
     hostNames = [ "github.com" ];
@@ -177,12 +184,22 @@
   determinateNix = {
     enable = true;
     determinateNixd.garbageCollector.strategy = "automatic";
+    # No keep-outputs/keep-derivations: on a 256GB disk they let build-time
+    # deps pile up. nix-direnv roots its own devShells.
     customSettings = {
-      keep-outputs = true;
-      keep-derivations = true;
       warn-dirty = false;
       extra-substituters = [ "https://nix-community.cachix.org" ];
       extra-trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+    };
+  };
+
+  # Nightly store dedup (hard-links identical files)
+  launchd.daemons.nix-store-optimise = {
+    command = "/nix/var/nix/profiles/default/bin/nix store optimise";
+    serviceConfig = {
+      StartCalendarInterval = [{ Hour = 3; Minute = 30; }];
+      StandardOutPath = "/var/log/nix-store-optimise.log";
+      StandardErrorPath = "/var/log/nix-store-optimise.log";
     };
   };
 

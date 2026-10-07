@@ -10,6 +10,7 @@
   homebrew.masApps = {
     "1Password for Safari" = 1569813296;
     "TestFlight" = 899247664;
+    "uBlock Origin Lite" = 6745342698;
   };
   # Not manageable by mas, so installed by hand after a rebuild:
   #   - Prologue (1459223267) and UHF (6443751726): iPad apps from the App Store;
