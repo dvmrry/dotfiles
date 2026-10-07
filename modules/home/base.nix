@@ -1,14 +1,18 @@
 # Shared user baseline: shell, git, ssh, terminal tooling.
 # Deliberately does NOT manage ~/.claude - Claude Code rewrites its own config,
 # and making it read-only is what caused most of cm01's friction.
-{ pkgs, ... }: {
+{ pkgs, lib, ... }:
+let
+  inherit (pkgs.stdenv.hostPlatform) isDarwin;
+  onePasswordAgent = "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
+in {
 
   imports = [
     ../../nvim
   ];
 
   home.stateVersion = "25.11";
-  home.homeDirectory = "/Users/dm";
+  home.homeDirectory = if isDarwin then "/Users/dm" else "/home/dm";
   home.username = "dm";
 
   # User-level packages
@@ -68,13 +72,15 @@
     };
   };
 
-  # SSH - 1Password agent + connection multiplexing
+  # SSH - 1Password agent (macOS) + connection multiplexing. Linux hosts use
+  # the agent forwarded from the Mac they're reached from.
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
     settings = {
-      "*" = {
-        IdentityAgent = ''"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"'';
+      "*" = lib.optionalAttrs isDarwin {
+        IdentityAgent = ''"${onePasswordAgent}"'';
+      } // {
         ControlMaster = "auto";
         ControlPath = "~/.ssh/master-%r@%n:%p";
         ControlPersist = "10m";
@@ -84,6 +90,13 @@
       "github.com" = {
         User = "git";
         ControlMaster = "no";
+      };
+    } // lib.optionalAttrs isDarwin {
+      # mDNS doesn't reach wired hosts reliably on this LAN (IGMP snooping)
+      "im01" = {
+        HostName = "172.19.0.119";
+        User = "dm";
+        ForwardAgent = "yes";
       };
     };
   };
@@ -100,7 +113,7 @@
     shellAliases = {
       ns = "nslookup";
     };
-    shellAbbrs = {
+    shellAbbrs = lib.optionalAttrs isDarwin {
       drs = "sudo darwin-rebuild switch --flake ~/.config/nix-darwin";
     };
     functions = {
@@ -150,7 +163,7 @@
       # Homebrew, local bins, and repo scripts
       fish_add_path -g /opt/homebrew/bin ~/.local/bin ~/.config/nix-darwin/scripts
 
-      set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+      ${lib.optionalString isDarwin ''set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"''}
       set -gx RIPGREP_CONFIG_PATH "$HOME/.ripgreprc"
       set -gx EDITOR nvim
     '';
@@ -170,16 +183,16 @@
       extended = true;
       share = true;
     };
-    shellAliases = {
+    shellAliases = lib.optionalAttrs isDarwin {
       drs = "sudo darwin-rebuild switch --flake ~/.config/nix-darwin";
     };
-    profileExtra = ''
+    profileExtra = lib.optionalString isDarwin ''
       eval "$(/opt/homebrew/bin/brew shellenv zsh)"
     '';
     envExtra = ''
       export EDITOR='nvim'
       export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
-      export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+      ${lib.optionalString isDarwin ''export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"''}
       export PATH="$HOME/.local/bin:$HOME/.config/nix-darwin/scripts:$PATH"
     '';
   };
@@ -307,7 +320,7 @@
 
   # Ghostty (installed via Homebrew cask, config managed by HM)
   programs.ghostty = {
-    enable = true;
+    enable = isDarwin; # GUI terminal; Linux hosts only need its terminfo
     package = null;
     enableFishIntegration = true;
     settings = {

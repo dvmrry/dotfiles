@@ -56,6 +56,12 @@
     };
   };
 
+  # Pinned SSH host keys (from https://api.github.com/meta)
+  programs.ssh.knownHosts.github = {
+    hostNames = [ "github.com" ];
+    publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl";
+  };
+
   users.users.dm = {
     isNormalUser = true;
     extraGroups = [ "wheel" "video" "render" ];
@@ -74,6 +80,7 @@
     amdgpu_top
     btop
     curl
+    ghostty.terminfo # SSH sessions from Ghostty (TERM=xterm-ghostty)
     git
     jq
     pciutils
