@@ -13,10 +13,14 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernelParams = [
+    # +1-16% prefill; also disables the NPU (amdxdna needs the IOMMU)
     "amd_iommu=off"
-    # Let the iGPU map up to ~115 GiB of system RAM as GTT (4 KiB pages)
-    "ttm.pages_limit=30146560"
-    "ttm.page_pool_size=30146560"
+    # Cap on system RAM the iGPU may map as GTT: 124 GiB in 4 KiB pages.
+    # Don't raise ttm.page_pool_size to match: a pool near RAM size deadlocks
+    # in drm_suballoc_new (unkillable, reboot only).
+    "ttm.pages_limit=32505856"
+    # Halogen: prevents silent GPU hangs (halogen-flash-server issue #83)
+    "amdgpu.noretry=0"
   ];
 
   hardware.enableRedistributableFirmware = true;
@@ -25,12 +29,25 @@
 
   zramSwap.enable = true;
 
-  # Networking: DHCP on wired, mDNS so im01.local resolves
+  # Networking: DHCP on wired (preferred) and Wi-Fi, mDNS so im01.local resolves
   networking.hostName = "im01";
   networking.useNetworkd = true;
   systemd.network.networks."10-wired" = {
     matchConfig.Name = "en*";
     networkConfig.DHCP = "yes";
+  };
+  # Wi-Fi (MT7925) via iwd. Credentials are entered once on the box and kept
+  # by iwd in /var/lib/iwd, never in this repo:
+  #   sudo iwctl station wlp195s0 connect <SSID>
+  networking.wireless.iwd = {
+    enable = true;
+    settings.General.EnableNetworkConfiguration = false; # networkd does DHCP
+  };
+  systemd.network.networks."20-wireless" = {
+    matchConfig.Name = "wl*";
+    networkConfig.DHCP = "yes";
+    dhcpV4Config.RouteMetric = 2048; # wired (1024) wins when plugged in
+    ipv6AcceptRAConfig.RouteMetric = 2048;
   };
   services.avahi = {
     enable = true;
@@ -40,7 +57,8 @@
       addresses = true;
     };
   };
-  networking.firewall.allowedTCPPorts = [ 22 ];
+  # 8731: Halogen API (no auth - LAN only)
+  networking.firewall.allowedTCPPorts = [ 22 8731 ];
 
   time.timeZone = "America/New_York";
 
@@ -88,6 +106,29 @@
     usbutils
     vim
   ];
+
+  # Inference: Halogen serving Qwen 3.8 Flash Next (OpenAI, Responses and
+  # Anthropic Messages APIs on :8731). Proprietary EULA, binary-only, no
+  # telemetry. First start downloads ~111 GB into /var/lib/halogen/models.
+  virtualisation.podman.enable = true;
+  virtualisation.oci-containers = {
+    backend = "podman";
+    containers.halogen = {
+      image = "ghcr.io/peonist-ai/halogen-flash-server:0.16.4";
+      ports = [ "8731:8731" ];
+      volumes = [ "/var/lib/halogen/models:/models" ];
+      environment = {
+        HALOGEN_DOWNLOAD = "peonist-ai/halogen-qwen3.8-flash-next";
+      };
+      extraOptions = [
+        "--device=/dev/kfd"
+        "--device=/dev/dri"
+        "--ipc=host"
+        "--ulimit=memlock=-1:-1"
+      ];
+    };
+  };
+  systemd.tmpfiles.rules = [ "d /var/lib/halogen/models 0755 root root -" ];
 
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];

@@ -6,6 +6,9 @@
     ../../modules/darwin/remote-access.nix
   ];
 
+  # Game streaming client (for the future Sunshine/Apollo box)
+  homebrew.casks = [ "moonlight" ];
+
   networking.hostName = "cm02";
   networking.computerName = "cm02";
 }
