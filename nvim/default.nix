@@ -22,7 +22,7 @@
         ];
         nix = with pkgs; [
           nil
-          nixfmt-rfc-style
+          nixfmt
         ];
         python = with pkgs; [
           pyright

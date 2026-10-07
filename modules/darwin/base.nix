@@ -61,6 +61,10 @@
       # Tighten to "uninstall" once the cask list is stable.
       cleanup = "none";
     };
+    # Coding agents come from brew: nixpkgs lags well behind their releases.
+    brews = [
+      "pi-coding-agent"
+    ];
     casks = [
       "1password"
       # From brew rather than nixpkgs: the 1Password app's CLI integration
@@ -68,6 +72,7 @@
       "1password-cli"
       # From brew rather than nixpkgs: tracks releases closely and self-updates.
       "claude-code"
+      "codex"
       "font-fira-code-nerd-font"
       "ghostty"
     ];
@@ -95,6 +100,10 @@
       ShowStatusBar = true;
       _FXSortFoldersFirst = true;
       QuitMenuItem = true;
+    };
+    WindowManager = {
+      GloballyEnabled = false; # Stage Manager off
+      EnableStandardClickToShowDesktop = false; # clicking wallpaper doesn't hide windows
     };
     loginwindow.GuestEnabled = false;
     menuExtraClock = {
@@ -134,7 +143,15 @@
       "com.apple.AdLib" = {
         allowApplePersonalizedAdvertising = false;
       };
+      "com.apple.SoftwareUpdate" = {
+        AutomaticCheckEnabled = true;
+        ScheduleFrequency = 1;
+        AutomaticDownload = 1;
+        CriticalUpdateInstall = 1;
+      };
     };
+    # Download updates, but never install a macOS upgrade unattended
+    SoftwareUpdate.AutomaticallyInstallMacOSUpdates = false;
   };
 
   # Reload preferences so most defaults apply without logging out

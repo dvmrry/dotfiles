@@ -3,7 +3,7 @@
 Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 
 - `cm01` — MacBook Air M1, headless devbox. Self-contained under `hosts/cm01/` (legacy layout).
-- `cm02` — Mac Mini M6, role still settling. Built from `modules/*/base.nix` + `hosts/cm02/`.
+- `cm02` — Mac Mini M6, likely primary desktop + remote box. Built from `modules/*/base.nix` + role modules imported in `hosts/cm02/{default,home}.nix`.
 
 ## The rule
 
@@ -22,14 +22,18 @@ Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 
 - `modules/darwin/base.nix` — shared system baseline. Must stay role-agnostic.
 - `modules/home/base.nix` — shared user baseline.
-- `hosts/<name>/` — host-specific settings; role modules (headless, window manager, media, ...) get imported here.
+- `hosts/<name>/` — host-specific settings. `default.nix` imports system role modules, `home.nix` imports Home Manager role modules.
+- `modules/darwin/remote-access.nix` — Remote Login (key-only sshd), never-sleep power settings.
+- `modules/home/homelab.nix` — k8s/Talos/Flux/OpenTofu CLIs and abbreviations.
+- `modules/home/secrets.nix` — sops; 1Password service account token loaded in SSH sessions only.
 - `hosts/cm01/` — cm01's original monolithic config. Not yet migrated onto `modules/`.
 - `scripts/` — wrapper scripts, on PATH.
 - `claude/skills/cw-*` — local skill dirs (used by cm01).
-- `secrets/*.yaml` — sops-encrypted (age key), cm01 only.
+- `secrets/*.yaml` — sops-encrypted (age key).
 
 ## Gotchas (don't relearn these)
 
+- **Coding agents** (claude-code, codex, pi-coding-agent) come from brew, not nixpkgs: nixpkgs lags months behind.
 - **Homebrew cleanup**: `cm02` uses `cleanup = "none"`; cm01 uses `"zap"`, which removes any cask/brew not listed — including ones installed by hand.
 - **Login shell**: `users.users.<name>.shell` is only applied for users in `users.knownUsers`, which must not contain admin accounts. Use `chsh` once.
 - **`security.sudo.extraRules` doesn't exist in nix-darwin.** Use `security.sudo.extraConfig` with raw sudoers syntax.
