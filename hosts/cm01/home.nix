@@ -12,7 +12,7 @@ let
 in {
 
   imports = [
-    ./nvim
+    ../../nvim
   ];
 
   home.stateVersion = "24.11";
@@ -641,7 +641,7 @@ in {
     };
 
     hooks = {
-      "notify-sudo.sh" = builtins.readFile ./claude/notify-sudo.sh;
+      "notify-sudo.sh" = builtins.readFile ../../claude/notify-sudo.sh;
     };
   };
 
@@ -666,23 +666,23 @@ in {
 
   # Claude Code - creative writing skills (community)
   home.file.".claude/skills/cw-brainstorming" = {
-    source = ./claude/skills/cw-brainstorming;
+    source = ../../claude/skills/cw-brainstorming;
     recursive = true;
   };
   home.file.".claude/skills/cw-prose-writing" = {
-    source = ./claude/skills/cw-prose-writing;
+    source = ../../claude/skills/cw-prose-writing;
     recursive = true;
   };
   home.file.".claude/skills/cw-story-critique" = {
-    source = ./claude/skills/cw-story-critique;
+    source = ../../claude/skills/cw-story-critique;
     recursive = true;
   };
   home.file.".claude/skills/cw-style-skill-creator" = {
-    source = ./claude/skills/cw-style-skill-creator;
+    source = ../../claude/skills/cw-style-skill-creator;
     recursive = true;
   };
   home.file.".claude/skills/cw-router" = {
-    source = ./claude/skills/cw-router;
+    source = ../../claude/skills/cw-router;
     recursive = true;
   };
 

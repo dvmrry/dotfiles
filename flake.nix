@@ -20,17 +20,38 @@
   };
 
   outputs = { self, nixpkgs, nix-darwin, home-manager, determinate, nixCats, ... }@inputs: {
+
+    # MacBook Air M1 - headless devbox (legacy layout, not yet on modules/)
     darwinConfigurations."cm01" = nix-darwin.lib.darwinSystem {
       system = "aarch64-darwin";
       modules = [
         determinate.darwinModules.default
-        ./configuration.nix
+        ./hosts/cm01/configuration.nix
         home-manager.darwinModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.users.dm = import ./home.nix;
+          home-manager.users.dm = import ./hosts/cm01/home.nix;
+        }
+      ];
+    };
+
+    # Mac Mini M6 - role TBD, so only the shared base for now
+    darwinConfigurations."cm02" = nix-darwin.lib.darwinSystem {
+      specialArgs = { inherit inputs; };
+      modules = [
+        determinate.darwinModules.default
+        ./modules/darwin/base.nix
+        ./hosts/cm02
+        home-manager.darwinModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.extraSpecialArgs = { inherit inputs; };
+          # Rename pre-existing dotfiles instead of failing activation
+          home-manager.backupFileExtension = "before-hm";
+          home-manager.users.dm.imports = [ ./modules/home/base.nix ];
         }
       ];
     };
