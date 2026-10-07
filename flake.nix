@@ -71,6 +71,14 @@
       specialArgs = { inherit inputs; };
       modules = [
         ./hosts/im01
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.backupFileExtension = "before-hm";
+          home-manager.users.dm.imports = [ ./modules/home/base.nix ];
+        }
       ];
     };
   };
