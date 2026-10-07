@@ -1,47 +1,43 @@
 # nix-darwin config
 
-This is Dave's headless macOS dev environment (cm01, MacBook Air M1), managed declaratively via nix-darwin + Home Manager (flake-based).
+Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 
-## The one rule
+- `cm01` — MacBook Air M1, headless devbox. Self-contained under `hosts/cm01/` (legacy layout).
+- `cm02` — Mac Mini M6, role still settling. Built from `modules/*/base.nix` + `hosts/cm02/`.
 
-**Everything is declarative.** No `brew install`, no `claude plugin marketplace add`, no `pip install`, no manual edits to `~/.claude/*` files, no editing `/etc/sudoers` directly. If a change can't be expressed in `configuration.nix`, `home.nix`, or files under this repo, **stop and flag it** — don't reach for the imperative shortcut.
+## The rule
 
-There is one known mutable-state gap: marketplace registration for Claude Code plugins (see below). Don't introduce new gaps without explicit signoff.
+**Nix owns the slow-moving basics; apps own their own state.**
+
+- Declarative: system packages, macOS defaults, Homebrew cask list, shell/git/ssh/tmux/terminal config.
+- Not Nix-managed: anything an app rewrites itself. In particular **`~/.claude` is not managed on `cm02`** — Claude Code settings, plugins, marketplaces and MCPs are configured with `claude` itself. (On cm01, HM made `settings.json` read-only, which broke `claude plugin install` and forced workarounds; don't reintroduce that.)
+- If an app-written config should be version-controlled, use `config.lib.file.mkOutOfStoreSymlink` to point at a file in this repo (stays writable) rather than `home.file.<x>.text`/`source` (read-only store copy). Verify the app doesn't replace the symlink with a regular file on save.
+- Prefer per-project devShells (direnv) over adding language toolchains / infra CLIs to the base.
 
 ## Apply changes
 
-`drs` — alias for `sudo darwin-rebuild switch --flake ~/.config/nix-darwin`. Passwordless sudo is wired for this command only.
+`drs` — alias for `sudo darwin-rebuild switch --flake ~/.config/nix-darwin`.
 
 ## Where things live
 
-- `configuration.nix` — system-level: packages, casks (Homebrew via nix-darwin), sudo rules, system defaults.
-- `home.nix` — user-level: shell, git, tmux, Claude Code config, MCPs, skills, hooks.
-- `scripts/` — wrapper scripts referenced from Nix (e.g. `scripts/bambuddy-mcp-wrapper`). Added to PATH.
-- `claude/skills/cw-*` — local skill dirs symlinked via `home.file`.
-- `secrets/*.yaml` — sops-encrypted (age key).
-
-## Adding things
-
-### Skills
-- **Local skill** (lives in this repo): drop the dir under `claude/skills/<name>/` and add a `home.file.".claude/skills/<name>" = { source = ./claude/skills/<name>; recursive = true; };` entry.
-- **Upstream skill** (from a GitHub repo): add a `pkgs.fetchFromGitHub` to the `let` block at the top of `home.nix` (pinned `rev` + `sha256`), then `home.file.".claude/skills/<name>".source = "${src}/path/to/skill";`. See the `mattpocock-skills` block for the pattern. Get sha256 with: `nix-prefetch-url --unpack https://github.com/<owner>/<repo>/archive/<rev>.tar.gz`.
-
-### MCP servers
-**Go in `home.file.".claude/mcp.json"`, NOT `programs.claude-code.settings.mcpServers`.** Claude Code reads from `mcp.json`, not from `settings.json`. We've made this mistake before.
-
-### Plugins from a real marketplace
-Add to `programs.claude-code.settings.enabledPlugins` in `home.nix` as `"<plugin>@<marketplace>" = true;`. The marketplace itself must already be registered via `claude plugin marketplace add <source>` — that step is the one mutable-state gap; the registration sits in `~/.claude/plugins/known_marketplaces.json`. Don't try to write that file via `home.file` — Claude Code rewrites it.
-
-### Hooks
-Hook `command` strings must be prefixed with `bash` (e.g. `"bash ~/.claude/hooks/foo.sh"`). Files in the nix store are `r--r--r--` (no execute bit), so direct invocation fails with a `PreToolUse:Bash hook error`.
+- `modules/darwin/base.nix` — shared system baseline. Must stay role-agnostic.
+- `modules/home/base.nix` — shared user baseline.
+- `hosts/<name>/` — host-specific settings; role modules (headless, window manager, media, ...) get imported here.
+- `hosts/cm01/` — cm01's original monolithic config. Not yet migrated onto `modules/`.
+- `scripts/` — wrapper scripts, on PATH.
+- `claude/skills/cw-*` — local skill dirs (used by cm01).
+- `secrets/*.yaml` — sops-encrypted (age key), cm01 only.
 
 ## Gotchas (don't relearn these)
 
-- **`security.sudo.extraRules` doesn't exist in nix-darwin.** Use `security.sudo.extraConfig` with raw sudoers syntax. (NixOS has `extraRules`; nix-darwin doesn't.)
-- **Home Manager 25.05 git signing**: `programs.git.signing.format` must be set at the module level, NOT inside `programs.git.settings`. Setting it inside `settings` fails type-check.
-- **macOS `grep -P` doesn't work** — use `sed` for regex extraction in any script that needs to run here.
-- **Plugin install via `claude plugin install`** writes to `settings.json`, which is nix-managed (read-only). Use `enabledPlugins` in `home.nix` instead.
-- **`uv` and `uvx`** are installed system-wide via `configuration.nix`. Use `uv run --project <path>` to invoke project-local CLIs.
+- **Homebrew cleanup**: `cm02` uses `cleanup = "none"`; cm01 uses `"zap"`, which removes any cask/brew not listed — including ones installed by hand.
+- **Login shell**: `users.users.<name>.shell` is only applied for users in `users.knownUsers`, which must not contain admin accounts. Use `chsh` once.
+- **`security.sudo.extraRules` doesn't exist in nix-darwin.** Use `security.sudo.extraConfig` with raw sudoers syntax.
+- **Home Manager git signing**: `programs.git.signing.format` is set at the module level, not inside `programs.git.settings`.
+- **Hooks / scripts in the nix store** have no execute bit — invoke via `bash <path>`.
+- **macOS `grep -P` doesn't work** — use `sed` for regex extraction.
+- **mDNS renames** (`cm02-2`, `cm02 (2)`): macOS renames itself when it sees its own name on the LAN (Wi-Fi + Ethernet on the same network, Bonjour Sleep Proxy). `modules/darwin/pin-hostname.nix` reverts it; check `/var/log/pin-hostname.log`. Frequent entries mean a real cause worth fixing.
+- **MCP servers (cm01)**: were written to `~/.claude/mcp.json` via HM. On `cm02`, add them with `claude mcp add` instead.
 
 ## Commits
 
