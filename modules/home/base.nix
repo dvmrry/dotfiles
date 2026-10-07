@@ -51,12 +51,12 @@
     };
   };
 
-  # GitHub CLI (also provides git's HTTPS credential helper)
+  # GitHub CLI. SSH for git; the credential helper only covers stray HTTPS remotes
   programs.gh = {
     enable = true;
     gitCredentialHelper.enable = true;
     settings = {
-      git_protocol = "https";
+      git_protocol = "ssh";
       prompt = "enabled";
       aliases = {
         co = "pr checkout";
