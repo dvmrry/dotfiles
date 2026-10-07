@@ -6,8 +6,15 @@
     ../../modules/darwin/remote-access.nix
   ];
 
-  # Game streaming client (for the future Sunshine/Apollo box)
-  homebrew.casks = [ "moonlight" ];
+  # Mac App Store apps (installed via `mas`; must be signed in to the App Store).
+  homebrew.masApps = {
+    "1Password for Safari" = 1569813296;
+    "TestFlight" = 899247664;
+  };
+  # Not manageable by mas, so installed by hand after a rebuild:
+  #   - Prologue (1459223267) and UHF (6443751726): iPad apps from the App Store;
+  #     mas can't see or install iPad-on-Mac apps.
+  #   - Punktfunk: game-streaming client (Moonlight replacement), TestFlight build.
 
   networking.hostName = "cm02";
   networking.computerName = "cm02";
