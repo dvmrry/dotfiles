@@ -114,9 +114,12 @@
   virtualisation.oci-containers = {
     backend = "podman";
     containers.halogen = {
-      image = "ghcr.io/peonist-ai/halogen-flash-server:0.16.4";
+      image = "ghcr.io/peonist-ai/halogen-flash-server:0.17.4";
       ports = [ "8731:8731" ];
       volumes = [ "/var/lib/halogen/models:/models" ];
+      # No HALOGEN_TEMPERATURE on purpose: requests without a temperature
+      # decode greedy, which scored better on real worker tasks than Qwen's
+      # recommended sampling (temp 1.0 / top_p 0.95 / top_k 20).
       environment = {
         HALOGEN_DOWNLOAD = "peonist-ai/halogen-qwen3.8-flash-next";
       };
