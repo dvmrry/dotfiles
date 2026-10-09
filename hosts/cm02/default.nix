@@ -29,6 +29,8 @@
   };
   # jjang tiles into the reclaimed strip; the menu bar slides over on hover.
   system.defaults.NSGlobalDomain._HIHideMenuBar = true;
+  # macOS 26+ setting behind "Automatically hide and show the menu bar"; 0 = Always.
+  system.defaults.CustomUserPreferences.NSGlobalDomain.AutoHideMenuBarOption = 0;
 
   networking.hostName = "cm02";
   networking.computerName = "cm02";
