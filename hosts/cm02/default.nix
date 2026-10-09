@@ -20,6 +20,14 @@
   #     mas can't see or install iPad-on-Mac apps.
   #   - Punktfunk: game-streaming client (Moonlight replacement), TestFlight build.
 
+  # jjang (tiling WM) owns window placement here; macOS's own edge tiling is a second writer for the same
+  # gestures (jjang throws windows to screen edges), so it's off. Option-drag and top-edge fill too.
+  system.defaults.WindowManager = {
+    EnableTilingByEdgeDrag = false;
+    EnableTopTilingByEdgeDrag = false;
+    EnableTilingOptionAccelerator = false;
+  };
+
   networking.hostName = "cm02";
   networking.computerName = "cm02";
 }
