@@ -11,6 +11,9 @@
     "1Password for Safari" = 1569813296;
     "TestFlight" = 899247664;
     "uBlock Origin Lite" = 6745342698;
+    # Full Xcode (~10–15 GB): needed for App Intents metadata (jjang) and Apple-platform work.
+    # Simulator runtimes are installed separately from Xcode as needed.
+    "Xcode" = 497799835;
   };
   # Not manageable by mas, so installed by hand after a rebuild:
   #   - Prologue (1459223267) and UHF (6443751726): iPad apps from the App Store;
