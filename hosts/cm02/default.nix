@@ -27,6 +27,8 @@
     EnableTopTilingByEdgeDrag = false;
     EnableTilingOptionAccelerator = false;
   };
+  # jjang tiles into the reclaimed strip; the menu bar slides over on hover.
+  system.defaults.NSGlobalDomain._HIHideMenuBar = true;
 
   networking.hostName = "cm02";
   networking.computerName = "cm02";
