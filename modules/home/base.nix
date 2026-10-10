@@ -344,6 +344,15 @@ in {
       cursor-style = "block";
       mouse-hide-while-typing = true;
       scrollback-limit = 50000;
+      # Quick terminal: a panel pinned to the right of the main display that follows you across Spaces and stays
+      # up when focus moves (watches, live TUIs). jjang tiles beside it. The global toggle needs Ghostty to have
+      # Accessibility permission.
+      quick-terminal-position = "right";
+      quick-terminal-size = "25%";
+      quick-terminal-autohide = false;
+      quick-terminal-space-behavior = "move";
+      quick-terminal-screen = "main";
+      keybind = [ "global:ctrl+grave_accent=toggle_quick_terminal" ];
     };
   };
 
