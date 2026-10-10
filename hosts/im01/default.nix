@@ -39,8 +39,11 @@
   # Wi-Fi (MT7925) via iwd. Credentials are entered once on the box and kept
   # by iwd in /var/lib/iwd, never in this repo:
   #   sudo iwctl station wlp195s0 connect <SSID>
+  # Off until a prod SSID exists on the wired VLAN: on 172.19.0.0/24 Wi-Fi adds
+  # an on-link route to the Macs' subnet, so replies to them leave via wlan0
+  # and the gateway drops the half-seen flow. Credentials in /var/lib/iwd stay.
   networking.wireless.iwd = {
-    enable = true;
+    enable = false;
     settings.General.EnableNetworkConfiguration = false; # networkd does DHCP
   };
   systemd.network.networks."20-wireless" = {
