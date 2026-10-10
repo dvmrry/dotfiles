@@ -124,6 +124,11 @@ in {
         set host (string replace -r ':.*' "" $host)
         command nslookup $host $argv[2..]
       '';
+      # sponge filter: drop only typos (127 = command not found). Everything
+      # else that fails (ssh, Ctrl-C, builds) stays in history.
+      sponge_filter_typo = ''
+        test "$argv[2]" = 127
+      '';
     };
     loginShellInit = ''
       # Fix nix-darwin PATH ordering - ensure nix binaries take priority
@@ -134,6 +139,7 @@ in {
     '';
     interactiveShellInit = ''
       set -g fish_greeting
+      set -g sponge_filters sponge_filter_typo
 
       # Tokyo Night colors
       set -g fish_color_normal c0caf5
@@ -331,6 +337,8 @@ in {
       window-padding-y = 8;
       window-padding-balance = true;
       macos-titlebar-style = "transparent";
+      macos-titlebar-proxy-icon = "hidden";
+      title = " "; # blank titlebar text (empty string would reset to default)
       confirm-close-surface = false;
       copy-on-select = "clipboard";
       cursor-style = "block";
