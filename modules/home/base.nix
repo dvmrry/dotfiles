@@ -338,6 +338,8 @@ in {
       window-padding-balance = true;
       macos-titlebar-style = "transparent";
       macos-titlebar-proxy-icon = "hidden";
+      macos-option-as-alt = true;
+      window-save-state = "always";
       title = " "; # blank titlebar text (empty string would reset to default)
       confirm-close-surface = false;
       copy-on-select = "clipboard";
