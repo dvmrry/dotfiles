@@ -5,7 +5,7 @@ Measures, per case: time to first token (TTFT), prefill tok/s, decode tok/s,
 for code vs prose output at several context depths, cold vs warm prompt cache,
 plus a tool-call round trip. Stdlib only.
 
-  llm-bench [--url http://172.19.0.119:8731/v1] [--model halogen-qwen3.8-flash-next]
+  llm-bench [--url http://172.18.0.50:8731/v1] [--model halogen-qwen3.8-flash-next]
             [--ctx 1000,32000,128000] [--max-tokens 400] [--json out.json]
 """
 import argparse
@@ -117,7 +117,7 @@ def tool_check(url, model):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--url", default="http://172.19.0.119:8731/v1")
+    ap.add_argument("--url", default="http://172.18.0.50:8731/v1")
     ap.add_argument("--model", default="halogen-qwen3.8-flash-next")
     ap.add_argument("--ctx", default="1000,32000,128000", help="comma-separated context sizes")
     ap.add_argument("--max-tokens", type=int, default=400)

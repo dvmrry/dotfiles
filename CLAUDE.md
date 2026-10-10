@@ -18,7 +18,7 @@ Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 
 - Macs: `drs` — alias for `sudo darwin-rebuild switch --flake ~/.config/nix-darwin`.
 - im01 (NixOS), from a Mac — evaluates locally, builds and activates on im01:
-  `nix run nixpkgs#nixos-rebuild-ng -- switch --flake .#im01 --target-host dm@172.19.0.119 --build-host dm@172.19.0.119 --elevate sudo`
+  `nix run nixpkgs#nixos-rebuild-ng -- switch --flake .#im01 --target-host dm@172.18.0.50 --build-host dm@172.18.0.50 --elevate sudo`
 
 ## Where things live
 
