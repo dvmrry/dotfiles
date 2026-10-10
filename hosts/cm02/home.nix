@@ -2,6 +2,7 @@
 { ... }: {
   imports = [
     ../../modules/home/homelab.nix
+    ../../modules/home/media.nix
     ../../modules/home/secrets.nix
   ];
 }
