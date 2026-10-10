@@ -78,7 +78,8 @@
       # expects `op` at a stable path outside the nix store.
       "1password-cli"
       # From brew rather than nixpkgs: tracks releases closely and self-updates.
-      "claude-code"
+      # @latest channel: new models land there before stable.
+      "claude-code@latest"
       "codex"
       "font-fira-code-nerd-font"
       "ghostty"
