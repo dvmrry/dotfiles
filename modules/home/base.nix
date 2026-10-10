@@ -94,7 +94,7 @@ in {
     } // lib.optionalAttrs isDarwin {
       # mDNS doesn't reach wired hosts reliably on this LAN (IGMP snooping)
       "im01" = {
-        HostName = "172.19.0.119";
+        HostName = "172.18.0.50";
         User = "dm";
         ForwardAgent = "yes";
       };
