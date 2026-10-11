@@ -19,6 +19,7 @@ Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 - Macs: `drs` — alias for `sudo darwin-rebuild switch --flake ~/.config/nix-darwin`.
 - im01 (NixOS), from a Mac — evaluates locally, builds and activates on im01:
   `nix run nixpkgs#nixos-rebuild-ng -- switch --flake .#im01 --target-host dm@172.18.0.50 --build-host dm@172.18.0.50 --elevate sudo`
+- gm01 (NixOS desktop): same command with `.#gm01` and its address.
 
 ## Where things live
 
@@ -38,6 +39,7 @@ Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 - **Shared home module is cross-platform**: Mac-only bits (1Password agent socket, `brew shellenv`, Ghostty, `drs`) are gated on `pkgs.stdenv.hostPlatform.isDarwin`. Linux hosts get the agent via `ForwardAgent` from the Mac.
 - **mDNS to wired hosts fails on this LAN** (IGMP snooping, no querier): `im01.local` won't resolve from the Macs. Use the `im01` ssh alias / IP.
 - **nixos-anywhere** (fresh installs): skipping the kexec phase makes it connect as `root@`, and it can't use the 1Password agent. Authorize a throwaway file key for root on the installer and pass `-i`; delete it afterwards.
+- **gm01 uses punktfunk's nixpkgs**, not this flake's: `nix flake update punktfunk` moves gm01's whole system. Its punktfunk packages only hit the `nix.unom.io` cache on that nixpkgs.
 - **Strix Halo NPU** (`amdxdna`) refuses to probe with `amd_iommu=off` ("Running without IOMMU not supported").
 - **Coding agents** (claude-code, codex, pi-coding-agent) come from brew, not nixpkgs: nixpkgs lags months behind.
 - **Homebrew cleanup**: `cm02` uses `cleanup = "none"`; cm01 uses `"zap"`, which removes any cask/brew not listed — including ones installed by hand.
