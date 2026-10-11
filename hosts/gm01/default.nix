@@ -106,7 +106,10 @@
     users = [ "dm" ];
     openFirewall = true;
     autoStart = true; # with linger: up at boot, no login needed
-    settings.PUNKTFUNK_COMPOSITOR = "gamescope"; # no session to detect
+    settings = {
+      PUNKTFUNK_COMPOSITOR = "gamescope"; # no session to detect
+      PUNKTFUNK_GAMESCOPE_APP = "steam -gamepadui"; # Big Picture in each stream
+    };
   };
 
   # SSH: key-only, same hardening as the Macs
