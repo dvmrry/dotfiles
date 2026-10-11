@@ -45,7 +45,12 @@
   #   sudo iwctl station wlan0 connect <SSID>
   networking.wireless.iwd = {
     enable = true;
-    settings.General.EnableNetworkConfiguration = false; # networkd does DHCP
+    settings = {
+      General.EnableNetworkConfiguration = false; # networkd does DHCP
+      # The AP's 5 GHz radio is on a DFS channel, which a scan often misses,
+      # and iwd won't leave a strong 2.4 GHz link for it on its own
+      Rank.BandModifier2_4GHz = 0.5;
+    };
   };
   systemd.network.networks."20-wireless" = {
     matchConfig.Name = "wl*";
