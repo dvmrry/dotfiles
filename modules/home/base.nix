@@ -376,16 +376,19 @@ in
       window-padding-x = 12;
       window-padding-y = 8;
       window-padding-balance = true;
-      macos-titlebar-style = "transparent";
+      macos-titlebar-style = "hidden"; # jjang tiles; the titlebar strip is dead space
       macos-titlebar-proxy-icon = "hidden";
-      macos-option-as-alt = true;
+      macos-option-as-alt = "left"; # right Option still types é, —, etc.
       window-save-state = "always";
       title = " "; # blank titlebar text (empty string would reset to default)
       confirm-close-surface = false;
       copy-on-select = "clipboard";
       cursor-style = "block";
       mouse-hide-while-typing = true;
-      scrollback-limit = 50000;
+      scrollback-limit = 100000000; # bytes, per surface, allocated lazily (default 10 MB)
+      # Over ssh: install Ghostty's terminfo on the remote, fall back to xterm-256color if that fails.
+      shell-integration-features = "ssh-env,ssh-terminfo";
+      notify-on-command-finish = "unfocused";
       # Quick terminal: a panel pinned to the right of the main display that follows you across Spaces and stays
       # up when focus moves (watches, live TUIs). jjang tiles beside it. The global toggle needs Ghostty to have
       # Accessibility permission.
