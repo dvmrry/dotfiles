@@ -201,9 +201,10 @@ in
   systemd.services.podman-strata.conflicts = [ "llama.service" ];
   # Qwen3.8 27B, the profile tuned on Windows (Aug 2026) and re-measured
   # here: UD-IQ4_XS with its built-in MTP head, depth 3. 64K is the largest
-  # context that fits beside MTP; 80K doesn't on this build. ~104 tok/s on
-  # code, ~70 on prose (short prompts). Template: the Windows-tested one that
-  # accepts system + developer messages together (pi sends both).
+  # context that fits beside MTP; 80K doesn't on this build. ~113 tok/s on
+  # the Windows coding harness. Thinking is off by default: unbounded, it
+  # spends whole budgets reasoning without answering. A request that turns it
+  # on gets a 1K budget, which on Windows fixed the hard tasks.
   systemd.services.llama = {
     description = "llama.cpp: Qwen3.8 27B";
     conflicts = [ "podman-strata.service" ];
@@ -219,8 +220,10 @@ in
         "--spec-type" "draft-mtp" "--spec-draft-n-min" "1" "--spec-draft-n-max" "3"
         # the hybrid (DeltaNet) layers can't rewind; checkpoints let multi-turn
         # agents reuse their prefix instead of re-reading it every turn
-        "--cache-ram" "8192" "--ctx-checkpoints" "1"
-        "--jinja" "--chat-template-file" "${./qwen38-safe-v2.jinja}"
+        "--cache-ram" "8192" "--ctx-checkpoints" "8"
+        "--jinja" "--no-mmproj"
+        "--reasoning" "off" "--reasoning-budget" "1024"
+        "--reasoning-budget-message" "Wait, I'm overthinking this. Stop reasoning and write the requested code now."
         "--temp" "0.2" "--top-p" "0.8" "--top-k" "20" "--min-p" "0"
         "--metrics" "--host" "0.0.0.0" "--port" "8731"
       ];
