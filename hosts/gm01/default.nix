@@ -71,6 +71,11 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # No one is logged in at the seat, so don't hold Bluetooth audio back
+    # until someone is (sound cards: dm is in `audio`, below)
+    wireplumber.extraConfig."10-no-seat"."wireplumber.profiles".main = {
+      "monitor.bluez.seat-monitoring" = "disabled";
+    };
   };
 
   # No desktop and no login: Punktfunk starts a headless gamescope running
@@ -132,7 +137,9 @@
 
   users.users.dm = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "render" ];
+    # audio: sound cards are otherwise granted only to a seat login, and
+    # gm01 has none
+    extraGroups = [ "wheel" "video" "render" "audio" ];
     shell = pkgs.fish;
     # 1Password id_ed25519
     openssh.authorizedKeys.keys = [
