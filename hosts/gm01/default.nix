@@ -1,6 +1,6 @@
-# Desktop: ASUS ROG Strix B650E-I, Ryzen 7 7800X3D, 64 GB DDR5-6000,
-# RTX 4070 Ti Super 16 GB. Mostly headless gaming box streamed with Punktfunk,
-# sometimes used at a DP monitor; local LLMs later. BIOS: Secure Boot off.
+# ASUS ROG Strix B650E-I, Ryzen 7 7800X3D, 64 GB DDR5-6000, RTX 4070 Ti
+# Super 16 GB. Headless gaming box streamed with Punktfunk (SteamOS-style, no
+# desktop); local LLMs later. BIOS: Secure Boot off, iGPU off.
 { config, pkgs, inputs, ... }: {
   imports = [
     inputs.disko.nixosModules.disko
@@ -10,8 +10,8 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  # Keep the CPU's iGPU (Raphael) idle so the desktop, games and NVENC all
-  # stay on the 4070 Ti Super; plug monitors into the graphics card.
+  # Keep the CPU's iGPU (Raphael) idle so games and NVENC stay on the 4070 Ti
+  # Super, even with the iGPU on Auto in the BIOS.
   boot.blacklistedKernelModules = [ "amdgpu" ];
 
   hardware.enableRedistributableFirmware = true;
@@ -73,27 +73,10 @@
     pulse.enable = true;
   };
 
-  # Desktop: Plasma 6 (Wayland), logged in at boot so a streamed session
-  # always has a desktop to attach to
-  services.desktopManager.plasma6.enable = true;
-  services.displayManager = {
-    sddm = {
-      enable = true;
-      wayland.enable = true;
-    };
-    autoLogin = {
-      enable = true;
-      user = "dm";
-    };
-    defaultSession = "plasma";
-  };
-  # No idle lock: a locked screen would greet every stream (system default;
-  # Plasma's own settings still override it per user)
-  environment.etc."xdg/kscreenlockerrc".text = ''
-    [Daemon]
-    Autolock=false
-    LockOnResume=false
-  '';
+  # No desktop and no login: Punktfunk starts a headless gamescope running
+  # Steam Big Picture for each client (see services.punktfunk below). dm's
+  # user services (Punktfunk, PipeWire) run from boot, like im01's Halogen.
+  users.users.dm.linger = true;
   # Never sleep: a suspended box can't be streamed to
   systemd.targets = {
     sleep.enable = false;
@@ -114,15 +97,16 @@
     capSysNice = true;
   };
 
-  # Streaming: Punktfunk host, one virtual display per client at its own
-  # resolution and refresh rate. Pair from the web console on :47992.
+  # Streaming: Punktfunk host. Each client gets its own headless gamescope
+  # ("bare spawn") at the client's resolution and refresh rate, with HDR via
+  # punktfunk's patched gamescope. Pair from the web console on :47992.
   # Moonlight (GameStream) is off; enable with host.gamestream = true.
   services.punktfunk.host = {
     enable = true;
     users = [ "dm" ];
     openFirewall = true;
-    autoStart = true;
-    desktopSession = true; # restart with Plasma, or capture breaks silently
+    autoStart = true; # with linger: up at boot, no login needed
+    settings.PUNKTFUNK_COMPOSITOR = "gamescope"; # no session to detect
   };
 
   # SSH: key-only, same hardening as the Macs
@@ -152,12 +136,10 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE8zyMqlC1LHHWWk0v/wdfaVGYBoZSvD64xaAQZ5dOYh"
     ];
   };
-  # dm logs in by key (SSH) or autologin (desktop); sudo can't prompt for a
-  # password it doesn't have. Set one with `passwd` for local use if wanted.
+  # dm has no password (key-only), so sudo can't prompt for one
   security.sudo.wheelNeedsPassword = false;
 
   programs.fish.enable = true;
-  programs.firefox.enable = true;
 
   environment.systemPackages = with pkgs; [
     btop
