@@ -42,7 +42,7 @@
   };
   # Wi-Fi (MT7922) via iwd. Credentials are entered once on the box and kept
   # by iwd in /var/lib/iwd, never in this repo:
-  #   sudo iwctl station wlp9s0 connect <SSID>
+  #   sudo iwctl station wlan0 connect <SSID>
   networking.wireless.iwd = {
     enable = true;
     settings.General.EnableNetworkConfiguration = false; # networkd does DHCP
