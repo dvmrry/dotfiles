@@ -83,7 +83,8 @@
   users.users.dm = {
     isNormalUser = true;
     extraGroups = [ "wheel" "video" "render" ];
-    shell = pkgs.fish;
+    # bash as the login shell so `ssh host 'cmd'`, scp and scripts get POSIX; interactive logins exec fish (below)
+    shell = pkgs.bash;
     # 1Password id_ed25519
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE8zyMqlC1LHHWWk0v/wdfaVGYBoZSvD64xaAQZ5dOYh"
@@ -93,6 +94,14 @@
   security.sudo.wheelNeedsPassword = false;
 
   programs.fish.enable = true;
+  # Interactive sessions switch to fish; non-interactive commands (ssh host 'cmd') stay in bash. The parent check
+  # keeps `nix develop` / `nix-shell` (bash started from fish) in bash.
+  programs.bash.interactiveShellInit = ''
+    if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING} ]]; then
+      shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
+      exec ${pkgs.fish}/bin/fish $LOGIN_OPTION
+    fi
+  '';
 
   environment.systemPackages = with pkgs; [
     amdgpu_top
