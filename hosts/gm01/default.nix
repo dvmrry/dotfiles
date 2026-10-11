@@ -15,6 +15,9 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.timeout = 1; # POST already takes a minute (memory training)
+  # Memory Context Restore corrupted memory here (2x32 GB EXPO 6000); keep it
+  # on Auto. memtest86+ in the boot menu to check the kit (hold Space at boot).
+  boot.loader.systemd-boot.memtest86.enable = true;
   # Keep the CPU's iGPU (Raphael) idle so games and NVENC stay on the 4070 Ti
   # Super, even with the iGPU on Auto in the BIOS.
   boot.blacklistedKernelModules = [ "amdgpu" ];
