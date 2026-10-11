@@ -21,6 +21,11 @@
   #     mas can't see or install iPad-on-Mac apps.
   #   - Punktfunk: game-streaming client (Moonlight replacement), TestFlight build.
 
+  # RuneLite (OSRS), Apple silicon native. No Jagex Launcher here (Intel-only, needs Rosetta):
+  # log in via ~/.runelite/credentials.properties, written by a launcher run on another machine
+  # with RuneLite's --insecure-write-credentials flag. Not in this repo; it's a live session.
+  homebrew.casks = [ "runelite" ];
+
   # jjang (tiling WM) owns window placement here; macOS's own edge tiling is a second writer for the same
   # gestures (jjang throws windows to screen edges), so it's off. Option-drag and top-edge fill too.
   system.defaults.WindowManager = {
