@@ -122,6 +122,62 @@
     };
   };
 
+  # Local LLMs: one engine at a time on :8731 (im01's port too, so clients only
+  # change the host). Never at boot: each takes most of the VRAM and tens of GB
+  # of pinned RAM, so stop it before gaming.
+  #   sudo systemctl start podman-llama    # Qwen3.8 27B, llama.cpp
+  #   sudo systemctl start podman-strata   # Qwen3.8 Flash Next, Strata
+  # Starting one stops the other.
+  virtualisation.podman.enable = true;
+  hardware.nvidia-container-toolkit.enable = true; # CDI: nvidia.com/gpu=all
+  virtualisation.oci-containers = {
+    backend = "podman";
+    containers.llama = {
+      image = "ghcr.io/ggml-org/llama.cpp:server-cuda13-b11552";
+      autoStart = false;
+      ports = [ "8731:8080" ];
+      volumes = [ "/var/lib/llm/gguf:/models:ro" ];
+      cmd = [
+        "-m" "/models/Qwen3.8-27B-UD-IQ4_XS.gguf"
+        "-ngl" "999" "-c" "32768" "-fa" "on"
+        "--host" "0.0.0.0" "--port" "8080"
+      ];
+      extraOptions = [ "--device=nvidia.com/gpu=all" ];
+    };
+    # No published image: built on gm01 from the release's Dockerfile, for the
+    # 4070 Ti Super only (sm_89), without the image encoder. --from qualifies
+    # its short-name base image, which podman won't resolve:
+    #   git clone --depth 1 -b v0.1.42 https://github.com/Niko1221/Strata.git
+    #   sudo podman build -t localhost/strata:0.1.42 \
+    #     --from docker.io/nvidia/cuda:13.0.0-devel-ubuntu24.04 \
+    #     --build-arg CUDA_ARCHITECTURES=89 --build-arg BUILD_VISION=0 Strata
+    # First start downloads ~75 GB into /var/lib/llm/strata.
+    containers.strata = {
+      image = "localhost/strata:0.1.42";
+      autoStart = false;
+      ports = [ "8731:8080" ];
+      volumes = [ "/var/lib/llm/strata:/data" ];
+      environment = {
+        MODEL = "IQ3_S"; # 55 GB of experts in RAM; fits with nothing else running
+        FAMILY = "qwen";
+        CONTEXT = "65536";
+        VISION = "no";
+      };
+      extraOptions = [
+        "--device=nvidia.com/gpu=all"
+        "--ulimit=memlock=-1:-1" # pins its experts in RAM
+        "--stop-timeout=60" # releasing tens of GB of pinned RAM takes a while
+      ];
+    };
+  };
+  systemd.services.podman-llama.conflicts = [ "podman-strata.service" ];
+  systemd.services.podman-strata.conflicts = [ "podman-llama.service" ];
+  systemd.tmpfiles.rules = [
+    "d /var/lib/llm/gguf 0755 dm users -"
+    "d /var/lib/llm/strata 0755 root root -"
+  ];
+  networking.firewall.allowedTCPPorts = [ 8731 ]; # LLM API, no auth - LAN only
+
   # SSH: key-only, same hardening as the Macs
   services.openssh = {
     enable = true;
