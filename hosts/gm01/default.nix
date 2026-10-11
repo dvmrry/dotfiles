@@ -1,7 +1,11 @@
 # ASUS ROG Strix B650E-I, Ryzen 7 7800X3D, 64 GB DDR5-6000, RTX 4070 Ti
 # Super 16 GB. Headless gaming box streamed with Punktfunk (SteamOS-style, no
 # desktop); local LLMs later. BIOS: Secure Boot off, iGPU off.
-{ config, pkgs, inputs, ... }: {
+{ config, lib, pkgs, inputs, ... }:
+let
+  llama-cpp = pkgs.callPackage ./llama-cpp.nix { };
+in
+{
   imports = [
     inputs.disko.nixosModules.disko
     ./disk.nix
@@ -13,15 +17,46 @@
   # Keep the CPU's iGPU (Raphael) idle so games and NVENC stay on the 4070 Ti
   # Super, even with the iGPU on Auto in the BIOS.
   boot.blacklistedKernelModules = [ "amdgpu" ];
+  # IOMMU stays on but device DMA isn't translated (Strata streams experts
+  # RAM -> GPU constantly)
+  boot.kernelParams = [ "iommu=pt" ];
+
+  boot.kernelModules = [ "nct6775" ]; # board fan/voltage sensors (Nuvoton)
 
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.amd.updateMicrocode = true;
 
-  # NVIDIA: open kernel module (Ada), proprietary userspace
+  # NVIDIA: proprietary kernel module with the GSP firmware off. The open
+  # module needs GSP, whose heap reserves ~434 MiB of VRAM; without it the
+  # 27B's 80K-context profile fits.
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia = {
-    open = true;
+    open = false;
+    gsp.enable = false;
     modesetting.enable = true;
+    nvidiaPersistenced = true; # driver stays initialised between engine runs
+  };
+  boot.extraModprobeConfig = "options nvidia NVreg_EnableGpuFirmware=0";
+  # GPU tuning, applied at boot (neither setting survives a driver reload).
+  # Decode is memory-bandwidth-bound, and under CUDA GeForce cards sit in P2
+  # at 10251 MHz. Measured on the 27B: +2500 -> 11501 MHz, +10%; +4500 clean;
+  # +5000 crashed the GPU (Xid 45/31). +3500 = 12001 MHz, +14%, with margin.
+  systemd.services.gpu-tune = {
+    description = "GPU power limit and memory clock offset";
+    after = [ "nvidia-persistenced.service" ];
+    requires = [ "nvidia-persistenced.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    path = [ config.hardware.nvidia.package.bin ];
+    script = let
+      python = pkgs.python3.withPackages (p: [ p.nvidia-ml-py ]);
+    in ''
+      nvidia-smi -pl 300
+      ${python}/bin/python3 -c 'from pynvml import *; nvmlInit(); nvmlDeviceSetMemClkVfOffset(nvmlDeviceGetHandleByIndex(0), 3500)'
+    '';
   };
   hardware.graphics = {
     enable = true;
@@ -29,6 +64,7 @@
   };
 
   zramSwap.enable = true;
+  powerManagement.cpuFreqGovernor = "performance"; # prefill, Strata's CPU experts
 
   # Networking: DHCP on wired (preferred) and Wi-Fi. Both sit on the Macs'
   # subnet, so a reply to traffic that came in on one can leave via the other;
@@ -125,25 +161,13 @@
   # Local LLMs: one engine at a time on :8731 (im01's port too, so clients only
   # change the host). Never at boot: each takes most of the VRAM and tens of GB
   # of pinned RAM, so stop it before gaming.
-  #   sudo systemctl start podman-llama    # Qwen3.8 27B, llama.cpp
+  #   sudo systemctl start llama           # Qwen3.8 27B, llama.cpp
   #   sudo systemctl start podman-strata   # Qwen3.8 Flash Next, Strata
   # Starting one stops the other.
   virtualisation.podman.enable = true;
   hardware.nvidia-container-toolkit.enable = true; # CDI: nvidia.com/gpu=all
   virtualisation.oci-containers = {
     backend = "podman";
-    containers.llama = {
-      image = "ghcr.io/ggml-org/llama.cpp:server-cuda13-b11552";
-      autoStart = false;
-      ports = [ "8731:8080" ];
-      volumes = [ "/var/lib/llm/gguf:/models:ro" ];
-      cmd = [
-        "-m" "/models/Qwen3.8-27B-UD-IQ4_XS.gguf"
-        "-ngl" "999" "-c" "32768" "-fa" "on"
-        "--host" "0.0.0.0" "--port" "8080"
-      ];
-      extraOptions = [ "--device=nvidia.com/gpu=all" ];
-    };
     # No published image: built on gm01 from the release's Dockerfile, for the
     # 4070 Ti Super only (sm_89), without the image encoder. --from qualifies
     # its short-name base image, which podman won't resolve:
@@ -170,8 +194,37 @@
       ];
     };
   };
-  systemd.services.podman-llama.conflicts = [ "podman-strata.service" ];
-  systemd.services.podman-strata.conflicts = [ "podman-llama.service" ];
+  systemd.services.podman-strata.conflicts = [ "llama.service" ];
+  # Qwen3.8 27B, the profile tuned on Windows (Aug 2026) and re-measured
+  # here: UD-IQ4_XS with its built-in MTP head, depth 3. 64K is the largest
+  # context that fits beside MTP; 80K doesn't on this build. ~104 tok/s on
+  # code, ~70 on prose (short prompts). Template: the Windows-tested one that
+  # accepts system + developer messages together (pi sends both).
+  systemd.services.llama = {
+    description = "llama.cpp: Qwen3.8 27B";
+    conflicts = [ "podman-strata.service" ];
+    after = [ "gpu-tune.service" ];
+    serviceConfig = {
+      ExecStart = lib.escapeShellArgs [
+        "${llama-cpp}/bin/llama-server"
+        "-m" "/var/lib/llm/gguf/Qwen3.8-27B-UD-IQ4_XS.gguf"
+        "--alias" "qwen3.8-27b"
+        "-ngl" "999" "-fa" "on" "-c" "65536" "-np" "1"
+        "-t" "8" "-tb" "16" "-b" "2048" "-ub" "512"
+        "-ctk" "q4_0" "-ctv" "q4_0"
+        "--spec-type" "draft-mtp" "--spec-draft-n-min" "1" "--spec-draft-n-max" "3"
+        # the hybrid (DeltaNet) layers can't rewind; checkpoints let multi-turn
+        # agents reuse their prefix instead of re-reading it every turn
+        "--cache-ram" "8192" "--ctx-checkpoints" "1"
+        "--jinja" "--chat-template-file" "${./qwen38-safe-v2.jinja}"
+        "--temp" "0.2" "--top-p" "0.8" "--top-k" "20" "--min-p" "0"
+        "--metrics" "--host" "0.0.0.0" "--port" "8731"
+      ];
+      DynamicUser = true;
+      Nice = -5;
+      Restart = "on-failure";
+    };
+  };
   systemd.tmpfiles.rules = [
     "d /var/lib/llm/gguf 0755 dm users -"
     "d /var/lib/llm/strata 0755 root root -"
@@ -218,6 +271,7 @@
     ghostty.terminfo # SSH sessions from Ghostty (TERM=xterm-ghostty)
     git
     jq
+    llama-cpp
     mangohud # per game: `mangohud %command%`
     nvtopPackages.nvidia
     pciutils
