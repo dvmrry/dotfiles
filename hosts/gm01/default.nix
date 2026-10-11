@@ -14,6 +14,7 @@ in
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.timeout = 1; # POST already takes a minute (memory training)
   # Keep the CPU's iGPU (Raphael) idle so games and NVENC stay on the 4070 Ti
   # Super, even with the iGPU on Auto in the BIOS.
   boot.blacklistedKernelModules = [ "amdgpu" ];
