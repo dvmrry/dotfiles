@@ -6,8 +6,8 @@ let
   llama-cpp = pkgs.callPackage ./llama-cpp.nix { };
   # Strata's server config: setup's recorded IQ3_S config with the calibration
   # from `setup.py --calibrate` (pcie-frac, adapt-*) and the full 262K window.
-  # At 262K the expert cache shrinks (8.6 -> 5.7 GiB) but decode holds: ~100
-  # tok/s short, ~86-94 at depth, ~3,200 tok/s prefill. Agentic runs peak at
+  # At 262K the expert cache shrinks (8.6 -> 5.7 GiB) but decode holds: ~97
+  # tok/s short, ~94 at 128K, ~3,050 tok/s prefill (0.1.43). Agentic runs peak at
   # ~180-230K, so 128K would compact.
   strataConfig = pkgs.writeText "strata-iq3_s.json" (builtins.toJSON {
     exe = "/opt/strata/engine/strata";
@@ -24,6 +24,11 @@ let
       "--kv" "int8"
       "--pcie-frac" "0.35"
       "--adapt-every" "1" "--adapt-swaps" "160" "--adapt-decay" "0.97"
+      # 0.1.43 overlaps the adaptive tier's copies with decode, signalled through
+      # CUDA callbacks. Their thread inherits the host thread's CPU and the host
+      # spins on it, so each wait took ~1 ms and overlap cost ~20% (Strata #1975).
+      # Moving the non-worker threads off that CPU makes overlap a 3-8% win.
+      "--aux-cpus" "auto"
     ];
     cwd = "/opt/strata";
     tokenizer = "/data/packs/iq3_s/tokenizer";
@@ -206,13 +211,13 @@ in
     # No published image: built on gm01 from the release's Dockerfile, for the
     # 4070 Ti Super only (sm_89), without the image encoder. --from qualifies
     # its short-name base image, which podman won't resolve:
-    #   git clone --depth 1 -b v0.1.42 https://github.com/Niko1221/Strata.git
-    #   sudo podman build -t localhost/strata:0.1.42 \
+    #   git clone --depth 1 -b v0.1.43 https://github.com/Niko1221/Strata.git
+    #   sudo podman build -t localhost/strata:0.1.43 \
     #     --from docker.io/nvidia/cuda:13.0.0-devel-ubuntu24.04 \
     #     --build-arg CUDA_ARCHITECTURES=89 --build-arg BUILD_VISION=0 Strata
     # First start downloads ~75 GB into /var/lib/llm/strata.
     containers.strata = {
-      image = "localhost/strata:0.1.42";
+      image = "localhost/strata:0.1.43";
       autoStart = false;
       ports = [ "8731:8080" ];
       volumes = [ "/var/lib/llm/strata:/data" ];
