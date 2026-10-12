@@ -114,7 +114,7 @@
   virtualisation.oci-containers = {
     backend = "podman";
     containers.halogen = {
-      image = "ghcr.io/peonist-ai/halogen-flash-server:0.17.4";
+      image = "ghcr.io/peonist-ai/halogen-flash-server:0.18.1";
       ports = [ "8731:8731" ];
       volumes = [ "/var/lib/halogen/models:/models" ];
       # No HALOGEN_TEMPERATURE on purpose: requests without a temperature
