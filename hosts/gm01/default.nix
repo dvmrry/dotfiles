@@ -4,6 +4,37 @@
 { config, lib, pkgs, inputs, ... }:
 let
   llama-cpp = pkgs.callPackage ./llama-cpp.nix { };
+  # Strata's server config: setup's recorded IQ3_S config with the calibration
+  # from `setup.py --calibrate` (pcie-frac, adapt-*) and the full 262K window.
+  # At 262K the expert cache shrinks (8.6 -> 5.7 GiB) but decode holds: ~100
+  # tok/s short, ~86-94 at depth, ~3,200 tok/s prefill. Agentic runs peak at
+  # ~180-230K, so 128K would compact.
+  strataConfig = pkgs.writeText "strata-iq3_s.json" (builtins.toJSON {
+    exe = "/opt/strata/engine/strata";
+    args = [
+      "--pack" "/data/packs/iq3_s"
+      "--native" "/data/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf"
+      "--ple-gguf" "/data/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf"
+      "--expert-profile" "/opt/strata/data/expert-profile.bin"
+      "--expert-cache" "auto"
+      "--prefill" "auto"
+      "--spec" "4" "--spec-min-p" "0.70"
+      "--mtp" "/data/mtp/rt"
+      "--max-context" "262144"
+      "--kv" "int8"
+      "--pcie-frac" "0.35"
+      "--adapt-every" "1" "--adapt-swaps" "160" "--adapt-decay" "0.97"
+    ];
+    cwd = "/opt/strata";
+    tokenizer = "/data/packs/iq3_s/tokenizer";
+    model_name = "qwen3.8-flash-next-iq3_s";
+    log = "/opt/strata/strata-iq3_s.log";
+    lib_dirs = [ "/usr/local/cuda/bin" "/usr/local/cuda/lib64" ];
+    port = 8080;
+    gpu = 0;
+    gpus_asked = true;
+    host = "0.0.0.0";
+  });
 in
 {
   imports = [
@@ -188,8 +219,9 @@ in
       environment = {
         MODEL = "IQ3_S"; # 55 GB of experts in RAM; fits with nothing else running
         FAMILY = "qwen";
-        CONTEXT = "65536";
+        CONTEXT = "262144";
         VISION = "no";
+        CONFIG = "/data/config/strata-iq3_s-nix.json"; # strataConfig, copied in at start
       };
       extraOptions = [
         "--device=nvidia.com/gpu=all"
@@ -198,7 +230,14 @@ in
       ];
     };
   };
-  systemd.services.podman-strata.conflicts = [ "llama.service" ];
+  systemd.services.podman-strata = {
+    conflicts = [ "llama.service" ];
+    # The server config, declared here instead of setup's recorded file. Copied
+    # rather than mounted: the server touches it at start, so it must be writable.
+    preStart = ''
+      install -D -m 0644 ${strataConfig} /var/lib/llm/strata/config/strata-iq3_s-nix.json
+    '';
+  };
   # Qwen3.8 27B, the profile tuned on Windows (Aug 2026) and re-measured
   # here: UD-IQ4_XS with its built-in MTP head, depth 3. 64K is the largest
   # context that fits beside MTP; 80K doesn't on this build. ~113 tok/s on
