@@ -6,6 +6,16 @@
   # Packages installed system-wide. Language toolchains and infra CLIs are
   # better pinned per project via direnv + devShells than added here.
   environment.systemPackages = with pkgs; [
+    # GNU userland, unprefixed, so scripts behave the same here as on the
+    # NixOS boxes (timeout, sed -i, grep -P, date -d, stat -c, readlink -f).
+    # /run/current-system/sw/bin comes before /usr/bin and /bin in every shell
+    # nix-darwin sets up; Apple's own tools keep calling /usr/bin directly.
+    coreutils
+    findutils
+    gawk
+    gnugrep
+    gnused
+
     # Core tools
     age
     curl

@@ -49,7 +49,7 @@ Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 - **`security.sudo.extraRules` doesn't exist in nix-darwin.** Use `security.sudo.extraConfig` with raw sudoers syntax.
 - **Home Manager git signing**: `programs.git.signing.format` is set at the module level, not inside `programs.git.settings`.
 - **Hooks / scripts in the nix store** have no execute bit — invoke via `bash <path>`.
-- **macOS `grep -P` doesn't work** — use `sed` for regex extraction.
+- **GNU userland on the Macs** (`modules/darwin/base.nix`): `grep`, `sed`, `date`, `stat`, `find`, `awk`, `timeout` are GNU, as on the NixOS boxes. Write `sed -i` (not BSD `sed -i ''`) and `stat -c`; `/usr/bin/<tool>` is still the BSD one. Claude Code's Bash tool shadows `grep`/`find` with its own shell functions (ugrep/bfs); `command grep` gets GNU grep there.
 - **mDNS renames** (`cm02-2`, `cm02 (2)`): macOS renames itself when it sees its own name on the LAN (Wi-Fi + Ethernet on the same network, Bonjour Sleep Proxy). `modules/darwin/pin-hostname.nix` reverts it; check `/var/log/pin-hostname.log`. Frequent entries mean a real cause worth fixing.
 - **MCP servers (cm01)**: were written to `~/.claude/mcp.json` via HM. On `cm02`, add them with `claude mcp add` instead.
 
