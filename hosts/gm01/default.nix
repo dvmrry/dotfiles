@@ -33,10 +33,11 @@ let
       "--adapt-every" "2" "--adapt-swaps" "320" "--adapt-decay" "0.97"
       "--pool-workers" "7"
       "--kv-grow"
-      # 0.1.43 overlaps the adaptive tier's copies with decode, signalled through
-      # CUDA callbacks. Their thread inherits the host thread's CPU and the host
-      # spins on it, so each wait took ~1 ms and overlap cost ~20% (Strata #1975).
-      # Moving the non-worker threads off that CPU makes overlap a 3-8% win.
+      # The adaptive tier's copies overlap decode (STRATA_ADAPT_OVERLAP below).
+      # On 0.1.43 the overlap's CUDA callback thread inherited the pinned host
+      # thread's CPU, so each wait took ~1 ms and overlap cost ~20% (Strata
+      # #1975); moving the non-worker threads off that CPU made it a 3-8% win.
+      # 0.1.43.1 fixes the cause; kept since it is still measured with it.
       "--aux-cpus" "auto"
     ];
     cwd = "/opt/strata";
@@ -223,13 +224,13 @@ in
     # No published image: built on gm01 from the release's Dockerfile, for the
     # 4070 Ti Super only (sm_89), without the image encoder. --from qualifies
     # its short-name base image, which podman won't resolve:
-    #   git clone --depth 1 -b v0.1.43 https://github.com/Niko1221/Strata.git
-    #   sudo podman build -t localhost/strata:0.1.43 \
+    #   git clone --depth 1 -b v0.1.43.1 https://github.com/Niko1221/Strata.git
+    #   sudo podman build -t localhost/strata:0.1.43.1 \
     #     --from docker.io/nvidia/cuda:13.0.0-devel-ubuntu24.04 \
     #     --build-arg CUDA_ARCHITECTURES=89 --build-arg BUILD_VISION=0 Strata
     # First start downloads ~75 GB into /var/lib/llm/strata.
     containers.strata = {
-      image = "localhost/strata:0.1.43";
+      image = "localhost/strata:0.1.43.1";
       autoStart = false;
       ports = [ "8731:8080" ];
       volumes = [ "/var/lib/llm/strata:/data" ];
@@ -239,6 +240,10 @@ in
         CONTEXT = "262144";
         VISION = "no";
         CONFIG = "/data/config/strata-iq3_s-nix.json"; # strataConfig, copied in at start
+        # 0.1.43.1 made the adaptive overlap opt-in again (it was on by default in
+        # 0.1.43 on Linux NVIDIA). Here it is worth 8%: 3 interleaved pairs on
+        # the tuned config, overlap on = 0.1.43's speed (1.006), off = 0.922.
+        STRATA_ADAPT_OVERLAP = "1";
       };
       extraOptions = [
         "--device=nvidia.com/gpu=all"
