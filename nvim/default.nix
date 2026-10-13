@@ -1,4 +1,11 @@
-{ config, lib, inputs, pkgs, ... }: {
+{
+  config,
+  lib,
+  inputs,
+  pkgs,
+  ...
+}:
+{
   imports = [
     inputs.nixCats.homeModule
   ];
@@ -74,7 +81,10 @@
       nvim = { pkgs, ... }: {
         settings = {
           wrapRc = true;
-          aliases = [ "vim" "vi" ];
+          aliases = [
+            "vim"
+            "vi"
+          ];
           suffix-path = true;
         };
         categories = {

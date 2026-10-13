@@ -5,7 +5,8 @@
 let
   inherit (pkgs.stdenv.hostPlatform) isDarwin;
   onePasswordAgent = "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
-in {
+in
+{
 
   imports = [
     ../../nvim
@@ -47,11 +48,15 @@ in {
       column.ui = "auto";
       branch.sort = "-committerdate";
       fetch.prune = true;
-    } // lib.optionalAttrs isDarwin {
+    }
+    // lib.optionalAttrs isDarwin {
       # GitHub over HTTPS with gh's token, so fetch/push keep working while
       # 1Password (the SSH agent) is locked. Linux hosts keep SSH via the
       # forwarded agent; they have no gh login.
-      url."https://github.com/".insteadOf = [ "git@github.com:" "ssh://git@github.com/" ];
+      url."https://github.com/".insteadOf = [
+        "git@github.com:"
+        "ssh://git@github.com/"
+      ];
     };
   };
 
@@ -86,20 +91,23 @@ in {
     enable = true;
     enableDefaultConfig = false;
     settings = {
-      "*" = lib.optionalAttrs isDarwin {
-        IdentityAgent = ''"${onePasswordAgent}"'';
-      } // {
-        ControlMaster = "auto";
-        ControlPath = "~/.ssh/master-%r@%n:%p";
-        ControlPersist = "10m";
-        ServerAliveInterval = 30;
-        ServerAliveCountMax = 5;
-      };
+      "*" =
+        lib.optionalAttrs isDarwin {
+          IdentityAgent = ''"${onePasswordAgent}"'';
+        }
+        // {
+          ControlMaster = "auto";
+          ControlPath = "~/.ssh/master-%r@%n:%p";
+          ControlPersist = "10m";
+          ServerAliveInterval = 30;
+          ServerAliveCountMax = 5;
+        };
       "github.com" = {
         User = "git";
         ControlMaster = "no";
       };
-    } // lib.optionalAttrs isDarwin {
+    }
+    // lib.optionalAttrs isDarwin {
       # mDNS doesn't reach wired hosts reliably on this LAN (IGMP snooping)
       "im01" = {
         HostName = "172.18.0.50";
@@ -113,10 +121,22 @@ in {
   programs.fish = {
     enable = true;
     plugins = [
-      { name = "autopair"; src = pkgs.fishPlugins.autopair.src; }
-      { name = "done"; src = pkgs.fishPlugins.done.src; }
-      { name = "puffer"; src = pkgs.fishPlugins.puffer.src; }
-      { name = "sponge"; src = pkgs.fishPlugins.sponge.src; }
+      {
+        name = "autopair";
+        src = pkgs.fishPlugins.autopair.src;
+      }
+      {
+        name = "done";
+        src = pkgs.fishPlugins.done.src;
+      }
+      {
+        name = "puffer";
+        src = pkgs.fishPlugins.puffer.src;
+      }
+      {
+        name = "sponge";
+        src = pkgs.fishPlugins.sponge.src;
+      }
     ];
     shellAliases = {
       ns = "nslookup";
@@ -251,10 +271,22 @@ in {
         format = "took [$duration](bold #ff9e64) ";
       };
 
-      golang = { symbol = " "; style = "#2ac3de"; };
-      python = { symbol = " "; style = "#bb9af7"; };
-      terraform = { symbol = " "; style = "#7aa2f7"; };
-      nix_shell = { symbol = " "; style = "#7aa2f7"; };
+      golang = {
+        symbol = " ";
+        style = "#2ac3de";
+      };
+      python = {
+        symbol = " ";
+        style = "#bb9af7";
+      };
+      terraform = {
+        symbol = " ";
+        style = "#7aa2f7";
+      };
+      nix_shell = {
+        symbol = " ";
+        style = "#7aa2f7";
+      };
     };
   };
 

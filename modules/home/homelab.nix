@@ -3,18 +3,21 @@
 let
   # Version-matched to the cluster; see nixpkgs-cluster in flake.nix
   cluster = inputs.nixpkgs-cluster.legacyPackages.${pkgs.stdenv.hostPlatform.system};
-in {
-  home.packages = (with pkgs; [
-    fluxcd
-    kubecolor
-    kubectx
-    kubernetes-helm
-    opentofu
-    talhelper
-  ]) ++ [
-    cluster.kubectl
-    cluster.talosctl
-  ];
+in
+{
+  home.packages =
+    (with pkgs; [
+      fluxcd
+      kubecolor
+      kubectx
+      kubernetes-helm
+      opentofu
+      talhelper
+    ])
+    ++ [
+      cluster.kubectl
+      cluster.talosctl
+    ];
 
   programs.fish = {
     shellAliases = {

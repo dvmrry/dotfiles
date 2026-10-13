@@ -64,7 +64,10 @@
     };
   };
   # 8731: Halogen API (no auth - LAN only)
-  networking.firewall.allowedTCPPorts = [ 22 8731 ];
+  networking.firewall.allowedTCPPorts = [
+    22
+    8731
+  ];
 
   time.timeZone = "America/New_York";
 
@@ -88,7 +91,11 @@
 
   users.users.dm = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "render" ];
+    extraGroups = [
+      "wheel"
+      "video"
+      "render"
+    ];
     shell = pkgs.fish;
     # 1Password id_ed25519
     openssh.authorizedKeys.keys = [
@@ -132,7 +139,10 @@
   systemd.tmpfiles.rules = [ "d /var/lib/halogen/models 0755 root root -" ];
 
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     trusted-users = [ "@wheel" ];
   };
   nix.gc = {

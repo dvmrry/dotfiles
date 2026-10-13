@@ -268,8 +268,17 @@
   launchd.daemons.nix-store-optimise = {
     serviceConfig = {
       Label = "org.nixos.nix-store-optimise";
-      ProgramArguments = [ "/bin/sh" "-c" "/run/current-system/sw/bin/nix store optimise" ];
-      StartCalendarInterval = [{ Hour = 3; Minute = 30; }];
+      ProgramArguments = [
+        "/bin/sh"
+        "-c"
+        "/run/current-system/sw/bin/nix store optimise"
+      ];
+      StartCalendarInterval = [
+        {
+          Hour = 3;
+          Minute = 30;
+        }
+      ];
       StandardOutPath = "/var/log/nix-store-optimise.log";
       StandardErrorPath = "/var/log/nix-store-optimise.log";
     };
@@ -290,7 +299,11 @@
   '';
 
   # Shells
-  environment.shells = with pkgs; [ bash zsh fish ];
+  environment.shells = with pkgs; [
+    bash
+    zsh
+    fish
+  ];
   programs.fish.enable = true;
   users.users.dm = {
     name = "dm";
@@ -316,7 +329,9 @@
       keep-derivations = true;
       warn-dirty = false;
       extra-substituters = [ "https://nix-community.cachix.org" ];
-      extra-trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+      extra-trusted-public-keys = [
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      ];
     };
   };
 

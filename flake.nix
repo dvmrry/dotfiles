@@ -35,75 +35,88 @@
     punktfunk.url = "git+https://git.unom.io/unom/punktfunk?ref=nix-stable&shallow=1";
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, determinate, nixCats, ... }@inputs: {
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nix-darwin,
+      home-manager,
+      determinate,
+      nixCats,
+      ...
+    }@inputs:
+    {
 
-    # MacBook Air M1 - headless devbox (legacy layout, not yet on modules/)
-    darwinConfigurations."cm01" = nix-darwin.lib.darwinSystem {
-      system = "aarch64-darwin";
-      modules = [
-        determinate.darwinModules.default
-        ./hosts/cm01/configuration.nix
-        home-manager.darwinModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.users.dm = import ./hosts/cm01/home.nix;
-        }
-      ];
-    };
+      # MacBook Air M1 - headless devbox (legacy layout, not yet on modules/)
+      darwinConfigurations."cm01" = nix-darwin.lib.darwinSystem {
+        system = "aarch64-darwin";
+        modules = [
+          determinate.darwinModules.default
+          ./hosts/cm01/configuration.nix
+          home-manager.darwinModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.users.dm = import ./hosts/cm01/home.nix;
+          }
+        ];
+      };
 
-    # Mac Mini M6 - role TBD, so only the shared base for now
-    darwinConfigurations."cm02" = nix-darwin.lib.darwinSystem {
-      specialArgs = { inherit inputs; };
-      modules = [
-        determinate.darwinModules.default
-        ./modules/darwin/base.nix
-        ./hosts/cm02
-        home-manager.darwinModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          # Rename pre-existing dotfiles instead of failing activation
-          home-manager.backupFileExtension = "before-hm";
-          home-manager.users.dm.imports = [ ./modules/home/base.nix ./hosts/cm02/home.nix ];
-        }
-      ];
-    };
+      # Mac Mini M6 - role TBD, so only the shared base for now
+      darwinConfigurations."cm02" = nix-darwin.lib.darwinSystem {
+        specialArgs = { inherit inputs; };
+        modules = [
+          determinate.darwinModules.default
+          ./modules/darwin/base.nix
+          ./hosts/cm02
+          home-manager.darwinModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+            # Rename pre-existing dotfiles instead of failing activation
+            home-manager.backupFileExtension = "before-hm";
+            home-manager.users.dm.imports = [
+              ./modules/home/base.nix
+              ./hosts/cm02/home.nix
+            ];
+          }
+        ];
+      };
 
-    # GMKtec EVO-X2 (Strix Halo) - headless inference box, NixOS
-    nixosConfigurations."im01" = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
-      modules = [
-        ./hosts/im01
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.backupFileExtension = "before-hm";
-          home-manager.users.dm.imports = [ ./modules/home/base.nix ];
-        }
-      ];
-    };
+      # GMKtec EVO-X2 (Strix Halo) - headless inference box, NixOS
+      nixosConfigurations."im01" = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./hosts/im01
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.backupFileExtension = "before-hm";
+            home-manager.users.dm.imports = [ ./modules/home/base.nix ];
+          }
+        ];
+      };
 
-    # Desktop (7800X3D + RTX 4070 Ti Super) - headless-ish gaming box, NixOS.
-    # Uses punktfunk's nixpkgs (see the input), not this flake's.
-    nixosConfigurations."gm01" = inputs.punktfunk.inputs.nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
-      modules = [
-        inputs.punktfunk.nixosModules.default
-        ./hosts/gm01
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.backupFileExtension = "before-hm";
-          home-manager.users.dm.imports = [ ./modules/home/base.nix ];
-        }
-      ];
+      # Desktop (7800X3D + RTX 4070 Ti Super) - headless-ish gaming box, NixOS.
+      # Uses punktfunk's nixpkgs (see the input), not this flake's.
+      nixosConfigurations."gm01" = inputs.punktfunk.inputs.nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs; };
+        modules = [
+          inputs.punktfunk.nixosModules.default
+          ./hosts/gm01
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.backupFileExtension = "before-hm";
+            home-manager.users.dm.imports = [ ./modules/home/base.nix ];
+          }
+        ];
+      };
     };
-  };
 }

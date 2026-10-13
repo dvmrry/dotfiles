@@ -5,7 +5,8 @@
 { config, ... }:
 let
   inherit (config.networking) computerName hostName localHostName;
-in {
+in
+{
   launchd.daemons.pin-hostname = {
     script = ''
       pin() {
