@@ -20,6 +20,8 @@ Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 - im01 (NixOS), from a Mac — evaluates locally, builds and activates on im01:
   `nix run nixpkgs#nixos-rebuild-ng -- switch --flake .#im01 --target-host dm@172.18.0.50 --build-host dm@172.18.0.50 --elevate sudo`
 - gm01 (NixOS desktop): same command with `.#gm01` and its address.
+- Before deploying: `scripts/check-hosts [host…]` evaluates every host and lists packages missing from the binary caches (a package Hydra failed to build fails mid-switch otherwise). Runs as the pre-push hook.
+- Hooks (gitleaks on commit, check-hosts on push) are in `.pre-commit-config.yaml`; enable once per clone with `prek install --hook-type pre-commit --hook-type pre-push`.
 
 ## Where things live
 

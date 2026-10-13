@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Evaluate every host in this flake and list the packages a switch would have
+# to compile because no binary cache has them. A package nixpkgs' Hydra failed
+# to build (ltrace in #16) shows up here instead of halfway through a deploy.
+# usage: check-hosts [host...]   (default: every darwin and nixos host)
+set -uo pipefail
+cd "$(dirname "$0")/.." || exit 1
+
+# Expected to build on the host: unfree drivers, our own packages, and the
+# tiny per-system ones. Anything else uncached is reported as a failure.
+expected='^(nixos-version|darwin-version|darwin-uninstaller|darwin-rebuild|darwin-option|darwin-manpages|darwin-manual-html|darwin-help|delta-wrapped|nvidia-.*|steam.*|protontricks-.*|nvtop-.*|llama-cpp-.*|punktfunk-.*|hm-session-vars.*|home-manager-path|man-paths|.*-fish-completions|dummy-.*|home-configuration-reference-manpage|neovim-[0-9.]+-nvim)$'
+
+hosts=("$@")
+if [ ${#hosts[@]} -eq 0 ]; then
+  for kind in darwinConfigurations nixosConfigurations; do
+    for h in $(nix eval --json ".#$kind" --apply builtins.attrNames | tr -d '[]"' | tr , ' '); do
+      hosts+=("$kind.$h")
+    done
+  done
+else
+  for i in "${!hosts[@]}"; do
+    case ${hosts[$i]} in *.*) ;; cm*) hosts[$i]=darwinConfigurations.${hosts[$i]} ;; *) hosts[$i]=nixosConfigurations.${hosts[$i]} ;; esac
+  done
+fi
+
+status=0
+for h in "${hosts[@]}"; do
+  # System packages plus dm's Home Manager packages, with the host's caches.
+  json=$(nix eval --json ".#$h.config" --apply 'c: {
+    caches = let s = builtins.tryEval (c.nix.settings.substituters or [ ]); in
+      if s.success && s.value != [ ] then s.value else [ "https://cache.nixos.org/" ];
+    pkgs = map (p: { name = p.name or "?"; out = p.outPath; unfree = p.meta.unfree or false; })
+      (c.environment.systemPackages ++ (c.home-manager.users.dm.home.packages or [ ]));
+  }' 2>/dev/null) || { echo "$h: EVAL FAILED"; nix eval ".#$h.config.system.build.toplevel.drvPath" 2>&1 | tail -5; status=1; continue; }
+
+  missing=$(python3 -I - "$json" <<'PY'
+import concurrent.futures, json, os, sys, urllib.request
+d = json.loads(sys.argv[1])
+caches = [c.rstrip("/") for c in d["caches"]] or ["https://cache.nixos.org"]
+def cached(p):
+    # Unfree packages are never in cache.nixos.org; a path already in this
+    # machine's store has been built before.
+    if p["unfree"] or os.path.exists(p["out"]):
+        return True
+    h = p["out"].split("/")[3][:32]
+    for c in caches:
+        try:
+            urllib.request.urlopen(urllib.request.Request(f"{c}/{h}.narinfo", method="HEAD"), timeout=15)
+            return True
+        except Exception:
+            pass
+    return False
+pkgs = {p["out"]: p for p in d["pkgs"]}.values()
+with concurrent.futures.ThreadPoolExecutor(16) as pool:
+    for p, ok in zip(pkgs, pool.map(cached, pkgs)):
+        if not ok:
+            print(p["name"])
+PY
+)
+  unexpected=$(printf '%s\n' "$missing" | grep -Ev "$expected" | grep -v '^$')
+  if [ -n "$unexpected" ]; then
+    echo "$h: not in any binary cache (would compile on switch):"
+    printf '  %s\n' $unexpected
+    status=1
+  else
+    echo "$h: ok"
+  fi
+done
+exit $status
