@@ -403,8 +403,7 @@ in
       "render"
       "audio"
     ];
-    # bash as the login shell so `ssh host 'cmd'`, scp and scripts get POSIX; interactive logins exec fish (below)
-    shell = pkgs.bash;
+    # Login shell (bash, interactive fish): modules/nixos/base.nix
     openssh.authorizedKeys.keys = [
       # 1Password id_ed25519
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE8zyMqlC1LHHWWk0v/wdfaVGYBoZSvD64xaAQZ5dOYh"
@@ -414,16 +413,6 @@ in
   };
   # dm has no password (key-only), so sudo can't prompt for one
   security.sudo.wheelNeedsPassword = false;
-
-  programs.fish.enable = true;
-  # Interactive sessions switch to fish; non-interactive commands (ssh host 'cmd') stay in bash. The parent check
-  # keeps `nix develop` / `nix-shell` (bash started from fish) in bash.
-  programs.bash.interactiveShellInit = ''
-    if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING} ]]; then
-      shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
-      exec ${pkgs.fish}/bin/fish $LOGIN_OPTION
-    fi
-  '';
 
   # Common CLI tools come from modules/nixos/base.nix.
   environment.systemPackages = with pkgs; [
