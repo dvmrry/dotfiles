@@ -163,7 +163,6 @@ require('conform').setup {
   formatters_by_ft = {
     go = { 'gofmt' },
     nix = { 'nixfmt' },
-    python = { 'ruff_format' },
     terraform = { 'terraform_fmt' },
     yaml = { 'yamlfmt' },
   },
@@ -198,7 +197,7 @@ end
 local servers = {
   gopls = {},
   nil_ls = {},
-  pyright = {},
+  rust_analyzer = {},
   ts_ls = {},
   yamlls = {},
   terraformls = {},

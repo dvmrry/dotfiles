@@ -9,11 +9,32 @@
     cmake
     just
 
+    # Go: lint/format for any module (a repo that pins its own versions in
+    # tools/go.mod, like zscalerctl, uses those through `go tool`)
+    golangci-lint
+    gofumpt
+
+    # JS/TS: Bun, tsc, and Biome (single-binary lint + format)
+    bun
+    typescript
+    biome
+
     # Nix and shell linters/formatters (this repo's pre-commit hooks use them)
     deadnix
     nixfmt
     shfmt
     statix
+
+    # Deterministic code tooling (for people and coding agents): structural
+    # search/rewrite over syntax trees, structural diffs, line counts by
+    # language, benchmarks, rerun-on-change, and GitHub Actions/TOML linters
+    actionlint
+    ast-grep
+    difftastic
+    hyperfine
+    taplo
+    tokei
+    watchexec
   ];
 
   # Where `go install` and `cargo install` put binaries
