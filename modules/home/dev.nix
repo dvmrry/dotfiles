@@ -8,6 +8,12 @@
     pkg-config
     cmake
     just
+
+    # Nix and shell linters/formatters (this repo's pre-commit hooks use them)
+    deadnix
+    nixfmt
+    shfmt
+    statix
   ];
 
   # Where `go install` and `cargo install` put binaries

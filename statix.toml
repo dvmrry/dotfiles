@@ -1,0 +1,2 @@
+# `programs.git = …; programs.gh = …;` as separate keys is this repo's style.
+disabled = ["repeated_keys"]
