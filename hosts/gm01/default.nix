@@ -46,7 +46,9 @@ in
     inputs.disko.nixosModules.disko
     ./disk.nix
     ./hardware-configuration.nix
+    ../common/inference-exporters.nix
   ];
+  inferenceExporters.nvidiaGpu = true;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;

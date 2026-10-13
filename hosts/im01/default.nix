@@ -6,7 +6,9 @@
     inputs.disko.nixosModules.disko
     ./disk.nix
     ./hardware-configuration.nix
+    ../common/inference-exporters.nix
   ];
+  inferenceExporters.extraCollectors = [ "drm" ]; # Radeon 8060S busy %, VRAM/GTT
 
   # Boot: newest kernel for Strix Halo amdgpu/NPU/MT7925 support
   boot.loader.systemd-boot.enable = true;
