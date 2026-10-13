@@ -6,7 +6,8 @@ let
   llama-cpp = pkgs.callPackage ./llama-cpp.nix { };
   # Strata's server config: setup's recorded IQ3_S config with the calibration
   # from `setup.py --calibrate` (pcie-frac, adapt-*) and the full 262K window.
-  # At 262K the expert cache shrinks (8.6 -> 5.7 GiB) but decode holds: ~97
+  # With the full 262K KV reserved the expert cache shrinks (8.6 -> 5.7 GiB;
+  # with --kv-grow below only once the context actually fills) but decode holds: ~97
   # tok/s short, ~94 at 128K, ~3,050 tok/s prefill (0.1.43). Agentic runs peak at
   # ~180-230K, so 128K would compact.
   strataConfig = pkgs.writeText "strata-iq3_s.json" (builtins.toJSON {
@@ -23,7 +24,15 @@ let
       "--max-context" "262144"
       "--kv" "int8"
       "--pcie-frac" "0.35"
-      "--adapt-every" "1" "--adapt-swaps" "160" "--adapt-decay" "0.97"
+      # From the 2026-10-13 autotune (24 arms, each kept only if >= 2% faster
+      # twice): adapting every other token at twice the swaps (+2.5%), 7 expert
+      # pool workers (+2.7%), and --kv-grow (+11.6%), which hands the KV cells
+      # not yet used to the expert cache. Together: decode +9-17% on the probes,
+      # +10-14% at 1K, +5-11% at 32K, +4-14% at 128K (lower when the prompt is
+      # new, higher on cached follow-up turns); prefill and TTFT unchanged.
+      "--adapt-every" "2" "--adapt-swaps" "320" "--adapt-decay" "0.97"
+      "--pool-workers" "7"
+      "--kv-grow"
       # 0.1.43 overlaps the adaptive tier's copies with decode, signalled through
       # CUDA callbacks. Their thread inherits the host thread's CPU and the host
       # spins on it, so each wait took ~1 ms and overlap cost ~20% (Strata #1975).
