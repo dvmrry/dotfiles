@@ -7,6 +7,7 @@
     gnumake
     pkg-config
     cmake
+    ninja
     just
 
     # Go: lint/format for any module (a repo that pins its own versions in
