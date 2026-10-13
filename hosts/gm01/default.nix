@@ -47,6 +47,7 @@ in
     ./disk.nix
     ./hardware-configuration.nix
     ../common/inference-exporters.nix
+    ../../modules/nixos/base.nix
   ];
   inferenceExporters.nvidiaGpu = true;
 
@@ -329,19 +330,11 @@ in
     fi
   '';
 
+  # Common CLI tools come from modules/nixos/base.nix.
   environment.systemPackages = with pkgs; [
-    btop
-    curl
-    ghostty.terminfo # SSH sessions from Ghostty (TERM=xterm-ghostty)
-    git
-    jq
     llama-cpp
     mangohud # per game: `mangohud %command%`
     nvtopPackages.nvidia
-    pciutils
-    tmux
-    usbutils
-    vim
   ];
 
   nix.settings = {

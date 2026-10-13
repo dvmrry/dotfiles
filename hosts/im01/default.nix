@@ -7,6 +7,7 @@
     ./disk.nix
     ./hardware-configuration.nix
     ../common/inference-exporters.nix
+    ../../modules/nixos/base.nix
   ];
   inferenceExporters.extraCollectors = [ "drm" ]; # Radeon 8060S busy %, VRAM/GTT
 
@@ -99,17 +100,9 @@
 
   programs.fish.enable = true;
 
+  # Common CLI tools come from modules/nixos/base.nix.
   environment.systemPackages = with pkgs; [
     amdgpu_top
-    btop
-    curl
-    ghostty.terminfo # SSH sessions from Ghostty (TERM=xterm-ghostty)
-    git
-    jq
-    pciutils
-    tmux
-    usbutils
-    vim
   ];
 
   # Inference: Halogen serving Qwen 3.8 Flash Next (OpenAI, Responses and
