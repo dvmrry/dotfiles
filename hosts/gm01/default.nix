@@ -23,7 +23,14 @@ let
       "--max-context" "262144"
       "--kv" "int8"
       "--pcie-frac" "0.35"
-      "--adapt-every" "1" "--adapt-swaps" "160" "--adapt-decay" "0.97"
+      # From the 2026-10-13 autotune (24 arms, each kept only if >= 2% faster
+      # twice): adapting every other token at twice the swaps (+2.5%), 7 expert
+      # pool workers (+2.7%), and --kv-grow (+11.6%), which hands the KV cells
+      # not yet used to the expert cache. Together ~+14% decode (probes 110 ->
+      # 125 tok/s); with 128K in the mix still +12%, and +14% at 128K itself.
+      "--adapt-every" "2" "--adapt-swaps" "320" "--adapt-decay" "0.97"
+      "--pool-workers" "7"
+      "--kv-grow"
       # 0.1.43 overlaps the adaptive tier's copies with decode, signalled through
       # CUDA callbacks. Their thread inherits the host thread's CPU and the host
       # spins on it, so each wait took ~1 ms and overlap cost ~20% (Strata #1975).
