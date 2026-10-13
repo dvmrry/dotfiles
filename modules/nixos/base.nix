@@ -38,7 +38,6 @@
     hyperfine
     iotop
     lsof
-    ltrace
     numactl
     psmisc # killall, pstree, fuser
     strace
