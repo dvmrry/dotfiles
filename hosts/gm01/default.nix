@@ -27,8 +27,9 @@ let
       # From the 2026-10-13 autotune (24 arms, each kept only if >= 2% faster
       # twice): adapting every other token at twice the swaps (+2.5%), 7 expert
       # pool workers (+2.7%), and --kv-grow (+11.6%), which hands the KV cells
-      # not yet used to the expert cache. Together ~+14% decode (probes 110 ->
-      # 125 tok/s); with 128K in the mix still +12%, and +14% at 128K itself.
+      # not yet used to the expert cache. Together: decode +9-17% on the probes,
+      # +10-14% at 1K, +5-11% at 32K, +4-14% at 128K (lower when the prompt is
+      # new, higher on cached follow-up turns); prefill and TTFT unchanged.
       "--adapt-every" "2" "--adapt-swaps" "320" "--adapt-decay" "0.97"
       "--pool-workers" "7"
       "--kv-grow"
