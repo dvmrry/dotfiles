@@ -18,17 +18,20 @@ repos:
       - id: nixfmt
         name: nixfmt
         entry: nixfmt
+        stages: [pre-commit]
         language: system
         files: \.nix$
       - id: statix
         name: statix
         entry: statix check
+        stages: [pre-commit]
         language: system
         files: \.nix$
         pass_filenames: false
       - id: deadnix
         name: deadnix
         entry: deadnix --fail --no-lambda-pattern-names
+        stages: [pre-commit]
         language: system
         files: \.nix$
 
@@ -36,11 +39,13 @@ repos:
       - id: shellcheck
         name: shellcheck
         entry: shellcheck
+        stages: [pre-commit]
         language: system
         types: [shell]
       - id: shfmt
         name: shfmt
         entry: shfmt -i 2 -ci -w
+        stages: [pre-commit]
         language: system
         types: [shell]
 
