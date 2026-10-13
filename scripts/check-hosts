@@ -19,7 +19,7 @@ if [ ${#hosts[@]} -eq 0 ]; then
   done
 else
   for i in "${!hosts[@]}"; do
-    case ${hosts[$i]} in *.*) ;; cm*) hosts[$i]=darwinConfigurations.${hosts[$i]} ;; *) hosts[$i]=nixosConfigurations.${hosts[$i]} ;; esac
+    case ${hosts[$i]} in *.*) ;; cm*) hosts[i]=darwinConfigurations.${hosts[$i]} ;; *) hosts[i]=nixosConfigurations.${hosts[$i]} ;; esac
   done
 fi
 
@@ -33,34 +33,21 @@ for h in "${hosts[@]}"; do
       (c.environment.systemPackages ++ (c.home-manager.users.dm.home.packages or [ ]));
   }' 2>/dev/null) || { echo "$h: EVAL FAILED"; nix eval ".#$h.config.system.build.toplevel.drvPath" 2>&1 | tail -5; status=1; continue; }
 
-  missing=$(python3 -I - "$json" <<'PY'
-import concurrent.futures, json, os, sys, urllib.request
-d = json.loads(sys.argv[1])
-caches = [c.rstrip("/") for c in d["caches"]] or ["https://cache.nixos.org"]
-def cached(p):
-    # Unfree packages are never in cache.nixos.org; a path already in this
-    # machine's store has been built before.
-    if p["unfree"] or os.path.exists(p["out"]):
-        return True
-    h = p["out"].split("/")[3][:32]
-    for c in caches:
-        try:
-            urllib.request.urlopen(urllib.request.Request(f"{c}/{h}.narinfo", method="HEAD"), timeout=15)
-            return True
-        except Exception:
-            pass
-    return False
-pkgs = {p["out"]: p for p in d["pkgs"]}.values()
-with concurrent.futures.ThreadPoolExecutor(16) as pool:
-    for p, ok in zip(pkgs, pool.map(cached, pkgs)):
-        if not ok:
-            print(p["name"])
-PY
-)
+  # Unfree packages are never in cache.nixos.org, and a path already in this
+  # machine's store has been built before; every other path is looked up in
+  # each cache (narinfo by hash), 16 at a time.
+  caches=$(jq -r '.caches[] | rtrimstr("/")' <<<"$json" | tr '\n' ' ')
+  # shellcheck disable=SC2016 # expanded by the inner bash, once per path
+  check='[ -e "$0" ] && exit 0
+    h=${0#/nix/store/}; h=${h%%-*}
+    for c in $CACHES; do curl -sfI -m 15 -o /dev/null "$c/$h.narinfo" && exit 0; done
+    echo "$1"'
+  missing=$(jq -r '[.pkgs[] | select(.unfree | not)] | unique_by(.out)[] | "\(.out) \(.name)"' <<<"$json" |
+    CACHES=$caches xargs -P 16 -L 1 bash -c "$check")
   unexpected=$(printf '%s\n' "$missing" | grep -Ev "$expected" | grep -v '^$')
   if [ -n "$unexpected" ]; then
     echo "$h: not in any binary cache (would compile on switch):"
-    printf '  %s\n' $unexpected
+    while read -r p; do echo "  $p"; done <<<"$unexpected"
     status=1
   else
     echo "$h: ok"
