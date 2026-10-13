@@ -6,7 +6,8 @@ let
   llama-cpp = pkgs.callPackage ./llama-cpp.nix { };
   # Strata's server config: setup's recorded IQ3_S config with the calibration
   # from `setup.py --calibrate` (pcie-frac, adapt-*) and the full 262K window.
-  # At 262K the expert cache shrinks (8.6 -> 5.7 GiB) but decode holds: ~97
+  # With the full 262K KV reserved the expert cache shrinks (8.6 -> 5.7 GiB;
+  # with --kv-grow below only once the context actually fills) but decode holds: ~97
   # tok/s short, ~94 at 128K, ~3,050 tok/s prefill (0.1.43). Agentic runs peak at
   # ~180-230K, so 128K would compact.
   strataConfig = pkgs.writeText "strata-iq3_s.json" (builtins.toJSON {
