@@ -26,6 +26,7 @@ Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 ## Where things live
 
 - `modules/shared/cli.nix` — CLI tools every host gets, Mac or NixOS (core tools, network debugging). Imported by both system baselines.
+- `modules/shared/net.nix` — network engineering kit (capture, discovery, SNMP/gNMI, serial console) for the hosts Dave works from. Imported per host.
 - `modules/darwin/base.nix` — shared system baseline. Must stay role-agnostic.
 - `modules/home/base.nix` — shared user baseline.
 - `hosts/<name>/` — host-specific settings. `default.nix` imports system role modules, `home.nix` imports Home Manager role modules.
