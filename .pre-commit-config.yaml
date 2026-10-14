@@ -1,0 +1,24 @@
+# Hooks for this (public) repo, run by prek (or pre-commit). Enable once per
+# clone: `prek install --hook-type pre-commit --hook-type pre-push`.
+# Both tools come from modules/home/base.nix, so the hooks run from PATH.
+repos:
+  - repo: local
+    hooks:
+      # Secrets in what's being committed. The repo is public, and only
+      # sops-encrypted files may carry secrets.
+      - id: gitleaks
+        name: gitleaks (staged changes)
+        entry: gitleaks git --pre-commit --staged --redact --no-banner
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # Every host still evaluates, and nothing a switch needs is missing
+      # from the binary caches (a package Hydra failed to build).
+      - id: check-hosts
+        name: check-hosts (eval + binary cache)
+        entry: scripts/check-hosts
+        language: system
+        files: (\.nix|flake\.lock)$
+        pass_filenames: false
+        stages: [pre-push]

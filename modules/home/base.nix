@@ -17,7 +17,9 @@ in {
 
   # User-level packages
   home.packages = with pkgs; [
+    gitleaks # secret scan, run by repos' pre-commit hooks
     lazygit
+    prek # pre-commit runner (reads .pre-commit-config.yaml); `prek install` per repo
     tldr
   ];
 
@@ -45,6 +47,11 @@ in {
       column.ui = "auto";
       branch.sort = "-committerdate";
       fetch.prune = true;
+    } // lib.optionalAttrs isDarwin {
+      # GitHub over HTTPS with gh's token, so fetch/push keep working while
+      # 1Password (the SSH agent) is locked. Linux hosts keep SSH via the
+      # forwarded agent; they have no gh login.
+      url."https://github.com/".insteadOf = [ "git@github.com:" "ssh://git@github.com/" ];
     };
   };
 
@@ -59,12 +66,13 @@ in {
     };
   };
 
-  # GitHub CLI. SSH for git; the credential helper only covers stray HTTPS remotes
+  # GitHub CLI. On the Macs it is also git's credential helper for GitHub
+  # (see url.insteadOf above); Linux hosts use SSH.
   programs.gh = {
     enable = true;
     gitCredentialHelper.enable = true;
     settings = {
-      git_protocol = "ssh";
+      git_protocol = if isDarwin then "https" else "ssh";
       prompt = "enabled";
       aliases = {
         co = "pr checkout";

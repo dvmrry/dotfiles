@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Evaluate every host in this flake and list the packages a switch would have
+# to compile because no binary cache has them. A package nixpkgs' Hydra failed
+# to build (ltrace in #16) shows up here instead of halfway through a deploy.
+# usage: check-hosts [host...]   (default: every darwin and nixos host)
+set -uo pipefail
+cd "$(dirname "$0")/.." || exit 1
+
+# Expected to build on the host: unfree drivers, our own packages, and the
+# tiny per-system ones. Anything else uncached is reported as a failure.
+expected='^(nixos-version|darwin-version|darwin-uninstaller|darwin-rebuild|darwin-option|darwin-manpages|darwin-manual-html|darwin-help|delta-wrapped|nvidia-.*|steam.*|protontricks-.*|nvtop-.*|llama-cpp-.*|punktfunk-.*|hm-session-vars.*|home-manager-path|man-paths|.*-fish-completions|dummy-.*|home-configuration-reference-manpage|neovim-[0-9.]+-nvim)$'
+
+hosts=("$@")
+if [ ${#hosts[@]} -eq 0 ]; then
+  for kind in darwinConfigurations nixosConfigurations; do
+    for h in $(nix eval --json ".#$kind" --apply builtins.attrNames | tr -d '[]"' | tr , ' '); do
+      hosts+=("$kind.$h")
+    done
+  done
+else
+  for i in "${!hosts[@]}"; do
+    case ${hosts[$i]} in *.*) ;; cm*) hosts[i]=darwinConfigurations.${hosts[$i]} ;; *) hosts[i]=nixosConfigurations.${hosts[$i]} ;; esac
+  done
+fi
+
+status=0
+for h in "${hosts[@]}"; do
+  # System packages plus dm's Home Manager packages, with the host's caches.
+  json=$(nix eval --json ".#$h.config" --apply 'c: {
+    caches = let s = builtins.tryEval (c.nix.settings.substituters or [ ]); in
+      if s.success && s.value != [ ] then s.value else [ "https://cache.nixos.org/" ];
+    pkgs = map (p: { name = p.name or "?"; out = p.outPath; unfree = p.meta.unfree or false; })
+      (c.environment.systemPackages ++ (c.home-manager.users.dm.home.packages or [ ]));
+  }' 2>/dev/null) || { echo "$h: EVAL FAILED"; nix eval ".#$h.config.system.build.toplevel.drvPath" 2>&1 | tail -5; status=1; continue; }
+
+  # Unfree packages are never in cache.nixos.org, and a path already in this
+  # machine's store has been built before; every other path is looked up in
+  # each cache (narinfo by hash), 16 at a time.
+  caches=$(jq -r '.caches[] | rtrimstr("/")' <<<"$json" | tr '\n' ' ')
+  # shellcheck disable=SC2016 # expanded by the inner bash, once per path
+  check='[ -e "$0" ] && exit 0
+    h=${0#/nix/store/}; h=${h%%-*}
+    for c in $CACHES; do curl -sfI -m 15 -o /dev/null "$c/$h.narinfo" && exit 0; done
+    echo "$1"'
+  missing=$(jq -r '[.pkgs[] | select(.unfree | not)] | unique_by(.out)[] | "\(.out) \(.name)"' <<<"$json" |
+    CACHES=$caches xargs -P 16 -L 1 bash -c "$check")
+  unexpected=$(printf '%s\n' "$missing" | grep -Ev "$expected" | grep -v '^$')
+  if [ -n "$unexpected" ]; then
+    echo "$h: not in any binary cache (would compile on switch):"
+    while read -r p; do echo "  $p"; done <<<"$unexpected"
+    status=1
+  else
+    echo "$h: ok"
+  fi
+done
+exit $status
