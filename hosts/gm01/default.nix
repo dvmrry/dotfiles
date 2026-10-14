@@ -1,7 +1,13 @@
 # ASUS ROG Strix B650E-I, Ryzen 7 7800X3D, 64 GB DDR5-6000, RTX 4070 Ti
 # Super 16 GB. Headless gaming box streamed with Punktfunk (SteamOS-style, no
 # desktop); local LLMs later. BIOS: Secure Boot off, iGPU off.
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 let
   llama-cpp = pkgs.callPackage ./llama-cpp.nix { };
   # Strata's server config: setup's recorded IQ3_S config with the calibration
@@ -10,46 +16,71 @@ let
   # with --kv-grow below only once the context actually fills) but decode holds: ~97
   # tok/s short, ~94 at 128K, ~3,050 tok/s prefill (0.1.43). Agentic runs peak at
   # ~180-230K, so 128K would compact.
-  strataConfig = pkgs.writeText "strata-iq3_s.json" (builtins.toJSON {
-    exe = "/opt/strata/engine/strata";
-    args = [
-      "--pack" "/data/packs/iq3_s"
-      "--native" "/data/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf"
-      "--ple-gguf" "/data/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf"
-      "--expert-profile" "/opt/strata/data/expert-profile.bin"
-      "--expert-cache" "auto"
-      "--prefill" "auto"
-      "--spec" "4" "--spec-min-p" "0.70"
-      "--mtp" "/data/mtp/rt"
-      "--max-context" "262144"
-      "--kv" "int8"
-      "--pcie-frac" "0.35"
-      # From the 2026-10-13 autotune (24 arms, each kept only if >= 2% faster
-      # twice): adapting every other token at twice the swaps (+2.5%), 7 expert
-      # pool workers (+2.7%), and --kv-grow (+11.6%), which hands the KV cells
-      # not yet used to the expert cache. Together: decode +9-17% on the probes,
-      # +10-14% at 1K, +5-11% at 32K, +4-14% at 128K (lower when the prompt is
-      # new, higher on cached follow-up turns); prefill and TTFT unchanged.
-      "--adapt-every" "2" "--adapt-swaps" "320" "--adapt-decay" "0.97"
-      "--pool-workers" "7"
-      "--kv-grow"
-      # The adaptive tier's copies overlap decode (STRATA_ADAPT_OVERLAP below).
-      # On 0.1.43 the overlap's CUDA callback thread inherited the pinned host
-      # thread's CPU, so each wait took ~1 ms and overlap cost ~20% (Strata
-      # #1975); moving the non-worker threads off that CPU made it a 3-8% win.
-      # 0.1.43.1 fixes the cause; kept since it is still measured with it.
-      "--aux-cpus" "auto"
-    ];
-    cwd = "/opt/strata";
-    tokenizer = "/data/packs/iq3_s/tokenizer";
-    model_name = "qwen3.8-flash-next-iq3_s";
-    log = "/opt/strata/strata-iq3_s.log";
-    lib_dirs = [ "/usr/local/cuda/bin" "/usr/local/cuda/lib64" ];
-    port = 8080;
-    gpu = 0;
-    gpus_asked = true;
-    host = "0.0.0.0";
-  });
+  strataConfig = pkgs.writeText "strata-iq3_s.json" (
+    builtins.toJSON {
+      exe = "/opt/strata/engine/strata";
+      args = [
+        "--pack"
+        "/data/packs/iq3_s"
+        "--native"
+        "/data/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf"
+        "--ple-gguf"
+        "/data/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf"
+        "--expert-profile"
+        "/opt/strata/data/expert-profile.bin"
+        "--expert-cache"
+        "auto"
+        "--prefill"
+        "auto"
+        "--spec"
+        "4"
+        "--spec-min-p"
+        "0.70"
+        "--mtp"
+        "/data/mtp/rt"
+        "--max-context"
+        "262144"
+        "--kv"
+        "int8"
+        "--pcie-frac"
+        "0.35"
+        # From the 2026-10-13 autotune (24 arms, each kept only if >= 2% faster
+        # twice): adapting every other token at twice the swaps (+2.5%), 7 expert
+        # pool workers (+2.7%), and --kv-grow (+11.6%), which hands the KV cells
+        # not yet used to the expert cache. Together: decode +9-17% on the probes,
+        # +10-14% at 1K, +5-11% at 32K, +4-14% at 128K (lower when the prompt is
+        # new, higher on cached follow-up turns); prefill and TTFT unchanged.
+        "--adapt-every"
+        "2"
+        "--adapt-swaps"
+        "320"
+        "--adapt-decay"
+        "0.97"
+        "--pool-workers"
+        "7"
+        "--kv-grow"
+        # The adaptive tier's copies overlap decode (STRATA_ADAPT_OVERLAP below).
+        # On 0.1.43 the overlap's CUDA callback thread inherited the pinned host
+        # thread's CPU, so each wait took ~1 ms and overlap cost ~20% (Strata
+        # #1975); moving the non-worker threads off that CPU made it a 3-8% win.
+        # 0.1.43.1 fixes the cause; kept since it is still measured with it.
+        "--aux-cpus"
+        "auto"
+      ];
+      cwd = "/opt/strata";
+      tokenizer = "/data/packs/iq3_s/tokenizer";
+      model_name = "qwen3.8-flash-next-iq3_s";
+      log = "/opt/strata/strata-iq3_s.log";
+      lib_dirs = [
+        "/usr/local/cuda/bin"
+        "/usr/local/cuda/lib64"
+      ];
+      port = 8080;
+      gpu = 0;
+      gpus_asked = true;
+      host = "0.0.0.0";
+    }
+  );
 in
 {
   imports = [
@@ -104,12 +135,14 @@ in
       RemainAfterExit = true;
     };
     path = [ config.hardware.nvidia.package.bin ];
-    script = let
-      python = pkgs.python3.withPackages (p: [ p.nvidia-ml-py ]);
-    in ''
-      nvidia-smi -pl 300
-      ${python}/bin/python3 -c 'from pynvml import *; nvmlInit(); nvmlDeviceSetMemClkVfOffset(nvmlDeviceGetHandleByIndex(0), 3500)'
-    '';
+    script =
+      let
+        python = pkgs.python3.withPackages (p: [ p.nvidia-ml-py ]);
+      in
+      ''
+        nvidia-smi -pl 300
+        ${python}/bin/python3 -c 'from pynvml import *; nvmlInit(); nvmlDeviceSetMemClkVfOffset(nvmlDeviceGetHandleByIndex(0), 3500)'
+      '';
   };
   hardware.graphics = {
     enable = true;
@@ -273,20 +306,63 @@ in
     serviceConfig = {
       ExecStart = lib.escapeShellArgs [
         "${llama-cpp}/bin/llama-server"
-        "-m" "/var/lib/llm/gguf/Qwen3.8-27B-UD-IQ4_XS.gguf"
-        "--alias" "qwen3.8-27b"
-        "-ngl" "999" "-fa" "on" "-c" "65536" "-np" "1"
-        "-t" "8" "-tb" "16" "-b" "2048" "-ub" "512"
-        "-ctk" "q4_0" "-ctv" "q4_0"
-        "--spec-type" "draft-mtp" "--spec-draft-n-min" "1" "--spec-draft-n-max" "3"
+        "-m"
+        "/var/lib/llm/gguf/Qwen3.8-27B-UD-IQ4_XS.gguf"
+        "--alias"
+        "qwen3.8-27b"
+        "-ngl"
+        "999"
+        "-fa"
+        "on"
+        "-c"
+        "65536"
+        "-np"
+        "1"
+        "-t"
+        "8"
+        "-tb"
+        "16"
+        "-b"
+        "2048"
+        "-ub"
+        "512"
+        "-ctk"
+        "q4_0"
+        "-ctv"
+        "q4_0"
+        "--spec-type"
+        "draft-mtp"
+        "--spec-draft-n-min"
+        "1"
+        "--spec-draft-n-max"
+        "3"
         # the hybrid (DeltaNet) layers can't rewind; checkpoints let multi-turn
         # agents reuse their prefix instead of re-reading it every turn
-        "--cache-ram" "8192" "--ctx-checkpoints" "8"
-        "--jinja" "--no-mmproj"
-        "--reasoning" "off" "--reasoning-budget" "1024"
-        "--reasoning-budget-message" "Wait, I'm overthinking this. Stop reasoning and write the requested code now."
-        "--temp" "0.2" "--top-p" "0.8" "--top-k" "20" "--min-p" "0"
-        "--metrics" "--host" "0.0.0.0" "--port" "8731"
+        "--cache-ram"
+        "8192"
+        "--ctx-checkpoints"
+        "8"
+        "--jinja"
+        "--no-mmproj"
+        "--reasoning"
+        "off"
+        "--reasoning-budget"
+        "1024"
+        "--reasoning-budget-message"
+        "Wait, I'm overthinking this. Stop reasoning and write the requested code now."
+        "--temp"
+        "0.2"
+        "--top-p"
+        "0.8"
+        "--top-k"
+        "20"
+        "--min-p"
+        "0"
+        "--metrics"
+        "--host"
+        "0.0.0.0"
+        "--port"
+        "8731"
       ];
       DynamicUser = true;
       Nice = -5;
@@ -321,7 +397,12 @@ in
     isNormalUser = true;
     # audio: sound cards are otherwise granted only to a seat login, and
     # gm01 has none
-    extraGroups = [ "wheel" "video" "render" "audio" ];
+    extraGroups = [
+      "wheel"
+      "video"
+      "render"
+      "audio"
+    ];
     # bash as the login shell so `ssh host 'cmd'`, scp and scripts get POSIX; interactive logins exec fish (below)
     shell = pkgs.bash;
     openssh.authorizedKeys.keys = [
@@ -352,7 +433,10 @@ in
   ];
 
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     trusted-users = [ "@wheel" ];
     # Punktfunk's binary cache; hits only while gm01's nixpkgs follows
     # punktfunk's (see flake.nix)

@@ -1,4 +1,9 @@
-{ pkgs, lib, inputs, ... }:
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 let
   # Pinned mattpocock/skills for declarative install of all 12 skills.
   # Bump rev + sha256 to update; get sha256 via:
@@ -9,7 +14,8 @@ let
     rev = "b843cb5ea74b1fe5e58a0fc23cddef9e66076fb8";
     sha256 = "0x7gijjyl6yh89kgjd2dna02pry912yx5qnfy44ajkv7n3jm9s58";
   };
-in {
+in
+{
 
   imports = [
     ../../nvim
@@ -103,10 +109,22 @@ in {
   programs.fish = {
     enable = true;
     plugins = [
-      { name = "autopair"; src = pkgs.fishPlugins.autopair.src; }
-      { name = "done"; src = pkgs.fishPlugins.done.src; }
-      { name = "puffer"; src = pkgs.fishPlugins.puffer.src; }
-      { name = "sponge"; src = pkgs.fishPlugins.sponge.src; }
+      {
+        name = "autopair";
+        src = pkgs.fishPlugins.autopair.src;
+      }
+      {
+        name = "done";
+        src = pkgs.fishPlugins.done.src;
+      }
+      {
+        name = "puffer";
+        src = pkgs.fishPlugins.puffer.src;
+      }
+      {
+        name = "sponge";
+        src = pkgs.fishPlugins.sponge.src;
+      }
     ];
     shellAliases = {
       ns = "nslookup";
@@ -224,7 +242,10 @@ in {
     completionInit = "autoload -U compinit && compinit -i";
     autosuggestion = {
       enable = true;
-      strategy = [ "history" "completion" ];
+      strategy = [
+        "history"
+        "completion"
+      ];
     };
     syntaxHighlighting.enable = true;
     history = {
@@ -263,7 +284,8 @@ in {
         host="''${host%%/*}"; host="''${host%%:*}"
         command nslookup "$host" "$@"
       }
-    '' + ''
+    ''
+    + ''
       source <(kubectl completion zsh)
       compdef kubecolor=kubectl
       complete -F __start_kubectl k
@@ -336,10 +358,22 @@ in {
         format = "took [$duration](bold #ff9e64) ";
       };
 
-      golang = { symbol = " "; style = "#2ac3de"; };
-      python = { symbol = " "; style = "#bb9af7"; };
-      terraform = { symbol = " "; style = "#7aa2f7"; };
-      nix_shell = { symbol = " "; style = "#7aa2f7"; };
+      golang = {
+        symbol = " ";
+        style = "#2ac3de";
+      };
+      python = {
+        symbol = " ";
+        style = "#bb9af7";
+      };
+      terraform = {
+        symbol = " ";
+        style = "#7aa2f7";
+      };
+      nix_shell = {
+        symbol = " ";
+        style = "#7aa2f7";
+      };
       aws.disabled = false;
       gcloud.disabled = false;
     };
@@ -650,15 +684,25 @@ in {
     mcpServers = {
       bambuddy = {
         command = "bash";
-        args = [ "-c" "$HOME/.config/nix-darwin/scripts/bambuddy-mcp-wrapper" ];
+        args = [
+          "-c"
+          "$HOME/.config/nix-darwin/scripts/bambuddy-mcp-wrapper"
+        ];
       };
       nixos = {
         command = "nix";
-        args = [ "run" "github:utensils/mcp-nixos" "--" ];
+        args = [
+          "run"
+          "github:utensils/mcp-nixos"
+          "--"
+        ];
       };
       swim = {
         command = "/Users/dm/src/gh/dvmrry/swim/swim-mcp";
-        args = [ "--port" "9111" ];
+        args = [
+          "--port"
+          "9111"
+        ];
         autoApprove = [ "swim" ];
       };
     };
@@ -687,22 +731,25 @@ in {
   };
 
   # Claude Code - mattpocock skills (pinned, all 12)
-  home.file.".claude/skills/diagnose".source                       = "${mattpocock-skills}/skills/engineering/diagnose";
-  home.file.".claude/skills/grill-with-docs".source                = "${mattpocock-skills}/skills/engineering/grill-with-docs";
-  home.file.".claude/skills/improve-codebase-architecture".source  = "${mattpocock-skills}/skills/engineering/improve-codebase-architecture";
-  home.file.".claude/skills/setup-matt-pocock-skills".source       = "${mattpocock-skills}/skills/engineering/setup-matt-pocock-skills";
-  home.file.".claude/skills/tdd".source                            = "${mattpocock-skills}/skills/engineering/tdd";
-  home.file.".claude/skills/to-issues".source                      = "${mattpocock-skills}/skills/engineering/to-issues";
-  home.file.".claude/skills/to-prd".source                         = "${mattpocock-skills}/skills/engineering/to-prd";
-  home.file.".claude/skills/triage".source                         = "${mattpocock-skills}/skills/engineering/triage";
-  home.file.".claude/skills/zoom-out".source                       = "${mattpocock-skills}/skills/engineering/zoom-out";
-  home.file.".claude/skills/caveman".source                        = "${mattpocock-skills}/skills/productivity/caveman";
-  home.file.".claude/skills/grill-me".source                       = "${mattpocock-skills}/skills/productivity/grill-me";
-  home.file.".claude/skills/write-a-skill".source                  = "${mattpocock-skills}/skills/productivity/write-a-skill";
+  home.file.".claude/skills/diagnose".source = "${mattpocock-skills}/skills/engineering/diagnose";
+  home.file.".claude/skills/grill-with-docs".source =
+    "${mattpocock-skills}/skills/engineering/grill-with-docs";
+  home.file.".claude/skills/improve-codebase-architecture".source =
+    "${mattpocock-skills}/skills/engineering/improve-codebase-architecture";
+  home.file.".claude/skills/setup-matt-pocock-skills".source =
+    "${mattpocock-skills}/skills/engineering/setup-matt-pocock-skills";
+  home.file.".claude/skills/tdd".source = "${mattpocock-skills}/skills/engineering/tdd";
+  home.file.".claude/skills/to-issues".source = "${mattpocock-skills}/skills/engineering/to-issues";
+  home.file.".claude/skills/to-prd".source = "${mattpocock-skills}/skills/engineering/to-prd";
+  home.file.".claude/skills/triage".source = "${mattpocock-skills}/skills/engineering/triage";
+  home.file.".claude/skills/zoom-out".source = "${mattpocock-skills}/skills/engineering/zoom-out";
+  home.file.".claude/skills/caveman".source = "${mattpocock-skills}/skills/productivity/caveman";
+  home.file.".claude/skills/grill-me".source = "${mattpocock-skills}/skills/productivity/grill-me";
+  home.file.".claude/skills/write-a-skill".source =
+    "${mattpocock-skills}/skills/productivity/write-a-skill";
 
   # Silence "Last login" message
   home.file.".hushlogin".text = "";
-
 
   # ripgrep
   home.file.".ripgreprc".text = ''

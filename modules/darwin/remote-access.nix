@@ -1,6 +1,6 @@
 # Remote Login (SSH) with key-only auth, and power settings so the machine
 # stays reachable. Displays still sleep; the computer doesn't.
-{ ... }: {
+_: {
   services.openssh = {
     enable = true;
     extraConfig = ''

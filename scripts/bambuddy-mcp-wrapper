@@ -2,8 +2,9 @@
 SOPS_AGE_KEY_FILE="$HOME/.config/sops/age/keys.txt"
 export SOPS_AGE_KEY_FILE
 SECRETS="$HOME/.config/nix-darwin/secrets/bambu.yaml"
-export BAMBUDDY_URL="$(sops --decrypt --extract '["bambuddy_url"]' "$SECRETS")"
-export BAMBUDDY_API_KEY="$(sops --decrypt --extract '["bambuddy_api_key"]' "$SECRETS")"
+BAMBUDDY_URL="$(sops --decrypt --extract '["bambuddy_url"]' "$SECRETS")"
+BAMBUDDY_API_KEY="$(sops --decrypt --extract '["bambuddy_api_key"]' "$SECRETS")"
+export BAMBUDDY_URL BAMBUDDY_API_KEY
 export BAMBUDDY_CENSOR_ACCESS_CODE=true
 export BAMBUDDY_CENSOR_SERIAL=true
 exec uvx bambuddy-mcp

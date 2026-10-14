@@ -13,6 +13,42 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
+      # Nix: format, lint (statix.toml), dead code. Unused module arguments
+      # (`{ pkgs, lib, ... }`) are idiomatic, so deadnix skips lambda patterns.
+      - id: nixfmt
+        name: nixfmt
+        entry: nixfmt
+        stages: [pre-commit]
+        language: system
+        files: \.nix$
+      - id: statix
+        name: statix
+        entry: statix check
+        stages: [pre-commit]
+        language: system
+        files: \.nix$
+        pass_filenames: false
+      - id: deadnix
+        name: deadnix
+        entry: deadnix --fail --no-lambda-pattern-names
+        stages: [pre-commit]
+        language: system
+        files: \.nix$
+
+      # Shell scripts: lint and format (2-space indent, indented case arms).
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        stages: [pre-commit]
+        language: system
+        types: [shell]
+      - id: shfmt
+        name: shfmt
+        entry: shfmt -i 2 -ci -w
+        stages: [pre-commit]
+        language: system
+        types: [shell]
+
       # Every host still evaluates, and nothing a switch needs is missing
       # from the binary caches (a package Hydra failed to build).
       - id: check-hosts

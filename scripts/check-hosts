@@ -31,7 +31,12 @@ for h in "${hosts[@]}"; do
       if s.success && s.value != [ ] then s.value else [ "https://cache.nixos.org/" ];
     pkgs = map (p: { name = p.name or "?"; out = p.outPath; unfree = p.meta.unfree or false; })
       (c.environment.systemPackages ++ (c.home-manager.users.dm.home.packages or [ ]));
-  }' 2>/dev/null) || { echo "$h: EVAL FAILED"; nix eval ".#$h.config.system.build.toplevel.drvPath" 2>&1 | tail -5; status=1; continue; }
+  }' 2>/dev/null) || {
+    echo "$h: EVAL FAILED"
+    nix eval ".#$h.config.system.build.toplevel.drvPath" 2>&1 | tail -5
+    status=1
+    continue
+  }
 
   # Unfree packages are never in cache.nixos.org, and a path already in this
   # machine's store has been built before; every other path is looked up in
