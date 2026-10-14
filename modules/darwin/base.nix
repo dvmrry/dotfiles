@@ -26,7 +26,10 @@
     btop
     macmon
 
-    # Languages & runtimes
+    # Languages & runtimes. Brew's node (a pi-coding-agent dependency) comes
+    # first on PATH; projects pin their Node in a devShell. python3 is for
+    # coding agents' one-off scripts and uv runs third-party Python tools
+    # (bambuddy-mcp via uvx); our own tooling is never Python.
     nodejs
     python3
     uv

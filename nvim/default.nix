@@ -31,9 +31,8 @@
           nil
           nixfmt
         ];
-        python = with pkgs; [
-          pyright
-          ruff
+        rust = with pkgs; [
+          rust-analyzer
         ];
         terraform = with pkgs; [
           terraform-ls
@@ -43,6 +42,7 @@
         ];
         yaml = with pkgs; [
           yaml-language-server
+          yamlfmt
         ];
       };
 
@@ -92,7 +92,7 @@
           claude = true;
           go = true;
           nix = true;
-          python = true;
+          rust = true;
           terraform = true;
           typescript = true;
           yaml = true;
