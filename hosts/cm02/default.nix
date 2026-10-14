@@ -4,6 +4,7 @@
   imports = [
     ../../modules/darwin/pin-hostname.nix
     ../../modules/darwin/remote-access.nix
+    ../../modules/shared/net.nix
   ];
 
   # Mac App Store apps (installed via `mas`; must be signed in to the App Store).
