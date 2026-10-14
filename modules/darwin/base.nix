@@ -1,7 +1,9 @@
-# Shared system baseline: role-agnostic, safe on any Mac.
+# Shared system baseline: role-agnostic, safe on any Mac. The tools every host
+# gets, Mac or NixOS, come from modules/shared/cli.nix.
 # Role-specific bits (headless power, yabai/skhd, media, homelab tools) belong
 # in their own modules, imported per host.
 { pkgs, ... }: {
+  imports = [ ../shared/cli.nix ];
 
   # Packages installed system-wide. Language toolchains and infra CLIs are
   # better pinned per project via direnv + devShells than added here.
@@ -17,23 +19,13 @@
     gnused
 
     # Core tools
-    age
-    curl
-    fd
-    fzf
     gnupg
     httpie
-    jq
     mosh
-    ripgrep
     shellcheck
-    tree
     watch
-    wget
-    yq
 
     # System monitoring
-    btop
     macmon
 
     # Languages & runtimes. Brew's node (a pi-coding-agent dependency) comes
@@ -45,7 +37,6 @@
     uv
 
     # Git
-    git
     git-lfs
 
     # Nix helpers
