@@ -43,4 +43,8 @@
     "$HOME/go/bin"
     "$HOME/.cargo/bin"
   ];
+
+  # Short names for our own CLIs, installed into ~/go/bin by their `make install`
+  programs.fish.shellAbbrs.plx = "prolexic"; # github.com/dvmrry/akamai-prolexic
+  programs.zsh.shellAliases.plx = "prolexic";
 }
