@@ -96,7 +96,7 @@
       "video"
       "render"
     ];
-    shell = pkgs.fish;
+    # Login shell (bash, interactive fish): modules/nixos/base.nix
     # 1Password id_ed25519
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE8zyMqlC1LHHWWk0v/wdfaVGYBoZSvD64xaAQZ5dOYh"
@@ -104,8 +104,6 @@
   };
   # dm has no password (key-only), so sudo can't prompt for one
   security.sudo.wheelNeedsPassword = false;
-
-  programs.fish.enable = true;
 
   # Common CLI tools come from modules/nixos/base.nix.
   environment.systemPackages = with pkgs; [
