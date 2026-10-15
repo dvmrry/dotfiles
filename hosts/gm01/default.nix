@@ -5,6 +5,7 @@
   config,
   lib,
   pkgs,
+  utils,
   inputs,
   ...
 }:
@@ -227,6 +228,103 @@ in
   programs.gamescope = {
     enable = true;
     capSysNice = true;
+  };
+
+  # Local play on a monitor, on demand: Steam Gaming Mode on tty1, the way
+  # SteamOS runs it. Never at boot, so streams keep getting their own headless
+  # gamescope at the client's resolution, with HDR.
+  #   sudo systemctl start local-play   # Gaming Mode on the monitor
+  #   sudo systemctl stop local-play    # back to headless (or quit Steam)
+  # While it runs, a Punktfunk stream attaches to it instead: the monitor's
+  # resolution, SDR. Punktfunk's handover (idle the local session for a
+  # stream, give it back after) only knows SteamOS and Bazzite session units.
+  programs.steam.gamescopeSession = {
+    enable = true;
+    steamArgs = [
+      "-gamepadui" # as in Punktfunk's sessions
+      "-pipewire-dmabuf"
+    ];
+  };
+  # A logind session on tty1 for dm (DRM master, input devices), as
+  # services.cage does it
+  systemd.services.local-play = {
+    description = "Steam Gaming Mode on the local monitor";
+    after = [
+      "systemd-user-sessions.service"
+      "systemd-logind.service"
+      "getty@tty1.service"
+    ];
+    wants = [
+      "dbus.socket"
+      "systemd-logind.service"
+    ];
+    conflicts = [ "getty@tty1.service" ];
+    restartIfChanged = false; # a deploy doesn't end a game
+    # steam-gamescope runs gamescope and steam from PATH. With capSysNice,
+    # gamescope is only the wrapper in /run/wrappers/bin.
+    path = [
+      (dirOf config.security.wrapperDir)
+      config.system.path
+    ];
+    serviceConfig = {
+      # Steam runs once per user: a second one hands its arguments to the
+      # first and exits, and the monitor would stay dark
+      ExecStartPre = [
+        (pkgs.writeShellScript "local-play-check" ''
+          if ${pkgs.procps}/bin/pgrep -u dm -x steam >/dev/null; then
+            echo "local-play: Steam is already running (a Punktfunk stream?); disconnect it first" >&2
+            exit 1
+          fi
+        '')
+        # The LLMs take all 16 GB of VRAM. As root ("+"): stopping them is
+        # one-way, where Conflicts= would let an LLM start end the game.
+        "+${config.systemd.package}/bin/systemctl stop llama.service podman-strata.service"
+      ];
+      ExecStart = "/run/current-system/sw/bin/steam-gamescope";
+      User = "dm";
+      PAMName = "local-play";
+      TTYPath = "/dev/tty1";
+      TTYReset = "yes";
+      TTYVHangup = "yes";
+      TTYVTDisallocate = "yes";
+      StandardInput = "tty-fail";
+      StandardOutput = "journal";
+      StandardError = "journal";
+      UtmpIdentifier = "%n";
+      UtmpMode = "user";
+      IgnoreSIGPIPE = "no";
+    };
+  };
+  security.pam.services.local-play = {
+    useDefaultRules = false;
+    rules = {
+      account = utils.pam.autoOrderRules [
+        {
+          name = "unix";
+          control = "required";
+          modulePath = config.security.pam.pam_unixModulePath;
+        }
+      ];
+      session = utils.pam.autoOrderRules [
+        {
+          name = "unix";
+          control = "required";
+          modulePath = config.security.pam.pam_unixModulePath;
+        }
+        {
+          name = "env";
+          control = "required";
+          modulePath = "${config.security.pam.package}/lib/security/pam_env.so";
+          settings.conffile = "/etc/pam/environment";
+          settings.readenv = 0;
+        }
+        {
+          name = "systemd";
+          control = "required";
+          modulePath = "${config.systemd.package}/lib/security/pam_systemd.so";
+        }
+      ];
+    };
   };
 
   # Streaming: Punktfunk host. Each client gets its own headless gamescope
