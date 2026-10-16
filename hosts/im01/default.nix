@@ -131,6 +131,11 @@
         # (halo-strix 89961b5): -43% re-read tokens, -38% prefill time per turn.
         HALOGEN_FORK = "1";
         HALOGEN_FORK_MAP = "auto";
+        # Prompt-lookup drafting copies longer runs it has already seen (file
+        # contents, paths, identifiers): ngram 3, chain up to 7 (default 3,3).
+        # Measured 2026-10-16 (halo-strix e048094): +16-19% decode on code,
+        # prose unchanged, byte-identical greedy output.
+        HALOGEN_PLD = "3,7";
       };
       extraOptions = [
         "--device=/dev/kfd"
