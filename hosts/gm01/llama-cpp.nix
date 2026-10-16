@@ -21,6 +21,9 @@
         find "$out" -name .git -print0 | xargs -0 rm -rf
       '';
     };
+    # nixpkgs backports ggml-org/llama.cpp#30034 to its v0.6.0; b11552 already
+    # has it, so the patch no longer applies
+    patches = [ ];
     npmDepsHash = "sha256-hqYzdp1FwPhYkBP278fQXgY9NCKB6Q3P6Gko7BfP0m0=";
     cmakeFlags = prev.cmakeFlags ++ [
       (lib.cmakeFeature "CMAKE_CUDA_ARCHITECTURES" "89")
