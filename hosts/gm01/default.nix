@@ -536,6 +536,17 @@ in
     options = "--delete-older-than 14d";
   };
   nixpkgs.config.allowUnfree = true; # NVIDIA, Steam
+  # Fixed in nixpkgs on 2026-10-11 ("typescript-language-server: fix pnpm
+  # hash"), just after the nixpkgs punktfunk pins. Drop once gm01's has it.
+  nixpkgs.overlays = [
+    (final: prev: {
+      typescript-language-server = prev.typescript-language-server.overrideAttrs (old: {
+        pnpmDeps = old.pnpmDeps.overrideAttrs {
+          outputHash = "sha256-xR/EF60lVBsITKgH7wCM2wHM46PFQevD51KfCENSUH4=";
+        };
+      });
+    })
+  ];
 
   system.stateVersion = "26.11";
 }
