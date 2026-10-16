@@ -22,8 +22,9 @@
   #   - Punktfunk: game-streaming client (Moonlight replacement), TestFlight build.
 
   # RuneLite (OSRS), Apple silicon native. No Jagex Launcher here (Intel-only, needs Rosetta):
-  # log in via ~/.runelite/credentials.properties, written by a launcher run on another machine
-  # with RuneLite's --insecure-write-credentials flag. Not in this repo; it's a live session.
+  # start it with `osrs` (scripts/), which passes the Jagex session from 1Password as environment
+  # variables. The session comes from a launcher run on another machine with RuneLite's
+  # --insecure-write-credentials flag; its fields go on the 1Password item, not on disk here.
   homebrew.casks = [ "runelite" ];
 
   # jjang (tiling WM) owns window placement here; macOS's own edge tiling is a second writer for the same

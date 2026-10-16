@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Start RuneLite logged in to the Jagex account, without the Jagex Launcher.
+# The session lives as fields on a 1Password item; `op run` resolves the
+# references below and hands the values to RuneLite as environment variables,
+# the way the Jagex Launcher does, so they never touch disk.
+set -euo pipefail
+
+item="${OSRS_OP_ITEM:-op://Private/Jagex}"
+export JX_SESSION_ID="$item/JX_SESSION_ID"
+export JX_CHARACTER_ID="$item/JX_CHARACTER_ID"
+export JX_DISPLAY_NAME="$item/JX_DISPLAY_NAME"
+
+exec op run -- /Applications/RuneLite.app/Contents/MacOS/RuneLite "$@"
