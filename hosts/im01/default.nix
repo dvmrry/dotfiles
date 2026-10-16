@@ -125,6 +125,12 @@
       # recommended sampling (temp 1.0 / top_p 0.95 / top_k 20).
       environment = {
         HALOGEN_DOWNLOAD = "peonist-ai/halogen-qwen3.8-flash-next";
+        # Keep each conversation's state at the end of its reply, so the next
+        # turn doesn't read the reply (and its thinking) back in. Output is
+        # unchanged; ~0.2 GiB per kept conversation. Measured 2026-10-16
+        # (halo-strix 89961b5): -43% re-read tokens, -38% prefill time per turn.
+        HALOGEN_FORK = "1";
+        HALOGEN_FORK_MAP = "auto";
       };
       extraOptions = [
         "--device=/dev/kfd"
