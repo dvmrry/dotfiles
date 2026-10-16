@@ -523,6 +523,8 @@ in
     # and Rockstar
     heroic
     lutris
+    # Hugging Face Hub CLI (`hf`): model downloads land here
+    python3Packages.huggingface-hub
     nvtopPackages.nvidia
   ];
 

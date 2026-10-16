@@ -108,6 +108,8 @@
   # Common CLI tools come from modules/nixos/base.nix.
   environment.systemPackages = with pkgs; [
     amdgpu_top
+    # Hugging Face Hub CLI (`hf`): model downloads land here
+    python3Packages.huggingface-hub
   ];
 
   # Inference: Halogen serving Qwen 3.8 Flash Next (OpenAI, Responses and
