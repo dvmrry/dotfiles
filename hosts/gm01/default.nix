@@ -261,10 +261,12 @@ in
     conflicts = [ "getty@tty1.service" ];
     restartIfChanged = false; # a deploy doesn't end a game
     # steam-gamescope runs gamescope and steam from PATH. With capSysNice,
-    # gamescope is only the wrapper in /run/wrappers/bin.
+    # gamescope is only the wrapper in /run/wrappers/bin. The current system
+    # rather than this build's, so a game started after a deploy finds what it
+    # added (heroic, for Heroic's Steam shortcuts).
     path = [
       (dirOf config.security.wrapperDir)
-      config.system.path
+      "/run/current-system/sw"
     ];
     serviceConfig = {
       # Steam runs once per user: a second one hands its arguments to the
@@ -516,6 +518,11 @@ in
   environment.systemPackages = with pkgs; [
     llama-cpp
     mangohud # per game: `mangohud %command%`
+    # Other stores, run with Proton and added to Steam as non-Steam games:
+    # Heroic for GOG, Epic and Amazon; Lutris for Battle.net, EA, Ubisoft
+    # and Rockstar
+    heroic
+    lutris
     nvtopPackages.nvidia
   ];
 

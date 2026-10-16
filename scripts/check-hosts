@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.." || exit 1
 
 # Expected to build on the host: unfree drivers, our own packages, and the
 # tiny per-system ones. Anything else uncached is reported as a failure.
-expected='^(nixos-version|darwin-version|darwin-uninstaller|darwin-rebuild|darwin-option|darwin-manpages|darwin-manual-html|darwin-help|delta-wrapped|nvidia-.*|steam.*|protontricks-.*|nvtop-.*|llama-cpp-.*|punktfunk-.*|hm-session-vars.*|home-manager-path|man-paths|.*-fish-completions|dummy-.*|home-configuration-reference-manpage|neovim-[0-9.]+-nvim)$'
+expected='^(nixos-version|darwin-version|darwin-uninstaller|darwin-rebuild|darwin-option|darwin-manpages|darwin-manual-html|darwin-help|delta-wrapped|nvidia-.*|steam.*|lutris-.*|protontricks-.*|nvtop-.*|llama-cpp-.*|punktfunk-.*|hm-session-vars.*|home-manager-path|man-paths|.*-fish-completions|dummy-.*|home-configuration-reference-manpage|neovim-[0-9.]+-nvim)$'
 
 hosts=("$@")
 if [ ${#hosts[@]} -eq 0 ]; then
