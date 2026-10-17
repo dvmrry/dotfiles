@@ -240,6 +240,15 @@ in
   # stream, give it back after) only knows SteamOS and Bazzite session units.
   programs.steam.gamescopeSession = {
     enable = true;
+    # The monitor (Dell S2716DG) does 144 Hz; gamescope picks 60 unless told
+    args = [
+      "-W"
+      "2560"
+      "-H"
+      "1440"
+      "-r"
+      "144"
+    ];
     steamArgs = [
       "-gamepadui" # as in Punktfunk's sessions
       "-pipewire-dmabuf"
@@ -548,7 +557,7 @@ in
   # Fixed in nixpkgs on 2026-10-11 ("typescript-language-server: fix pnpm
   # hash"), just after the nixpkgs punktfunk pins. Drop once gm01's has it.
   nixpkgs.overlays = [
-    (final: prev: {
+    (_final: prev: {
       typescript-language-server = prev.typescript-language-server.overrideAttrs (old: {
         pnpmDeps = old.pnpmDeps.overrideAttrs {
           outputHash = "sha256-xR/EF60lVBsITKgH7wCM2wHM46PFQevD51KfCENSUH4=";
