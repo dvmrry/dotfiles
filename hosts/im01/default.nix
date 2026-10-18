@@ -138,6 +138,11 @@
         # Measured 2026-10-16 (halo-strix e048094): +16-19% decode on code,
         # prose unchanged, byte-identical greedy output.
         HALOGEN_PLD = "3,7";
+        # Prompt-cache entries: a conversation holds about six, so the default 24 keeps about four. im01 is shared
+        # (Dave, Jjang workers, Medina, evals) and was evicting on almost every request. Measured 2026-10-18
+        # (halo-strix f64a8cf, six interleaved ~6K-token conversations): 24 -> every follow-up re-read its whole
+        # prompt (3.2 s); 48 -> 99% cached, 0.2 s, no evictions, ~4 GB more memory.
+        HALOGEN_CACHE_ENTRIES = "48";
       };
       extraOptions = [
         "--device=/dev/kfd"
