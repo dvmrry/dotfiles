@@ -24,9 +24,11 @@ let
         "--pack"
         "/data/packs/iq3_s"
         "--native"
-        "/data/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf"
+        "/data/models/IQ3_S-q8ple/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf"
+        # n-gram table: Q8_0 (Unsloth UD-Q6_K_XL shard 3, split header patched, hard-linked as shard 2; README-q8-ple.txt
+        # in that dir). Per-row error vs BF16 0.53% vs the IQ4_NL table's 7.6%, same speed (halo-strix 981ed13).
         "--ple-gguf"
-        "/data/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf"
+        "/data/models/IQ3_S-q8ple/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf"
         "--expert-profile"
         "/opt/strata/data/expert-profile.bin"
         "--expert-cache"
