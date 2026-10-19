@@ -2,6 +2,7 @@
 # Import role modules here as they're decided.
 { ... }: {
   imports = [
+    ../../modules/darwin/bpf-access.nix
     ../../modules/darwin/pin-hostname.nix
     ../../modules/darwin/remote-access.nix
     ../../modules/shared/net.nix
