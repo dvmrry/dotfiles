@@ -91,10 +91,14 @@
 
   users.users.dm = {
     isNormalUser = true;
+    # podman: read root's containers (Halogen) through /run/podman/podman.sock,
+    # for Medina; the socket also allows control, which wheel's passwordless
+    # sudo already gives
     extraGroups = [
       "wheel"
       "video"
       "render"
+      "podman"
     ];
     # Login shell (bash, interactive fish): modules/nixos/base.nix
     # 1Password id_ed25519
