@@ -2,7 +2,7 @@
 # jumpbox), Mac or NixOS. The handful every box gets (dig, mtr, iperf3,
 # tcpdump) stay in cli.nix. System packages rather than home ones, so sudo
 # finds the tools that need root. On the Macs, capture (tshark, termshark,
-# ngrep) needs sudo unless Wireshark's ChmodBPF helper is installed.
+# ngrep) needs sudo except on hosts that import modules/darwin/bpf-access.nix.
 { pkgs, ... }: {
   environment.systemPackages = with pkgs; [
     # Path and latency
