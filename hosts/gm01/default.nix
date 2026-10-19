@@ -507,12 +507,15 @@ in
   users.users.dm = {
     isNormalUser = true;
     # audio: sound cards are otherwise granted only to a seat login, and
-    # gm01 has none
+    # gm01 has none. podman: read root's containers (Strata) through
+    # /run/podman/podman.sock, for Medina; the socket also allows control,
+    # which wheel's passwordless sudo already gives
     extraGroups = [
       "wheel"
       "video"
       "render"
       "audio"
+      "podman"
     ];
     # Login shell (bash, interactive fish): modules/nixos/base.nix
     openssh.authorizedKeys.keys = [
