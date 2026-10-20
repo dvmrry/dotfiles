@@ -11,79 +11,6 @@
 }:
 let
   llama-cpp = pkgs.callPackage ./llama-cpp.nix { };
-  # Strata's server config: setup's recorded IQ3_S config with the calibration
-  # from `setup.py --calibrate` (pcie-frac, adapt-*) and the full 262K window.
-  # With the full 262K KV reserved the expert cache shrinks (8.6 -> 5.7 GiB;
-  # with --kv-grow below only once the context actually fills) but decode holds: ~97
-  # tok/s short, ~94 at 128K, ~3,050 tok/s prefill (0.1.43). Agentic runs peak at
-  # ~180-230K, so 128K would compact.
-  strataConfig = pkgs.writeText "strata-iq3_s.json" (
-    builtins.toJSON {
-      exe = "/opt/strata/engine/strata";
-      args = [
-        "--pack"
-        "/data/packs/iq3_s"
-        "--native"
-        "/data/models/IQ3_S-q8ple/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf"
-        # n-gram table: Q8_0 (Unsloth UD-Q6_K_XL shard 3, split header patched, hard-linked as shard 2; README-q8-ple.txt
-        # in that dir). Per-row error vs BF16 0.53% vs the IQ4_NL table's 7.6%, same speed (halo-strix 981ed13).
-        "--ple-gguf"
-        "/data/models/IQ3_S-q8ple/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf"
-        "--expert-profile"
-        "/opt/strata/data/expert-profile.bin"
-        "--expert-cache"
-        "auto"
-        "--prefill"
-        "auto"
-        "--spec"
-        "4"
-        "--spec-min-p"
-        "0.70"
-        "--mtp"
-        "/data/mtp/rt"
-        "--max-context"
-        "262144"
-        "--kv"
-        "int8"
-        "--pcie-frac"
-        "0.35"
-        # From the 2026-10-13 autotune (24 arms, each kept only if >= 2% faster
-        # twice): adapting every other token at twice the swaps (+2.5%), 7 expert
-        # pool workers (+2.7%), and --kv-grow (+11.6%), which hands the KV cells
-        # not yet used to the expert cache. Together: decode +9-17% on the probes,
-        # +10-14% at 1K, +5-11% at 32K, +4-14% at 128K (lower when the prompt is
-        # new, higher on cached follow-up turns); prefill and TTFT unchanged.
-        "--adapt-every"
-        "2"
-        "--adapt-swaps"
-        "320"
-        "--adapt-decay"
-        "0.97"
-        "--pool-workers"
-        "7"
-        "--kv-grow"
-        # The adaptive tier's copies overlap decode (STRATA_ADAPT_OVERLAP below).
-        # On 0.1.43 the overlap's CUDA callback thread inherited the pinned host
-        # thread's CPU, so each wait took ~1 ms and overlap cost ~20% (Strata
-        # #1975); moving the non-worker threads off that CPU made it a 3-8% win.
-        # 0.1.43.1 fixes the cause; kept since it is still measured with it.
-        "--aux-cpus"
-        "auto"
-      ];
-      cwd = "/opt/strata";
-      tokenizer = "/data/packs/iq3_s/tokenizer";
-      model_name = "qwen3.8-flash-next-iq3_s";
-      log = "/opt/strata/strata-iq3_s.log";
-      lib_dirs = [
-        "/usr/local/cuda/bin"
-        "/usr/local/cuda/lib64"
-      ];
-      port = 8080;
-      gpu = 0;
-      gpus_asked = true;
-      host = "0.0.0.0";
-    }
-  );
 in
 {
   imports = [
@@ -365,45 +292,56 @@ in
   hardware.nvidia-container-toolkit.enable = true; # CDI: nvidia.com/gpu=all
   virtualisation.oci-containers = {
     backend = "podman";
-    # No published image: built on gm01 from the release's Dockerfile, for the
-    # 4070 Ti Super only (sm_89), without the image encoder. --from qualifies
-    # its short-name base image, which podman won't resolve:
-    #   git clone --depth 1 -b v0.1.43.1 https://github.com/Niko1221/Strata.git
-    #   sudo podman build -t localhost/strata:0.1.43.1 \
-    #     --from docker.io/nvidia/cuda:13.0.0-devel-ubuntu24.04 \
-    #     --build-arg CUDA_ARCHITECTURES=89 --build-arg BUILD_VISION=0 Strata
-    # First start downloads ~75 GB into /var/lib/llm/strata.
+    # Strata's own image (published from 0.2.1 on; cuda13 covers the 4070 Ti Super). Its `strata launch` wrapper
+    # writes the engine's run config from these variables and keeps it as a preset in /data, with the pack and the
+    # MTP layer (the first start prepares them, ~15 min). The IQ3_S files stay where 0.1.43 downloaded them, mounted
+    # read-only; shard 2 there is the Q8_0 n-gram table (README-q8-ple.txt in that folder; per-row error vs BF16
+    # 0.53% against the stock table's 7.6%, same speed). The server always wants an API key: made on the first start
+    # and kept in /var/lib/llm/strata2/state/api-key; clients send it as a Bearer token.
     containers.strata = {
-      image = "localhost/strata:0.1.43.1";
+      image = "ghcr.io/niko1221/strata:0.2.1-cuda13";
       autoStart = false;
       ports = [ "8731:8080" ];
-      volumes = [ "/var/lib/llm/strata:/data" ];
+      volumes = [
+        "/var/lib/llm/strata2:/data"
+        "/var/lib/llm/strata/models/IQ3_S-q8ple:/models:ro"
+      ];
       environment = {
         MODEL = "IQ3_S"; # 55 GB of experts in RAM; fits with nothing else running
-        FAMILY = "qwen";
-        CONTEXT = "262144";
-        VISION = "no";
-        CONFIG = "/data/config/strata-iq3_s-nix.json"; # strataConfig, copied in at start
-        # 0.1.43.1 made the adaptive overlap opt-in again (it was on by default in
-        # 0.1.43 on Linux NVIDIA). Here it is worth 8%: 3 interleaved pairs on
-        # the tuned config, overlap on = 0.1.43's speed (1.006), off = 0.922.
-        STRATA_ADAPT_OVERLAP = "1";
+        MODEL_PATH = "/models";
+        CONTEXT = "256k"; # agentic runs peak at ~180-230K, so 128K would compact
+        PARALLEL = "1"; # as measured; 0.1.45+ can batch requests, untested here
+        VISION = "off";
+        TUNE = "skip";
+        # 0.1.43's tuning carried over. With it 0.2.1 ties 0.1.43.1 on gm01 (2026-10-20, same probes: code ~105 vs
+        # ~106 tok/s, prose 93 vs 93, 32K prefill ~3,080 vs ~3,060 tok/s); 0.2.1's own quick tune alone was 7-10%
+        # slower, mostly from a lower draft acceptance (0.6-0.7 vs 0.8).
+        STRATA_SET = lib.concatStringsSep " " [
+          "spec-min-p=0.70"
+          "pcie-frac=0.35" # setup.py --calibrate
+          # From the 2026-10-13 autotune (24 arms, each kept only if >= 2% faster twice): adapting every other token
+          # at twice the swaps (+2.5%), 7 expert pool workers (+2.7%), and kv-grow (+11.6%), which hands the KV
+          # cells not yet used to the expert cache. Together decode +9-17%; prefill and TTFT unchanged.
+          "adapt-every=2"
+          "adapt-swaps=320"
+          "adapt-decay=0.97"
+          "pool-workers=7"
+          "kv-grow=1"
+          # The adaptive tier's copies overlap decode: +8% here (3 interleaved pairs on 0.1.43.1). aux-cpus keeps the
+          # non-worker threads off the pinned host thread's CPU (Strata #1975).
+          "STRATA_ADAPT_OVERLAP=1"
+          "aux-cpus=auto"
+        ];
       };
       extraOptions = [
         "--device=nvidia.com/gpu=all"
         "--ulimit=memlock=-1:-1" # pins its experts in RAM
-        "--stop-timeout=60" # releasing tens of GB of pinned RAM takes a while
+        "--shm-size=2g"
+        "--stop-timeout=120" # releasing tens of GB of pinned RAM takes a while
       ];
     };
   };
-  systemd.services.podman-strata = {
-    conflicts = [ "llama.service" ];
-    # The server config, declared here instead of setup's recorded file. Copied
-    # rather than mounted: the server touches it at start, so it must be writable.
-    preStart = ''
-      install -D -m 0644 ${strataConfig} /var/lib/llm/strata/config/strata-iq3_s-nix.json
-    '';
-  };
+  systemd.services.podman-strata.conflicts = [ "llama.service" ];
   # Qwen3.8 27B, the profile tuned on Windows (Aug 2026) and re-measured
   # here: UD-IQ4_XS with its built-in MTP head, depth 3. 64K is the largest
   # context that fits beside MTP; 80K doesn't on this build. ~113 tok/s on
@@ -482,9 +420,10 @@ in
   };
   systemd.tmpfiles.rules = [
     "d /var/lib/llm/gguf 0755 dm users -"
-    "d /var/lib/llm/strata 0755 root root -"
+    "d /var/lib/llm/strata 0755 root root -" # 0.1.43's tree: still holds the IQ3_S files
+    "d /var/lib/llm/strata2 0755 root root -"
   ];
-  networking.firewall.allowedTCPPorts = [ 8731 ]; # LLM API, no auth - LAN only
+  networking.firewall.allowedTCPPorts = [ 8731 ]; # LLM API, LAN only (Strata asks for its key, llama.cpp has none)
 
   # SSH: key-only, same hardening as the Macs
   services.openssh = {
