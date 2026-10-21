@@ -376,11 +376,8 @@ in
       window-padding-x = 12;
       window-padding-y = 8;
       window-padding-balance = true;
-      macos-titlebar-style = "hidden"; # jjang tiles; the titlebar strip is dead space
-      macos-titlebar-proxy-icon = "hidden";
       macos-option-as-alt = "left"; # right Option still types é, —, etc.
       window-save-state = "always";
-      title = " "; # blank titlebar text (empty string would reset to default)
       confirm-close-surface = false;
       copy-on-select = "clipboard";
       cursor-style = "block";
