@@ -387,11 +387,11 @@
     },
     "nixpkgs_4": {
       "locked": {
-        "lastModified": 1791734076,
-        "narHash": "sha256-i5qk1kLiit98rRbh1AXmWBNT9QXC/y4l5Wk/u5EdpDQ=",
+        "lastModified": 1792502884,
+        "narHash": "sha256-IoNisKcGbUjdd45qCqywGMCYmZ5EnkxezvLII0FWwNA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "7fd4004d0511991fff3a0524856a9be09e28c5f0",
+        "rev": "02c087f3fe673c9e317f206a627cb6b910336dbe",
         "type": "github"
       },
       "original": {
@@ -409,10 +409,10 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1792021890,
-        "narHash": "sha256-mvMVgEJk4RkAPGqfMv8+Vyn1rXxmdmfkrZl3be1PprY=",
+        "lastModified": 1792891216,
+        "narHash": "sha256-7Zy3CrHXD6wbj5gRfcfeFyxu08J5/hHN5ER2W6XMQZ4=",
         "ref": "nix-stable",
-        "rev": "c5ed1136c06395d84f86e1d8822ebb2e5f4c9df7",
+        "rev": "9a230631e9867b02fb5298a8cc6f6feb544b274f",
         "shallow": true,
         "type": "git",
         "url": "https://git.unom.io/unom/punktfunk"
