@@ -7,6 +7,7 @@
     ./disk.nix
     ./hardware-configuration.nix
     ../common/inference-exporters.nix
+    ../common/talkbot.nix
     ../../modules/nixos/base.nix
   ];
   inferenceExporters.extraCollectors = [ "drm" ]; # Radeon 8060S busy %, VRAM/GTT

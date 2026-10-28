@@ -18,6 +18,7 @@ in
     ./disk.nix
     ./hardware-configuration.nix
     ../common/inference-exporters.nix
+    ../common/talkbot.nix
     ../../modules/nixos/base.nix
   ];
   inferenceExporters.nvidiaGpu = true;
