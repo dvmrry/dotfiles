@@ -11,6 +11,16 @@
 }:
 let
   llama-cpp = pkgs.callPackage ./llama-cpp.nix { };
+  # The release nixpkgs used before 0.19.2 (hardware.nvidia.package below)
+  patchelf_0_15 = pkgs.patchelf.overrideAttrs (
+    finalAttrs: _: {
+      version = "0.15.2";
+      src = pkgs.fetchurl {
+        url = "https://github.com/NixOS/patchelf/releases/download/${finalAttrs.version}/patchelf-${finalAttrs.version}.tar.bz2";
+        hash = "sha256-F3RfVkFZyOIo/EEtplogSLhGxLa0Igt3y/IkFuAvLXw=";
+      };
+    }
+  );
 in
 {
   imports = [
@@ -49,6 +59,22 @@ in
     gsp.enable = false;
     modesetting.enable = true;
     nvidiaPersistenced = true; # driver stays initialised between engine runs
+    # patchelf 0.19.2 breaks a binary when one call sets both its interpreter
+    # and rpath, as the driver's builder does for nvidia-smi, nvidia-powerd,
+    # nvidia-debugdump and nvidia-cuda-mps-control: their LOAD segments
+    # overlap and ld.so segfaults before main (nixpkgs #576412). That took out
+    # gpu-tune and the GPU exporter. The libraries are fine. The condition
+    # drops the override once this nixpkgs moves to another patchelf.
+    package =
+      let
+        driver = config.boot.kernelPackages.nvidiaPackages.${config.hardware.nvidia.branch};
+      in
+      if pkgs.patchelf.version == "0.19.2" then
+        driver.overrideAttrs (old: {
+          nativeBuildInputs = [ patchelf_0_15 ] ++ old.nativeBuildInputs;
+        })
+      else
+        driver;
   };
   boot.extraModprobeConfig = "options nvidia NVreg_EnableGpuFirmware=0";
   # GPU tuning, applied at boot (neither setting survives a driver reload).
@@ -235,6 +261,10 @@ in
       IgnoreSIGPIPE = "no";
     };
   };
+  # No getty on tty1, as services.greetd does it: a deploy restarts
+  # getty.target, which starts autovt@tty1, and Conflicts= then ends the game.
+  # dm has no password, so nothing could log in there anyway.
+  systemd.services."autovt@tty1".enable = false;
   security.pam.services.local-play = {
     useDefaultRules = false;
     rules = {
