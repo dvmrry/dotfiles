@@ -15,11 +15,11 @@
 # The key is made on the box at the first start and never enters the store:
 # /var/lib/llm/gate/key. The cluster's copy is in 1Password (vault talos, item
 # talos-gitops-gm01-llm). Only the Talos nodes may connect (Cilium masquerades
-# pod traffic to the node IP), as for the exporters.
+# pod traffic to the node IP): a cluster port, as for the exporters
+# (../common/inference-exporters.nix).
 { pkgs, ... }:
 let
   port = 8744;
-  nodes = "172.18.0.30-172.18.0.32"; # tm01-03
   dir = "/var/lib/llm/gate";
 in
 {
@@ -46,6 +46,7 @@ in
 
   services.nginx = {
     enable = true;
+    mapHashBucketSize = 128; # "Bearer " + the 64-character key is past the default 64
     appendHttpConfig = ''
       map $http_authorization $llm_gate_key_ok {
         default 0;
@@ -79,7 +80,5 @@ in
     };
   };
 
-  networking.firewall.extraCommands = ''
-    iptables -A nixos-fw -p tcp --dport ${toString port} -m iprange --src-range ${nodes} -j nixos-fw-accept
-  '';
+  inferenceExporters.clusterPorts = [ port ];
 }
