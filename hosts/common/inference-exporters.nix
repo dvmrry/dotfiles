@@ -52,13 +52,22 @@ in
     };
     systemd.services.prometheus-nvidia-gpu-exporter.serviceConfig = lib.mkIf cfg.nvidiaGpu lowPriority;
 
-    # Inserted ahead of the LAN-wide openings (SSH, the LLM APIs), which come
-    # first in nixos-fw; NEW only, so replies to this host's own connections
-    # into the cluster still pass.
+    # In mangle PREROUTING, ahead of podman's DNAT: a container's published
+    # port (Halogen on im01, podman-strata on gm01) is forwarded and never
+    # reaches nixos-fw (2026-11-08: im01:8731 answered a pod while :22 was
+    # dropped). NEW only, so replies to this host's own connections into the
+    # cluster still pass. Its own chain, so a firewall reload replaces it.
     networking.firewall.extraCommands = ''
-      iptables -I nixos-fw -m conntrack --ctstate NEW -m iprange --src-range ${scrapers} -p tcp -m multiport ! --dports ${ports} -j nixos-fw-refuse
-      iptables -I nixos-fw -m conntrack --ctstate NEW -m iprange --src-range ${scrapers} -p udp -j nixos-fw-refuse
+      iptables -t mangle -N inference-cluster 2>/dev/null || iptables -t mangle -F inference-cluster
+      iptables -t mangle -C PREROUTING -j inference-cluster 2>/dev/null || iptables -t mangle -I PREROUTING -j inference-cluster
+      iptables -t mangle -A inference-cluster -m conntrack --ctstate NEW -m iprange --src-range ${scrapers} -p tcp -m multiport ! --dports ${ports} -j DROP
+      iptables -t mangle -A inference-cluster -m conntrack --ctstate NEW -m iprange --src-range ${scrapers} -p udp -j DROP
     ''
     + lib.concatMapStrings allow cfg.clusterPorts;
+    networking.firewall.extraStopCommands = ''
+      iptables -t mangle -D PREROUTING -j inference-cluster 2>/dev/null || true
+      iptables -t mangle -F inference-cluster 2>/dev/null || true
+      iptables -t mangle -X inference-cluster 2>/dev/null || true
+    '';
   };
 }
