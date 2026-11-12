@@ -36,6 +36,23 @@
     taplo
     tokei
     watchexec
+
+    # Runs a repo's scripts/check-fast over an agent's uncommitted work: the
+    # Claude Code Stop hook (`agent-check hook`) and the report appended to
+    # dispatched workers' output (`agent-check run DIR`)
+    (writeShellApplication {
+      name = "agent-check";
+      runtimeInputs = [
+        coreutils
+        findutils
+        gawk
+        git
+        gnugrep
+        gnused
+        jq
+      ];
+      text = builtins.readFile ../../claude/agent-check.sh;
+    })
   ];
 
   # Where `go install` and `cargo install` put binaries
