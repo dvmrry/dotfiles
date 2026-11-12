@@ -11,7 +11,10 @@
 # The checks live in the repo. An executable scripts/check-fast checks what
 # changed since $CHECK_BASE (default HEAD), untracked files included: lint
 # findings in the changed files (only on the lines a change adds, where a file
-# has old ones) and build errors wherever they land. It prints findings as
+# has old ones) and build errors wherever they land. An incremental compiler
+# repeats warnings only for files it compiles, and the agent may have built
+# already, so make it compile the changed files (dtv touches them; go vet
+# reruns a failing package on its own). It prints findings as
 # `path:line: rule: message` and exits 0 (clean), 1 (findings) or anything else
 # (the check itself is broken: a missing tool, a crash). Its stderr is a note
 # for the person, such as a part it skipped. The hook sets $CHECK_BASE to where
