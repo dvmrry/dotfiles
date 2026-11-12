@@ -10,7 +10,7 @@ export XDG_STATE_HOME=$work/state
 fails=0
 
 # A repo whose check-fast reports every line containing BAD in changed files,
-# and breaks when a file named BROKEN exists
+# breaks when a file named BROKEN exists and notes a skip when one named NOTE does
 repo=$work/repo
 git init -q "$repo"
 git -C "$repo" -c user.name=t -c user.email=t@t commit -q --allow-empty -m init
@@ -19,6 +19,7 @@ cat >"$repo/scripts/check-fast" <<'EOF'
 #!/usr/bin/env bash
 cd "$(git rev-parse --show-toplevel)"
 [[ -e BROKEN ]] && { echo "tool missing" >&2; exit 3; }
+[[ -e NOTE ]] && echo "check-fast: part skipped" >&2
 { git diff --name-only HEAD; git ls-files --others --exclude-standard; } | sort -u |
   while IFS= read -r f; do [[ -f $f ]] && grep -n -H BAD "$f" | sed 's/:\([0-9]*\):.*/:\1: no-bad: remove BAD/'; done |
   grep . && exit 1
@@ -74,6 +75,17 @@ if command -v direnv >/dev/null; then
   rm "$repo/.envrc"
 fi
 
+touch "$repo/NOTE"
+out=$(hook "$repo")
+expect "a pass with a note tells the person" '^\{[^}]*"systemMessage".*a note from check-fast.*part skipped' "$out"
+echo again >>"$repo/a.txt"
+expect "the same note isn't repeated" "" "$(hook "$repo")"
+rm "$repo/NOTE"
+
+printf '[extend]\nuseDefault = true\n' >"$repo/.gitleaks.toml"
+expect "a check config change is flagged" '\.gitleaks\.toml:0: check-config' "$(hook "$repo")"
+rm "$repo/.gitleaks.toml"
+
 printf 'x=1 # shellcheck disable=SC2034\n' >"$repo/c.sh"
 printf 'module x\n' >"$repo/go.mod"
 out=$(hook "$repo")
@@ -87,7 +99,7 @@ out=$("$ac" run "$repo") || true
 expect "run reports pass and flags" 'check-fast \(repo\): pass.*flags' "$out"
 echo BAD >>"$repo/a.txt"
 rc=0 && out=$("$ac" run "$repo") || rc=$?
-expect "run reports findings" 'findings.*a\.txt:3: no-bad' "$out"
+expect "run reports findings" 'findings.*a\.txt:[0-9]+: no-bad' "$out"
 expect "run exits 1 on findings" '^1$' "$rc"
 out=$("$ac" run "$work/plain")
 expect "run without check-fast says none" 'none' "$out"
