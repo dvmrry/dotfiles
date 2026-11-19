@@ -22,11 +22,15 @@
   #     mas can't see or install iPad-on-Mac apps.
   #   - Punktfunk: game-streaming client (Moonlight replacement), TestFlight build.
 
-  # RuneLite (OSRS), Apple silicon native. No Jagex Launcher here (Intel-only, needs Rosetta):
-  # start it with `osrs` (scripts/), which passes the Jagex session from 1Password as environment
-  # variables. The session comes from a launcher run on another machine with RuneLite's
-  # --insecure-write-credentials flag; its fields go on the 1Password item, not on disk here.
-  homebrew.casks = [ "runelite" ];
+  homebrew.casks = [
+    # Claude desktop app. Updates itself, so base.nix's `upgrade = false` doesn't leave it stale.
+    "claude"
+    # RuneLite (OSRS), Apple silicon native. No Jagex Launcher here (Intel-only, needs Rosetta):
+    # start it with `osrs` (scripts/), which passes the Jagex session from 1Password as environment
+    # variables. The session comes from a launcher run on another machine with RuneLite's
+    # --insecure-write-credentials flag; its fields go on the 1Password item, not on disk here.
+    "runelite"
+  ];
 
   # jjang (tiling WM) owns window placement here; macOS's own edge tiling is a second writer for the same
   # gestures (jjang throws windows to screen edges), so it's off. Option-drag and top-edge fill too.
