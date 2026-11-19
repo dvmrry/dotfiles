@@ -1,8 +1,9 @@
 # Kubernetes / Talos / Flux / OpenTofu tooling and shortcuts for the homelab.
 { pkgs, inputs, ... }:
 let
-  # Version-matched to the cluster; see nixpkgs-cluster in flake.nix
+  # Version-matched to the cluster; see nixpkgs-cluster / nixpkgs-talos in flake.nix
   cluster = inputs.nixpkgs-cluster.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+  talos = inputs.nixpkgs-talos.legacyPackages.${pkgs.stdenv.hostPlatform.system};
 in
 {
   home.packages =
@@ -16,7 +17,7 @@ in
     ])
     ++ [
       cluster.kubectl
-      cluster.talosctl
+      talos.talosctl
     ];
 
   programs.fish = {

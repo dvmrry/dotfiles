@@ -4,10 +4,13 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    # Cluster-facing CLIs (talosctl, kubectl) pinned to match talos-homelab
-    # (talos-gitops talconfig.yaml: Talos v1.12.x, Kubernetes v1.35.x).
-    # Bump this rev when the cluster is upgraded.
+    # Cluster-facing CLIs pinned to match talos-homelab (talos-gitops
+    # talconfig.yaml). Two pins, because Talos and Kubernetes move separately
+    # and kubectl must stay within one minor of the cluster.
+    # Kubernetes v1.35.x: kubectl. Bump when Kubernetes is upgraded.
     nixpkgs-cluster.url = "github:NixOS/nixpkgs/6ebfbc3";
+    # Talos v1.14.x: talosctl. Bump when Talos is upgraded.
+    nixpkgs-talos.url = "github:NixOS/nixpkgs/e21fec321d73511849707a7585e4ea155ee4bf40";
 
     nix-darwin = {
       url = "github:LnL7/nix-darwin/master";
