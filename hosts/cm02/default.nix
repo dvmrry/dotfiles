@@ -30,6 +30,8 @@
     # variables. The session comes from a launcher run on another machine with RuneLite's
     # --insecure-write-credentials flag; its fields go on the 1Password item, not on disk here.
     "runelite"
+    # Obsidian, for the local vault at ~/vault (its own git repo, no sync). Updates itself, like claude.
+    "obsidian"
   ];
 
   # jjang (tiling WM) owns window placement here; macOS's own edge tiling is a second writer for the same
