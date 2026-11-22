@@ -499,8 +499,8 @@ in
     openssh.authorizedKeys.keys = [
       # 1Password id_ed25519
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE8zyMqlC1LHHWWk0v/wdfaVGYBoZSvD64xaAQZ5dOYh"
-      # cm02 automation key (file key, no 1Password approval), Mac LAN only
-      ''from="172.19.0.0/24" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXho3zeypEdHDMWM11L4Km3AL1Y5wOc3/aonhcfGQPG dm@cm02 automation''
+      # cm02 automation key (file key, no 1Password approval): the Mac LAN, and cm02 over the direct link
+      ''from="172.19.0.0/24,192.168.77.1" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXho3zeypEdHDMWM11L4Km3AL1Y5wOc3/aonhcfGQPG dm@cm02 automation''
     ];
   };
   # dm has no password (key-only), so sudo can't prompt for one
