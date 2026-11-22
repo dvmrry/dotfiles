@@ -109,15 +109,23 @@ in
   zramSwap.enable = true;
   powerManagement.cpuFreqGovernor = "performance"; # prefill, Strata's CPU experts
 
-  # Networking: DHCP on wired (preferred) and Wi-Fi. Both sit on the Macs'
-  # subnet, so a reply to traffic that came in on one can leave via the other;
-  # strict reverse-path filtering would drop those.
+  # Networking: Wi-Fi is the LAN and internet link. The wired port is a direct
+  # cable to cm02 (no switch) for Punktfunk streaming: Wi-Fi jitter spiked a
+  # stream's round trip to 70 ms, a cable keeps it under 1. The link is its own
+  # /30 with no gateway (cm02 192.168.77.1, gm01 192.168.77.2), so nothing but
+  # cm02's traffic uses it, and boot doesn't wait for it (cm02 may be off).
+  # Reverse-path filtering stays loose: both links are up at once.
   networking.hostName = "gm01";
   networking.useNetworkd = true;
   networking.firewall.checkReversePath = "loose";
   systemd.network.networks."10-wired" = {
     matchConfig.Name = "en*";
-    networkConfig.DHCP = "yes";
+    address = [ "192.168.77.2/30" ];
+    networkConfig = {
+      DHCP = "no";
+      IPv6AcceptRA = false;
+    };
+    linkConfig.RequiredForOnline = "no";
   };
   # Wi-Fi (MT7922) via iwd. Credentials are entered once on the box and kept
   # by iwd in /var/lib/iwd, never in this repo:
@@ -134,7 +142,7 @@ in
   systemd.network.networks."20-wireless" = {
     matchConfig.Name = "wl*";
     networkConfig.DHCP = "yes";
-    dhcpV4Config.RouteMetric = 2048; # wired (1024) wins when plugged in
+    dhcpV4Config.RouteMetric = 2048;
     ipv6AcceptRAConfig.RouteMetric = 2048;
   };
   services.avahi = {
