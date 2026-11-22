@@ -29,5 +29,9 @@
       (lib.cmakeFeature "CMAKE_CUDA_ARCHITECTURES" "89")
       (lib.cmakeBool "GGML_CUDA_FA_ALL_QUANTS" true)
     ];
+    # nixpkgs skips test-download-model (no network in the build), but in
+    # b11552 test-state-restore-fragmented requires it as a CTest fixture,
+    # which pulls the skipped test back in. Skip the fragmented test too.
+    disabledTests = prev.disabledTests ++ [ "test-state-restore-fragmented" ];
   }
 )
