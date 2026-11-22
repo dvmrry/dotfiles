@@ -321,6 +321,22 @@ in
     };
   };
 
+  # Thread priority for dm's headless services. The Punktfunk host (capture,
+  # encode, send, its 5 ms audio loop) and PipeWire ask RealtimeKit to raise
+  # their threads, and rtkit asks polkit, whose stock rule allows that only to
+  # processes in a logged-in session. User services started at boot with
+  # linger run in none, so every request was "Access denied" and the threads
+  # stayed at default priority. This allows rtkit's two actions for dm only.
+  security.polkit.extraConfig = ''
+    polkit.addRule(function(action, subject) {
+      if ((action.id == "org.freedesktop.RealtimeKit1.acquire-high-priority" ||
+           action.id == "org.freedesktop.RealtimeKit1.acquire-real-time") &&
+          subject.user == "dm") {
+        return polkit.Result.YES;
+      }
+    });
+  '';
+
   # Local LLMs: one engine at a time on :8731 (im01's port too, so clients only
   # change the host). Never at boot: each takes most of the VRAM and tens of GB
   # of pinned RAM, so stop it before gaming.
