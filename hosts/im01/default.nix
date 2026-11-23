@@ -123,7 +123,7 @@
   virtualisation.oci-containers = {
     backend = "podman";
     containers.halogen = {
-      image = "ghcr.io/peonist-ai/halogen-flash-server:0.18.17";
+      image = "ghcr.io/peonist-ai/halogen-flash-server:0.20.7";
       ports = [ "8731:8731" ];
       volumes = [ "/var/lib/halogen/models:/models" ];
       # No HALOGEN_TEMPERATURE on purpose: requests without a temperature
@@ -132,11 +132,12 @@
       environment = {
         HALOGEN_DOWNLOAD = "peonist-ai/halogen-qwen3.8-flash-next";
         # Keep each conversation's state at the end of its reply, so the next
-        # turn doesn't read the reply (and its thinking) back in. Output is
-        # unchanged; ~0.2 GiB per kept conversation. Measured 2026-10-16
-        # (halo-strix 89961b5): -43% re-read tokens, -38% prefill time per turn.
+        # turn doesn't read the reply (and its thinking) back in. Measured
+        # 2026-10-16 (halo-strix 89961b5): -43% re-read tokens, -38% prefill
+        # time per turn. On by default since 0.18.15; since 0.20.1 the reply
+        # end is an ordinary prompt-cache entry and HALOGEN_FORK_MAP=auto is
+        # ignored, so only the explicit switch stays.
         HALOGEN_FORK = "1";
-        HALOGEN_FORK_MAP = "auto";
         # Prompt-lookup drafting copies longer runs it has already seen (file
         # contents, paths, identifiers): ngram 3, chain up to 7 (default 3,3).
         # Measured 2026-10-16 (halo-strix e048094): +16-19% decode on code,
