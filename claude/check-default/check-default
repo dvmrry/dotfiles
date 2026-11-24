@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# check-default: agent-check's own checks, for a repo without a scripts/check-fast and for the languages a
+# check-fast doesn't cover. Same contract as check-fast: the files changed since $CHECK_BASE (default HEAD) plus
+# untracked files; findings as `path:line: rule: message`; exit 0 (clean), 1 (findings) or anything else
+# (broken). Its rules read `language/rule`, which is what agent-check's modes file keys on. Its stderr is for the
+# log: steps it skipped and why.
+#
+#   AGENT_CHECK_TIER=0|1         0: static checks with agent-check's own pinned tools; nothing from the repo runs.
+#                                1: also builds, type checks, tests and the repo's own tools (the clone opted in)
+#   AGENT_CHECK_TIER1_LANGS=...  the modules whose tier-1 steps may run (default: all)
+#   AGENT_CHECK_LANGS=...        the modules to run (default: all)
+#   AGENT_CHECK_DEADLINE=N       epoch seconds to be done by; steps past it are skipped with a note
+#   AGENT_CHECK_ACTION=fmt       format the changed files instead of checking them (agent-check fmt)
+#
+# Not checked: vendored, generated, lock, binary and symlinked files, and paths starting with one of the clone's
+# own `git config agent-check.exclude "runs/ data/big.csv"`. Modules live in lang/; lib.sh says what one defines.
+set -uo pipefail
+
+lib=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=/dev/null # lib.sh, beside this file
+. "$lib/lib.sh"
+
+cd "$(git rev-parse --show-toplevel 2>/dev/null)" || exit 2
+top=$(pwd -P)
+base=${CHECK_BASE:-HEAD}
+tier=${AGENT_CHECK_TIER:-0}
+action=${AGENT_CHECK_ACTION:-check}
+deadline=${AGENT_CHECK_DEADLINE:-$(($(date +%s) + 120))}
+lang=check-default
+# For lib.sh and the modules
+export base tier top deadline
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+: >"$work/findings"
+
+# The candidates: changed since the base, and untracked
+mapfile -t candidates < <({
+  git diff --name-only "$base" -- 2>/dev/null || true
+  git ls-files --others --exclude-standard
+} | sort -u)
+
+# keep FILE: a file to check
+keep() {
+  local f=$1 g
+  [[ -f $f && ! -L $f ]] || return 1
+  case $f in
+    vendor/* | */vendor/* | node_modules/* | */node_modules/* | third_party/* | */third_party/*) return 1 ;;
+    *.min.js | *.min.css | *.lock | *.lockb | *-lock.json | *-lock.yaml | *.snap | *.map) return 1 ;;
+  esac
+  # Binary or empty
+  grep -Iq . "$f" 2>/dev/null || return 1
+  # Generated
+  head -n 5 "$f" | grep -qE '@generated|Code generated .*DO NOT EDIT' && return 1
+  for g in ${excludes:-}; do
+    [[ $f == "$g"* ]] && return 1
+  done
+  return 0
+}
+
+excludes=$(git config --get agent-check.exclude 2>/dev/null || true)
+attributed=$(printf '%s\n' "${candidates[@]}" | git check-attr --stdin linguist-generated linguist-vendored 2>/dev/null |
+  awk -F': ' '$3 == "set" || $3 == "true" { print $1 }' | sort -u)
+changed=()
+for f in "${candidates[@]}"; do
+  [[ -n $f ]] || continue
+  if [[ -n $attributed ]] && grep -qxF -- "$f" <<<"$attributed"; then continue; fi
+  if keep "$f"; then changed+=("$f"); fi
+done
+((${#changed[@]})) || exit 0
+
+# What the change adds: whole new files, and the added lines of the rest
+{
+  git diff --name-only --diff-filter=A "$base" -- 2>/dev/null || true
+  git ls-files --others --exclude-standard
+} | sort -u >"$work/new"
+git diff -U0 --no-color "$base" -- 2>/dev/null | awk '
+  /^\+\+\+ b\// { file = substr($0, 7); next }
+  /^\+\+\+ /    { file = ""; next }
+  /^@@/ && file { split($3, a, ","); start = substr(a[1], 2) + 0; n = (a[2] == "" ? 1 : a[2] + 0)
+                  for (i = 0; i < n; i++) print file ":" start + i }' >"$work/added"
+
+for mod in "$lib"/lang/*.sh; do
+  lang=$(basename "$mod" .sh)
+  if [[ ${AGENT_CHECK_LANGS:-all} != all && " ${AGENT_CHECK_LANGS:-} " != *" $lang "* ]]; then continue; fi
+  # shellcheck source=/dev/null
+  . "$mod"
+  files=()
+  for f in "${changed[@]}"; do
+    if "${lang}_wants" "$f"; then files+=("$f"); fi
+  done
+  ((${#files[@]})) || continue
+  if [[ $action == fmt ]]; then
+    if declare -F "${lang}_format" >/dev/null; then apply_format "${files[@]}"; fi
+    continue
+  fi
+  if (($(date +%s) >= deadline)); then
+    note "out of time, so not checked"
+    continue
+  fi
+  "${lang}_check" "${files[@]}"
+done
+
+[[ $action == fmt ]] && exit 0
+if [[ -s $work/findings ]]; then
+  sort -u "$work/findings"
+  exit 1
+fi
+exit 0
