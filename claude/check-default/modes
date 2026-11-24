@@ -1,0 +1,12 @@
+# The mode of each of agent-check's default checks. A line is a pattern, then a mode:
+#   block    sent back to the model, as a repo's own check-fast findings are
+#   notify   told to the person, once, and not sent to the model
+#   observe  only logged, to ~/.local/state/agent-check/findings.jsonl
+# A pattern is language/rule, a language, or *; the most specific line wins.
+#
+# A check starts at observe and moves up once `agent-check replay DIR` shows it's quiet on the repos' history
+# (the end-of-turn hooks plan, 2026-11-24). A language whose findings are all observed skips its tier-1 steps
+# (builds, type checks, tests): nobody would see what they found.
+common/gitleaks      block
+common/merge-marker  block
+*                    observe

@@ -1,0 +1,12 @@
+# Clones whose origin matches an include line, and no exclude line, get agent-check's tier-0 checks (static,
+# with agent-check's own pinned tools, so nothing from the repo runs) without opting in. A line is include or
+# exclude, then an extended regex over the origin as host/owner/repo. A clone that opted in
+# (git config agent-check.enabled true) gets tier 1 whatever this says, and `git config agent-check.enabled false`
+# turns a clone off.
+#
+# Dave, 2026-11-24: on for his own repos, except the work-adjacent ones.
+include ^github\.com/dvmrry/
+exclude ^github\.com/dvmrry/zscaler
+exclude ^github\.com/dvmrry/akamai-prolexic$
+exclude ^github\.com/dvmrry/infrawright-dev$
+exclude ^github\.com/dvmrry/zsimulator-dev$

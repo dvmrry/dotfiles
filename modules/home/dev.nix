@@ -37,21 +37,33 @@
     tokei
     watchexec
 
-    # Runs a repo's scripts/check-fast over an agent's uncommitted work: the
-    # Claude Code Stop hook (`agent-check hook`) and the report appended to
-    # dispatched workers' output (`agent-check run DIR`)
+    # Checks an agent's work when its turn ends: a repo's own scripts/check-fast
+    # and the default per-language checks in claude/check-default. The Claude
+    # Code hooks (`agent-check hook`, `prompt`, `snap`) and the report appended
+    # to dispatched workers' output (`agent-check run DIR`). The default checks'
+    # tools are pinned here, so tier 0 never runs a repo's own copies.
     (writeShellApplication {
       name = "agent-check";
       runtimeInputs = [
+        bash
         coreutils
+        diffutils
         findutils
         gawk
         git
         gnugrep
         gnused
         jq
+        # The default checks' tools
+        biome
+        bun
+        gitleaks
+        typescript
       ];
-      text = builtins.readFile ../../claude/agent-check.sh;
+      text = ''
+        export AGENT_CHECK_LIB=${../../claude/check-default}
+      ''
+      + builtins.readFile ../../claude/agent-check.sh;
     })
   ];
 
