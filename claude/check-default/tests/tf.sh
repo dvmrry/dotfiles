@@ -3,6 +3,7 @@
 set -u
 # shellcheck source=/dev/null # lib.sh, beside this file
 . "$(dirname "$0")/lib.sh"
+t_needs tofu tflint
 
 # Formatting: tofu fmt's canonical style needs no project config, and only what the change did is reported
 r=$(t_repo fmt)

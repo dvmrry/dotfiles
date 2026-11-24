@@ -4,6 +4,7 @@
 set -u
 # shellcheck source=/dev/null # lib.sh, beside this file
 . "$(dirname "$0")/lib.sh"
+t_needs swift swiftlint
 
 # t_same NAME WANT GOT: the same findings, so a tier that should add nothing does add nothing
 t_same() {

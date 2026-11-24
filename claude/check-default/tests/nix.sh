@@ -4,6 +4,7 @@
 set -u
 # shellcheck source=/dev/null # lib.sh, beside this file
 . "$(dirname "$0")/lib.sh"
+t_needs statix deadnix nixfmt
 
 # t_same NAME A B: two runs reported the same findings
 t_same() {
