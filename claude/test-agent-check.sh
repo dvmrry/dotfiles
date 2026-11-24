@@ -232,6 +232,9 @@ mtime=$(stat -c %Y "$marker")
 sleep 1
 jq -n --arg s $sess --arg cwd "$sr" '{session_id: $s, prompt_id: "prompt-33333333", tool_name: "Bash", tool_input: {command: "ls"}, cwd: $cwd}' | "$ac" snap
 expect "a second touch in the same prompt doesn't snapshot again" "^$mtime\$" "$(stat -c %Y "$marker")"
+# A command has no file path: the repo is the directory it runs in (an empty field must not shift the others)
+jq -n --arg s "$sess" --arg cwd "$sr" '{session_id: $s, prompt_id: "prompt-bash0001", tool_name: "Bash", tool_input: {command: "ls"}, cwd: $cwd}' | "$ac" snap
+expect "a command snapshots the repo it runs in" "^$(cd "$sr" && pwd -P)	[0-9a-f]{40}\$" "$(cat "$st/snaps/$sess/prompt-bash0001/"* 2>/dev/null)"
 echo BAD >"$sr/x.txt"
 out=$(hookj "{cwd: \"$work\", session_id: \"$sess\", prompt_id: \"prompt-33333333\"}")
 expect "a stop checks the repos its prompt touched, wherever the session is" '"decision": "block".*in snaprepo.*x\.txt:1: no-bad' "$out"
