@@ -272,6 +272,12 @@ git -C "$ts" add d.ts && tcommit "$ts" -m "d"
 expect "replay sums up a rule over history" 'ts/biome-noUnusedVariables +observe +1 +1 +d\.ts:2' "$("$ac" replay "$ts" 5)"
 expect "and cleans up its worktrees" '^1$' "$(git -C "$ts" worktree list | wc -l | tr -d ' ')"
 
+# Each module's own tests (claude/check-default/tests/NAME.sh)
+if ! bash "$here/check-default/tests/run.sh"; then
+  echo "FAIL the module tests (above)"
+  fails=$((fails + 1))
+fi
+
 if ((fails > 0)); then
   echo "$fails failed"
   exit 1
