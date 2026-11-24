@@ -37,6 +37,7 @@ Dave's macOS machines, managed via nix-darwin + Home Manager (flake-based):
 - `scripts/` — wrapper scripts, on PATH.
 - `claude/skills/cw-*` — local skill dirs (used by cm01).
 - `claude/agent-check.sh` — the end-of-turn checks (Claude Code Stop, UserPromptSubmit and PreToolUse hooks); its header says what runs where. `claude/check-default/` holds the default per-language checks (`lang/*.sh`, after `lang/ts.sh`), their modes and the tier-0 origin list. Tests: `bash claude/test-agent-check.sh`.
+- `claude/guardrail.sh` — the baseline guardrail: a PreToolUse hook for every Claude Code session on cm02 (asks before force pushes, credential reads, destructive cluster/machine commands, merges and deploys; refuses edits to Claude Code's own settings). Installed by `modules/darwin/claude-guardrail.nix` into Claude Code's root-owned managed settings, so sessions can't change it. Tests: `bash claude/test-guardrail.sh`.
 - `secrets/*.yaml` — sops-encrypted (age key).
 
 ## Gotchas (don't relearn these)
