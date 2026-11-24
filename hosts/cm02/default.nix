@@ -3,6 +3,7 @@
 { ... }: {
   imports = [
     ../../modules/darwin/bpf-access.nix
+    ../../modules/darwin/claude-guardrail.nix
     ../../modules/darwin/pin-hostname.nix
     ../../modules/darwin/remote-access.nix
     ../../modules/shared/net.nix
