@@ -268,13 +268,25 @@ run_contract() {
 }
 
 # run_defaults ROOT BASE TIER LANGS [TIER1_LANGS]: the default checks; output in $tmp/d.out and
-# $tmp/d.err, exit status in drc
+# $tmp/d.err, exit status in drc. Tier 1 runs inside the repo's direnv environment, as check-fast does, so the
+# repo's own toolchains (its Go, its Rust) come first; tier 0 never loads it, since an .envrc is the repo's code.
 run_defaults() {
-  local t1=${5:-$(tier1_langs)}
+  local root=$1 t1=${5:-$(tier1_langs)} try
   local -a vars=("CHECK_BASE=$2" "AGENT_CHECK_TIER=$3" "AGENT_CHECK_LANGS=$4" "AGENT_CHECK_TIER1_LANGS=$t1"
-    "AGENT_CHECK_DEADLINE=$deadline")
-  drc=0
-  (cd "$1" && env "${vars[@]}" bash "$lib_dir/check-default") >"$tmp/d.out" 2>"$tmp/d.err" || drc=$?
+    "AGENT_CHECK_DEADLINE=$deadline") wrap=()
+  if [[ $3 == 1 && -f $root/.envrc ]] && command -v direnv >/dev/null; then
+    wrap=(direnv exec "$root")
+  fi
+  for try in 1 2; do
+    drc=0
+    (cd "$root" && "${wrap[@]}" env "${vars[@]}" bash "$lib_dir/check-default") >"$tmp/d.out" 2>"$tmp/d.err" || drc=$?
+    # A new worktree's .envrc starts out blocked; the clone opted in (tier 1), so allow it and run again
+    if ((try == 1 && ${#wrap[@]} > 0)) && grep -q 'is blocked' "$tmp/d.err" && direnv allow "$root" 2>/dev/null; then
+      allowed="allowed $root/.envrc for direnv (the repo opted in)"
+      continue
+    fi
+    break
+  done
 }
 
 # run_checks ROOT BASE TIER: what this clone gets (see the top). Leaves the findings sent to the model in

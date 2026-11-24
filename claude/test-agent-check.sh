@@ -272,6 +272,25 @@ git -C "$ts" add d.ts && tcommit "$ts" -m "d"
 expect "replay sums up a rule over history" 'ts/biome-noUnusedVariables +observe +1 +1 +d\.ts:2' "$("$ac" replay "$ts" 5)"
 expect "and cleans up its worktrees" '^1$' "$(git -C "$ts" worktree list | wc -l | tr -d ' ')"
 
+# Tier 1 default checks run in the repo's direnv environment (here a devShell whose tsc says where it came from)
+if command -v direnv >/dev/null; then
+  dv=$work/devshell
+  git init -q "$dv"
+  git -C "$dv" config agent-check.enabled true
+  mkdir "$dv/bin"
+  printf '#!/bin/sh\necho "a.ts(1,1): error TS9999: from the devShell"\nexit 2\n' >"$dv/bin/tsc"
+  chmod +x "$dv/bin/tsc"
+  printf 'PATH_add bin\n' >"$dv/.envrc"
+  printf '{ "compilerOptions": { "noEmit": true } }\n' >"$dv/tsconfig.json"
+  printf 'export const a = 1;\n' >"$dv/a.ts"
+  printf 'ts block\n* observe\n' >"$work/modes-ts"
+  out=$(AGENT_CHECK_MODES=$work/modes-ts hook "$dv")
+  expect "tier 1 default checks use the repo's direnv tools" 'a\.ts:1: ts/tsc-TS9999: from the devShell' "$out"
+  expect "and a blocked .envrc in an opted-in clone is allowed" 'allowed .*/devshell/\.envrc for direnv' "$out"
+  out=$(AGENT_CHECK_MODES=$work/modes-ts hookj "{cwd: \"$dv\", session_id: \"sess-tier0dv1\", background_tasks: [{status: \"running\"}]}")
+  absent "tier 0 never loads the .envrc" 'TS9999' "$out"
+fi
+
 # Each module's own tests (claude/check-default/tests/NAME.sh)
 if ! bash "$here/check-default/tests/run.sh"; then
   echo "FAIL the module tests (above)"

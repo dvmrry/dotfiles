@@ -54,11 +54,27 @@
         gnugrep
         gnused
         jq
-        # The default checks' tools
-        biome
-        bun
-        gitleaks
-        typescript
+        # The default checks' tools (claude/check-default/lang/*.sh). Tier 1 runs
+        # inside a repo's direnv environment, so its own toolchains come first.
+        actionlint # yaml
+        biome # ts
+        bun # ts
+        deadnix # nix
+        gitleaks # common
+        go # go
+        gofumpt # go
+        golangci-lint # go
+        nixfmt # nix
+        opentofu # tf
+        ruff # py
+        rustfmt # rust
+        shellcheck # sh
+        shfmt # sh
+        statix # nix
+        swiftlint # swift
+        tflint # tf
+        typescript # ts
+        yamllint # yaml
       ];
       text = ''
         export AGENT_CHECK_LIB=${../../claude/check-default}
