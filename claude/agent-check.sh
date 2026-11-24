@@ -613,10 +613,13 @@ snapshot() {
 # command runs in), records the repo and a snapshot of its tree. Never blocks: it prints nothing.
 snap() {
   local session prompt_id path cwd dir root marker tree
+  local -a f=()
   [[ ${AGENT_CHECK:-} != off ]] || return 0
-  # It runs before every edit and command, so: one jq, and the marker before anything slower
-  IFS=$'\t' read -r session prompt_id path cwd < <(jq -r '[.session_id // "", .prompt_id // "",
-    (.tool_input.file_path // .tool_input.notebook_path // ""), .cwd // ""] | @tsv')
+  # It runs before every edit and command, so: one jq, and the marker before anything slower. One field per line:
+  # `read` with a tab IFS would merge an empty field (a command has no file path) into the next one.
+  mapfile -t f < <(jq -r '.session_id // "", .prompt_id // "",
+    (.tool_input.file_path // .tool_input.notebook_path // ""), .cwd // ""')
+  session=${f[0]:-} prompt_id=${f[1]:-} path=${f[2]:-} cwd=${f[3]:-}
   safe_id "$session" && safe_id "$prompt_id" || return 0
   if [[ -n $path ]]; then
     dir=$(dirname "$path")
