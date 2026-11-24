@@ -3,6 +3,7 @@
 set -u
 # shellcheck source=/dev/null # lib.sh, beside this file
 . "$(dirname "$0")/lib.sh"
+t_needs rustfmt cargo
 
 # cargo_manifest [EDITION]: a Cargo.toml for a test project
 cargo_manifest() {

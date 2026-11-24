@@ -4,6 +4,7 @@
 set -u
 # shellcheck source=/dev/null # lib.sh, beside this file
 . "$(dirname "$0")/lib.sh"
+t_needs biome
 
 # Lint: a finding on an added line counts; one already there doesn't
 r=$(t_repo lint)

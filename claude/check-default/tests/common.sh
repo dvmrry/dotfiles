@@ -3,6 +3,7 @@
 set -u
 # shellcheck source=/dev/null # lib.sh, beside this file
 . "$(dirname "$0")/lib.sh"
+t_needs gitleaks jq
 
 r=$(t_repo common)
 printf '{ "a": 1 }\n' >"$r/ok.json"

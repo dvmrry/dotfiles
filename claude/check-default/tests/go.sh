@@ -4,6 +4,7 @@
 set -u
 # shellcheck source=/dev/null # lib.sh, beside this file
 . "$(dirname "$0")/lib.sh"
+t_needs gofmt gofumpt golangci-lint go
 
 # Formatting: gofmt, and only what the change did
 r=$(t_repo fmt)

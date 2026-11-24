@@ -9,6 +9,17 @@ trap 'rm -rf "$t_work"' EXIT
 export XDG_STATE_HOME=$t_work/state XDG_CONFIG_HOME=$t_work/config
 fails=0
 
+# t_needs TOOL...: skip this module's tests, saying so, when a tool they use isn't on PATH. tests/run.sh puts the
+# tools agent-check pins on PATH first, so a skip means agent-check isn't installed (or built) with them.
+t_needs() {
+  local t missing=()
+  for t in "$@"; do command -v "$t" >/dev/null || missing+=("$t"); done
+  if ((${#missing[@]})); then
+    echo "skipped: ${missing[*]} not on PATH"
+    exit 0
+  fi
+}
+
 # t_repo NAME: a new repo in the scratch directory, whose origin tier0 lists; prints its path
 t_repo() {
   local d=$t_work/$1
