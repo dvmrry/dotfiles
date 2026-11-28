@@ -123,7 +123,7 @@
   virtualisation.oci-containers = {
     backend = "podman";
     containers.halogen = {
-      image = "ghcr.io/peonist-ai/halogen-flash-server:0.20.7";
+      image = "ghcr.io/peonist-ai/halogen-flash-server:0.21.0";
       ports = [ "8731:8731" ];
       volumes = [ "/var/lib/halogen/models:/models" ];
       # No HALOGEN_TEMPERATURE on purpose: requests without a temperature
@@ -148,6 +148,11 @@
         # (halo-strix f64a8cf, six interleaved ~6K-token conversations): 24 -> every follow-up re-read its whole
         # prompt (3.2 s); 48 -> 99% cached, 0.2 s, no evictions, ~4 GB more memory.
         HALOGEN_CACHE_ENTRIES = "48";
+        # The web_search server tool of /v1/messages (Claude Code's WebSearch) through the cluster's SearXNG (since
+        # 0.21.0). Queries go only to this URL, and the server fetches no pages: the model sees titles, URLs and
+        # snippets. Requests without that tool are unchanged. Tested 2026-11-28: three searches and a sourced answer
+        # in 16 s over the API, and a Claude Code session's WebSearch (and its WebFetch, which runs on the client).
+        HALOGEN_WEB_SEARCH_URL = "http://172.18.0.205:8080";
       };
       extraOptions = [
         "--device=/dev/kfd"
